@@ -1,0 +1,4 @@
+<div [@ping]="pinged?'end':'start'" (@ping.done)="onAnimationEvent($event)">
+  <ngx-avatar [src]="owner?'/assets/images/crown.png':''" textSizeRatio="3" [name]="name" size="30" style="margin-right:2px" [matTooltip]="name"></ngx-avatar>
+</div>
+

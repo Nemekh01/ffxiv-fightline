@@ -1,0 +1,7 @@
+.zones-list mat-pseudo-checkbox {
+    display: none;
+}
+
+mat-sidenav-container {
+    height: 100%;
+}

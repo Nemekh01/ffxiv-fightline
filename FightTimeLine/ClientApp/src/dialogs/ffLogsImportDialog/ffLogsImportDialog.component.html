@@ -1,0 +1,30 @@
+<h1 mat-dialog-title>Import</h1>
+<div mat-dialog-content [style.height]="dialogContentHeight">
+  <form>
+    <div>
+      <mat-form-field style="width: 80%;">
+        <input matInput [formControl]="reportSearchControl" title="" placeholder="https://www.fflogs.com/reports/..." fflogs [matcher]="'reports\/([a-zA-Z0-9]{16})\/?(?:(?:#.*fight=([^&]*))|$)'" (onMatch)="onMatch($event)" />
+      </mat-form-field>
+      <mat-slide-toggle [disableRipple]="false" labelPosition="after" [ngStyle]="{'visibility': code ? '' : 'hidden', 'margin-left':'5px'}" [checked]="true" #showKills color="primary">Kills only</mat-slide-toggle>
+    </div>
+    <div [style.display]="searchAreaDisplay">
+      <hr style="margin-top: 5px; margin-bottom: 5px;" />
+      <div class="importDialogList">
+        <mat-nav-list #fights>
+          <div *ngFor="let zone of container.zones | keyvalue">
+            <h3 mat-subheader>{{zone.key}}</h3>
+            <mat-list-item *ngFor="let fight of zone.value | killsonly:showKills && showKills.checked" (click)="onClick(fight.id)">
+              {{fight.name}} <span class="example-spacer"></span> {{fight.kill ? 'Kill' : 'Wipe'}} - {{formatTime(fight.start_time, fight.end_time)}}
+            </mat-list-item>
+          </div>
+        </mat-nav-list>
+      </div>
+    </div>
+  </form>
+
+
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <!-- <button mat-button (click)="onYesClick()" [disabled]="fights.selectedOptions.selected.length==0" cdkFocusInitial>Ok</button> -->
+</div>

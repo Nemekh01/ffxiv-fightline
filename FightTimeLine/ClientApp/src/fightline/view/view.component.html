@@ -1,0 +1,23 @@
+<context-menu #view>
+  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+    <mat-checkbox (change)="updateView()" [(ngModel)]="showDowntimesInPartyArea">Downtimes in party area</mat-checkbox>
+  </ng-template>
+  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+    <mat-checkbox (change)="updateView()" [(ngModel)]="buffmap">Buffs Heatmap</mat-checkbox>
+  </ng-template>
+  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+    <mat-checkbox (change)="updateView()" [(ngModel)]="ogcdAsPoints">OGCD attacks as points</mat-checkbox>
+  </ng-template>
+  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+    <mat-checkbox (change)="updateView()" [(ngModel)]="verticalBossAttacks">Vertical Boss Attacks</mat-checkbox>
+  </ng-template>
+  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+    <mat-checkbox (change)="updateView()" [(ngModel)]="compactView">Compact View</mat-checkbox>
+  </ng-template>
+  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+    <mat-checkbox (change)="updateView()" [(ngModel)]="highlightLoaded">Highlight Loaded</mat-checkbox>
+  </ng-template>
+  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+    <mat-checkbox (change)="updateView()" [(ngModel)]="abilityAvailablity">Abilities Availability Map</mat-checkbox>
+  </ng-template>
+</context-menu>

@@ -1,0 +1,12 @@
+<div class="area">
+  <mat-accordion [displayMode]="'flat'" [multi]="true">
+    <mat-expansion-panel [expanded]="opened" (opened)="opened = true" (closed)="opened = false">
+      <mat-expansion-panel-header collapsedHeight="30px" expandedHeight="30px">
+        <mat-panel-title>
+          {{header}}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <ng-content></ng-content>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

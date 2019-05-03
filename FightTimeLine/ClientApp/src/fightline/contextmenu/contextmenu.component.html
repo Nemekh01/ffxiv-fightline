@@ -1,0 +1,80 @@
+<context-menu *ngFor="let action of contextMenuActions" [menuClass]="'downtime-menu '+(action.item && action.item.id)">
+  <ng-template contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler().remove()">
+    <i class="material-icons" style="margin-right: 8px; color: red; font-weight: bold; font-size: 20px">
+      not_interested
+    </i>Remove
+  </ng-template>
+  <ng-template contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler().color('green')">
+    <span style="background-color: green;margin-right: 4px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Green
+  </ng-template>
+  <ng-template contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler().color('pink')">
+    <span style="background-color: pink;margin-right: 4px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Pink
+  </ng-template>
+  <ng-template contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler().color('yellow')">
+    <span style="background-color: yellow;margin-right: 4px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Yellow
+  </ng-template>
+  <ng-template contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler().color('orange')">
+    <span style="background-color: orange;margin-right: 4px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Orange
+  </ng-template>
+  <ng-template contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler().color('red')">
+    <span style="background-color: red;margin-right: 4px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Red
+  </ng-template>
+  <ng-template contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler().color('aqua')">
+    <span style="background-color: aqua; margin-right: 4px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>Aqua
+  </ng-template>
+</context-menu>
+
+<context-menu #contextMenu>
+  <ng-template *ngFor="let action of contextMenuActions" contextMenuItem let-item [visible]="true" [enabled]="true" (execute)="action.handler()" [subMenu]="selectSubmenu(action, filterMenu, petsMenu, hiddenMenu)">
+    <span *ngIf="!action.isCheckBox"><img [src]="action.icon" alt="{{action.text}}" *ngIf="!!action.icon" class="menu-icon">{{action.text}}</span>
+    <mat-checkbox *ngIf="action.isCheckBox" [(ngModel)]="action.checked">{{action.text}}</mat-checkbox>
+  </ng-template>
+  <context-menu #petsMenu>
+    <ng-template *ngFor="let pet of pets" contextMenuItem [visible]="true" [enabled]="true" [passive]="false" (execute)="pet.action()">
+      <mat-checkbox [(ngModel)]="pet.selected"><img [src]="pet.icon" alt="{{pet.name}}" *ngIf="!!pet.icon" class="menu-icon">{{pet.name}}</mat-checkbox>
+    </ng-template>
+  </context-menu>
+  <context-menu #hiddenMenu>
+    <ng-template *ngFor="let ab of hidden" contextMenuItem [visible]="true" [enabled]="true" [passive]="false" (execute)="ab.action()">
+      <img [src]="ab.icon" alt="{{ab.name}}" *ngIf="!!ab.icon" class="menu-icon">{{ab.name}}
+    </ng-template>
+  </context-menu>
+  <context-menu #filterMenu>
+    <ng-template contextMenuItem [visible]="true" [enabled]="false" passive="true">
+      Ability types:
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [(ngModel)]="jobFilter.abilities.selfDefence" [indeterminate]="jobFilter.abilities.selfDefence === undefined">Self Defense</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [(ngModel)]="jobFilter.abilities.partyDefence" [indeterminate]="jobFilter.abilities.partyDefence === undefined">Party Defense</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.selfDamageBuff == undefined" [(ngModel)]="jobFilter.abilities.selfDamageBuff">Self Damage Buff</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.partyDamageBuff == undefined" [(ngModel)]="jobFilter.abilities.partyDamageBuff">Party Damage Buff</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.damage == undefined" [(ngModel)]="jobFilter.abilities.damage">OGCD Damage</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.healing == undefined" [(ngModel)]="jobFilter.abilities.healing">Healing</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.healingBuff == undefined" [(ngModel)]="jobFilter.abilities.healingBuff">Healing Buff</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem let-item [visible]="" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.utility == undefined" [(ngModel)]="jobFilter.abilities.utility">Utility</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.pet == undefined" [(ngModel)]="jobFilter.abilities.pet">Pet</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
+      <mat-checkbox (change)="updateFilter()" [indeterminate]="jobFilter.abilities.unused == undefined" [(ngModel)]="jobFilter.abilities.unused">Show Unused</mat-checkbox>
+    </ng-template>
+    <ng-template contextMenuItem [visible]="true" [enabled]="true" (execute)="resetJobFilter()">
+      Reset
+    </ng-template>
+  </context-menu>
+</context-menu>

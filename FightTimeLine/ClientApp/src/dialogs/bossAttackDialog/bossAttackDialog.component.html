@@ -1,0 +1,55 @@
+
+<div mat-dialog-content style="height: 420px;">
+  <mat-tab-group [selectedIndex]="1" [dynamicHeight]="true">
+    <mat-tab [disabled]="true">
+      <ng-template mat-tab-label>
+        <h1 mat-dialog-title style="color: black;margin: 0 0 0">Boss Attack</h1>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="Main">
+      <form [formGroup]="editForm">
+        <div>
+          <mat-form-field>
+            <input matInput formControlName="bossAttackName" placeholder="Attack name" [ngClass]="{ 'is-invalid': submitted && f.bossAttackName.errors}">
+            <mat-error *ngIf="submitted && f.bossAttackName.errors && f.bossAttackName.errors.required">You must enter a value</mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <mat-select formControlName="damageType" placeholder="Damage type" [ngClass]="{ 'is-invalid': submitted && f.damageType.errors}">
+              <mat-option [value]="0">None</mat-option>
+              <mat-option [value]="1">Physical</mat-option>
+              <mat-option [value]="2">Magical</mat-option>
+            </mat-select>
+            <mat-error *ngIf="submitted && f.damageType.errors && f.damageType.errors.required">You must select a value</mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <input matInput wheelOn formControlName="bossAttackTime" placeholder="Time" [ngClass]="{ 'is-invalid': submitted && f.bossAttackTime.errors}">
+            <mat-error *ngIf="submitted && f.bossAttackTime.errors && f.bossAttackTime.errors.required">You must enter a value</mat-error>
+            <mat-error *ngIf="submitted && f.bossAttackTime.errors && f.bossAttackTime.errors.time">You must enter a value in format mm:ss</mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+          <div>
+            <mat-checkbox formControlName="tankBuster" class="margin-right:10px">Tank Buster</mat-checkbox>
+          </div>
+          <div>
+            <mat-checkbox formControlName="aoe" class="margin-right:10px">AoE</mat-checkbox>
+          </div>
+          <div>
+            <mat-checkbox formControlName="share" class="margin-right:10px">Share Damage</mat-checkbox>
+          </div>
+        </div>
+      </form>
+    </mat-tab>
+    <mat-tab label="FFLogs Sync"> New features here</mat-tab>
+
+  </mat-tab-group>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button (click)="onSaveClick()" cdkFocusInitial>Save</button>
+  <button mat-button (click)="onSaveAllClick()" *ngIf="!newAttack">Save and update with same name</button>
+</div>

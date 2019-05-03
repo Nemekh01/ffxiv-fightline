@@ -1,0 +1,30 @@
+<h1 mat-dialog-title>Load</h1>
+<div mat-dialog-content style="height: 360px;">
+    <form *ngIf="!loading && container.fights && container.fights.length>0">
+        <div class="importDialogList">
+            <mat-selection-list  #fights name="lst"  [(ngModel)]="selectedRowsChecked">
+                <mat-list-option *ngFor="let fight of container.fights" [value]="fight.id">
+                    {{fight.name}}
+                </mat-list-option>
+            </mat-selection-list>
+        </div>
+    </form>
+    <div *ngIf="!loading && (!container.fights || container.fights.length==0)">
+        No Data
+    </div>
+    <div style="width: 100%; align-content: center" *ngIf="loading">
+        <mat-spinner ></mat-spinner>
+    </div>
+    
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()"  cdkFocusInitial>No Thanks</button>
+  <button mat-button (click)="onYesClick()" [disabled]="selectedRowsChecked.length!=1">Load</button>
+  <span class="example-spacer"></span>
+  <button mat-raised-button (click)="onRemoveClick()" color="warn" *ngIf="selectedRowsChecked.length>0">
+    <span *ngIf="confirmMode">Are you sure?</span>
+    <span *ngIf="!confirmMode">Remove {{getItemsCountString()}}</span>
+    <img *ngIf="removing" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+  </button>
+  <button mat-raised-button (click)="onCancelClick()" *ngIf="confirmMode">No</button>
+</div>

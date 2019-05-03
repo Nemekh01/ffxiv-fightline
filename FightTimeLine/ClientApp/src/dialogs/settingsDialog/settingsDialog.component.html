@@ -1,0 +1,80 @@
+
+<div mat-dialog-content style="min-height: 94%;">
+  <mat-tab-group [selectedIndex]="1" [dynamicHeight]="true">
+    <mat-tab [disabled]="true">
+      <ng-template mat-tab-label>
+        <h1 mat-dialog-title style="color: black;margin: 0 0 0">Settings</h1>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="Main">
+      <form [formGroup]="mainForm" class="settings-tab">
+        <div class="settings-container">
+          <div class="settings-title">
+            Default filters
+          </div>
+          <div class="settings-body">
+            <settingsFilter #filter></settingsFilter>
+          </div>
+        </div>
+        <div class="settings-container">
+          <div class="settings-title">
+            Default view
+          </div>
+          <div class="settings-body">
+            <settingsView #view></settingsView>
+          </div>
+        </div>
+      </form>
+    </mat-tab>
+    <mat-tab label="FFLogs">
+      <form [formGroup]="fflogsForm" class="settings-tab">
+        <div  class="settings-container">
+          <div class="settings-title">
+            Source for Boss attacks:
+          </div>
+          <div class="settings-body">
+            <mat-radio-group class="example-radio-group" formControlName="bossAttacksSource">
+              <mat-radio-button class="example-radio-button" value="cast">Cast</mat-radio-button>
+              <mat-radio-button class="example-radio-button" value="damage">Damage</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="settings-title">
+            Sort order after import
+          </div>
+          <div class="settings-body">
+            <div class="example-list" (cdkDropListDropped)="drop($event)">
+              <div class="example-box" *ngFor="let movie of container.classes">
+                <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                <img [src]="movie.icon" style="margin-right: 10px" /> {{movie.name}}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </mat-tab>
+    <mat-tab label="Teamwork">
+      <form [formGroup]="teamworkForm" class="settings-tab">
+        <div  class="settings-container">
+          <div class="settings-title">
+            Display name:
+          </div>
+          <div class="settings-body">
+            <mat-form-field>
+              <input matInput formControlName="displayName" placeholder="Your preffered name here"/>
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+    </mat-tab>
+    <mat-tab label="Tableview">
+      <form [formGroup]="tableViewForm" class="settings-tab">
+      </form>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">No Thanks</button>
+  <button mat-button (click)="onYesClick()" cdkFocusInitial>Save</button>
+</div>

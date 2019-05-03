@@ -1,0 +1,32 @@
+<h1 mat-dialog-title>Boss Templates</h1>
+<div mat-dialog-content style="height: 100%;">
+    <mat-sidenav-container class="example-container">
+        <mat-sidenav mode="side" opened>
+            <mat-form-field>
+                <input matInput placeholder="Search" [formControl]="searchControl"/>
+            </mat-form-field>
+            <div class="zones-list" style="min-height: calc(100% - 64px)">
+                <mat-selection-list role="list">
+                    <mat-list-option role="listitem" *ngFor="let zone of zones">
+                        {{zone.name}}
+                    </mat-list-option>
+                </mat-selection-list>
+            </div>
+        </mat-sidenav>
+        <mat-sidenav-content>
+            <mat-toolbar>
+
+            </mat-toolbar>
+            <div style="min-height: calc(100% - 64px)">
+                <mat-selection-list role="list">
+                    <mat-list-option role="listitem" [checkboxPosition]="'before'" *ngFor="let template of templates">
+                        {{template.name}}
+                    </mat-list-option>
+                </mat-selection-list>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>
+<div mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Close</button>
+</div>

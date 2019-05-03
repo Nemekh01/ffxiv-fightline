@@ -1,0 +1,21 @@
+.abilityName {
+  font-size: 20px;
+  font-weight: bold
+}
+
+.jobIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.area {
+  margin-top: 3px;
+}
+
+.similarLink {
+  cursor: pointer;
+}
+
+.defenseLink {
+  cursor: pointer;
+}

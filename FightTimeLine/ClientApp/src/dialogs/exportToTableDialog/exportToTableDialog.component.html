@@ -1,0 +1,32 @@
+<h1 mat-dialog-title>Export to <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAACmAAAApgBNtNH3wAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUYSURBVFiF7ZhbTFRHGMd/c5ZdlqXcV64iglBTVCioVImXVk0qWE21Vkm1qSZNbTV9sTa1WpMmtok2tiYmpj6YWNLa8qBG6wUjadraeKs2kDQUATWKwO7KRVhYYNndM30AZNmby8U3/8l5mG+++c9vZmfmzFl4rsDSTICHAZgMhAK28ZqJMbSZDOx6JUmsLskiYUaMEBEKOFV45IDGHinLamm9ZpKngO+AumcFNDM7ljPfLFQylghJWJsM6NpjFFTYBduvqv/de8ybQP1EAYkYA2eOLVFWrnKoiJ7g6IckDYJzIYKNFepP1n7eHS+QsShD1J/IJ9pgCTAjQagzQVB8A9PVhzIHaPWXpwTwiF8/XTSee3H8MABRFklpgUgCvgiU52+GNK9OEZbfsolTbOOHAWiPE8yqkNXNNmYGygvxFYwJ5/zZ2cQprQFgQqA5TuGKDVr6pFQEJOiFKDBASocK9uHUjnhBXoWsabaRM5bB5J9aoUi5EN/Pq8ibbykyP1E0AJs8BqUHtuUlClPVGkXKRciONUJOiaSGwMvDv5Incal7t0bKxd4w6jLkzvmKCmwMwmrLp3MV17hggKjPN2hc8s9QKY9ppSwWw0CLkTvnKSrw8ljNg5EnedE7SwdDGQps00LWQPnvWIV919XNQNWzBBqxy3IzRXnlUd1y4R6VYP/DxbzDTlNVC8l+fFYCH42h/w7gCnB4KDBil+VliULheRAIKNcKtaqFLQGM90zfdWXuaGnCNTZCb35Vcu3iZZ9AuqQ4EeGr4e+VqgQuBDK3On02DSirM4KcSUkjpsB9DUVEGrzmB4BOq+wCXKPuMQjpIo0ACb6A/L7XJuas9i1Fo8DA+eUFZO20SZ99R0eKCCbmMucl2dcO0DRUdl9D/c2tsguI9Gy0NF8Rh0641gG/+DNOCW0i0OWhxWGkX9V5xTtb2iTgHCqPcHgpTZyvLtUVu68kk2rggDWXE9tvmRrudgfa9uv8wSSkJqzXbziv9QRSUHGVLTebG8xJwzE31TyQP1bdVZ8s3kqHkR2dhdSp0az4OCMJ/F6wzg7W+Xr+mr9+sxcMQKruHuYG8+mRkCNVfvySKqQUlPVm8mXXHKxSC0BzWjpFJYmlwGjOm7kL3lhy5JamxGdldPOvAPvdY54L1V7bIF+3F+WnXnRORbr9ohJB2KxEka7per/+3+5GoPIpMJ8VrnitzDRrv+gfHJS7DEovtWV779h7bHvd415v4fYuttbdaPfZg12GoF1bILYeyj06JdPwENgCuPcWBnyYlvlC09ZDufuyNyaJaF2nT6800xGsLZa3PeM+t4Ver7nw3g8LippCY3yaAeiEi5QOC501rfRanVJK0EeEiMgZ8Zii4nEMjjXCEUZj7TrudE170naqtpbKg5vK+3psxUEBAUpihsG07MCi+A6h95MSvLRSwXW3mJstBcSEtGM6/sHjxw/qjIAaLBCAMa8wsjFnx/zQNhE2bighIbYhm+ulZxy1ldWpgMVn3lN8jAnp4bdXfT07zhQWOy6gybZWTu/+55H5Qe9soNFfXjAfioperzm75pPMYuecLHp8fxf4VYToh2v1nDx472R/v2vt0/JH8ymdk5wRdqpo05RpZKdg0Xi9YYZNhSTR0YVa08S57+9XW0z2tcDtYDoZy58NycCetMzw1XkLouIT0w1ChIcO1PTYMT/sk5WXO8z3a7t/Br4FTKMxHwuQpwwM3GccQBvQOwGez+VX/wOepdVLsKDM4QAAAABJRU5ErkJggg==">oogle Sheets</h1>
+<div mat-dialog-content style="height: 360px;">
+  <button mat-raised-button [color]="loggedIn?'primary':'warn'" (click)="signinWithGoogle()">
+    {{loggedIn ? 'Signed in with Google' : 'Sign in with Google'}}
+  </button>
+  <div style="margin-top: 15px">
+    <mat-form-field style="width: 90%">
+      <mat-select placeholder="Export template" name="exportTemplatesList" [formControl]="exportTemplatesControl">
+        <mat-option *ngFor="let template of templates" [value]="template.name">
+          {{template.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <button mat-raised-button [disabled]="!loggedIn || !this.exportTemplatesControl.value" (click)="export()">Export</button>
+  </div>
+  <div style="margin-top: 15px" *ngIf="!!url">
+    <mat-form-field style="width: 100%">
+      <input name="sheetUrl" readonly="readonly" matInput placeholder="URL" #inputTarget [(value)]="url" />
+      <button matSuffix mat-button class="btn btn-default" style="width: 60px;" type="button" (cbOnSuccess)="onCopied()" [ngxClipboard]="inputTarget">
+        <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+          <path fill="#000000" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+        </svg>
+      </button>
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">No Thanks</button>
+    <button mat-button (click)="onYesClick()"  cdkFocusInitial>Ok</button>
+</div>
