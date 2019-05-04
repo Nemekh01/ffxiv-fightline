@@ -118,6 +118,14 @@ export class ChangeNotes {
           "New abilities for healers",
           "Sidepanel implementation. Can show additional info about selection in side panel area with different actions. If you have any ideas, contact me in <a href='https://discord.gg/xRppKj4' target='_blank'>Discord</a>"
         ]
+      },
+      {
+        revision: 20,
+        date: "5/4/2019",
+        items: [
+          "Internal improvements.",
+          "New boss attacks filters by damage type."
+        ]
       }
     ].sort((a, b) => b.revision - a.revision);
   }
