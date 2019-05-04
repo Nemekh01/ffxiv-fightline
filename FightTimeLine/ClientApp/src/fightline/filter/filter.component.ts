@@ -26,6 +26,9 @@ export class FilterComponent {
   isAoe = true;
   isShare = true;
   isOther = true;
+  isMagical = true;
+  isPhysical = true;
+  isUnaspected = true;
 
 
   @Output() public changed: EventEmitter<IFilter> = new EventEmitter();
@@ -45,6 +48,9 @@ export class FilterComponent {
     this.isAoe = filter.attacks.isAoe;
     this.isShare = filter.attacks.isShareDamage;
     this.isOther = filter.attacks.isOther;
+    this.isMagical = filter.attacks.isMagical;
+    this.isPhysical = filter.attacks.isPhysical;
+    this.isUnaspected = filter.attacks.isUnaspected;
   }
 
 
@@ -83,6 +89,9 @@ export class FilterComponent {
         isAoe: this.isAoe,
         isShareDamage: this.isShare,
         isOther: this.isOther,
+        isPhysical: this.isPhysical,
+        isMagical: this.isMagical,
+        isUnaspected: this.isUnaspected,
         keywords: []
       }
     });

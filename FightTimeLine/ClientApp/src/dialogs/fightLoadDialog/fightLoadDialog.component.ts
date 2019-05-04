@@ -1,14 +1,11 @@
 import { Component, Inject, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSelectionListChange, MatSelectionList } from "@angular/material";
-import { Observable } from "rxjs/Observable";
-import { catchError, map, tap, startWith, switchMap, debounceTime, distinctUntilChanged, takeWhile, first } from "rxjs/operators";
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSelectionList } from "@angular/material";
 import { FightsService } from "../../services/FightService"
+import { ScreenNotificationsService } from "../../services/ScreenNotificationsService"
 import "rxjs/add/observable/merge";
 import "rxjs/add/observable/empty";
-import { mapTo, delay } from 'rxjs/operators';
-import { ConfirmDialog } from "../confirmDialog/confirmDialog.component";
+
 
 @Component({
   selector: "fightLoadDialog",
@@ -29,6 +26,10 @@ export class FightLoadDialog {
         this.container.fights = it;
         this.loading = false;
         this.confirmMode = false;
+      }, (error) => {
+        this.notification.showUnableToLoadFights();
+        this.loading = false;
+        this.confirmMode = false;
       });
   }
 
@@ -44,10 +45,11 @@ export class FightLoadDialog {
     public dialogRef: MatDialogRef<FightLoadDialog>,
     public service: FightsService,
     private router: Router,
+    private notification: ScreenNotificationsService,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
   getItemsCountString(): string {
-    let count = this.selectedRowsChecked.length;
+    const count = this.selectedRowsChecked.length;
     switch (count) {
       case 0:
         return "";
@@ -61,7 +63,7 @@ export class FightLoadDialog {
   onRemoveClick(): void {
     if (this.confirmMode) {
       this.removing = true;
-      let itemsToRemove = this.selectedRowsChecked;
+      const itemsToRemove = this.selectedRowsChecked;
       this.service.removeFights(itemsToRemove)
         .subscribe(() => {
           this.removeSelectedRows(itemsToRemove);
@@ -69,6 +71,7 @@ export class FightLoadDialog {
           this.confirmMode = false;
         },
           error => {
+            this.notification.showUnableToRemoveFights();
             console.error(error);
           },
           () => {
@@ -85,7 +88,7 @@ export class FightLoadDialog {
   removeSelectedRows(itemsToRemove) {
 
     itemsToRemove.forEach(item => {
-      let index: number = this.container.fights.findIndex(d => d.id === item);
+      const index: number = this.container.fights.findIndex(d => d.id === item);
       if (index > -1) {
         this.container.fights.splice(index, 1);
       }

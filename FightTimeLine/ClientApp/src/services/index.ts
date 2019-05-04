@@ -1,4 +1,6 @@
-import { AuthenticationService } from "./AuthenticationService"
+import { IAuthenticationService } from "./authentication.service-interface"
+import { AuthenticationService } from "./authentication.service"
+import { authenticationServiceProvider, authenticationServiceToken } from "./authentication.service-provider"
 import { DialogService } from "./DialogService"
 import { FFLogsService } from "./FFLogsService"
 import { FFLogsStorageService } from "./FFLogsStorageService"
@@ -14,6 +16,7 @@ import { DispatcherService } from "./dispatcher.service"
 
 export {
   AuthenticationService,
+  IAuthenticationService,
   DialogService,
   FFLogsService,
   FFLogsStorageService,
@@ -27,12 +30,13 @@ export {
   LocalStorageService,
   DispatcherService,
   IConnectToSessionHandlers,
-  IStartSessionHandlers
+  IStartSessionHandlers,
+  authenticationServiceProvider,
+  authenticationServiceToken
 }
 
 export const ServicesModuleComponents =
   [
-    AuthenticationService,
     DialogService,
     FFLogsService,
     FFLogsStorageService,
@@ -44,6 +48,7 @@ export const ServicesModuleComponents =
     UserService,
     ScreenNotificationsService,
     LocalStorageService,
-    DispatcherService
+    DispatcherService,
+    authenticationServiceProvider
   ];
 

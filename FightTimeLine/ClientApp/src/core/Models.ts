@@ -169,6 +169,9 @@ export interface IFilter {
     isAoe: boolean;
     isShareDamage: boolean;
     isOther: boolean;
+    isMagical: boolean;
+    isPhysical: boolean;
+    isUnaspected: boolean;
     keywords: string[];
   };
 }

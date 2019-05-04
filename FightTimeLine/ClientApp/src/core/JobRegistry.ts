@@ -88,7 +88,7 @@ export class JobRegistry {
       ].sort(this.abilitySortFn),
       stances: [
         {
-          ability: { name: "Grit", duration: 0, cooldown: 10, icon: this.getIcon("13_DarkKnight/3629_Grit"), abilityType: AbilityType.Utility, xivDbId: "1000743" },
+          ability: { name: "Grit", duration: 0, cooldown: 10, icon: this.getIcon("13_DarkKnight/3629_Grit"), abilityType: AbilityType.Utility, xivDbId: "3629" },
         }
       ]
     },
@@ -118,10 +118,10 @@ export class JobRegistry {
       ].sort(this.abilitySortFn),
       stances: [
         {
-          ability: { name: "Defiance", duration: 0, cooldown: 10, icon: this.getIcon("12_Warrior/0048_Defiance"), abilityType: AbilityType.Utility, xivDbId: "1000091" },
+          ability: { name: "Defiance", duration: 0, cooldown: 10, icon: this.getIcon("12_Warrior/0048_Defiance"), abilityType: AbilityType.Utility, xivDbId: "48" },
         },
         {
-          ability: { name: "Deliverance", duration: 0, cooldown: 10, icon: this.getIcon("12_Warrior/3548_Deliverance"), abilityType: AbilityType.Utility, xivDbId: "1000729" },
+          ability: { name: "Deliverance", duration: 0, cooldown: 10, icon: this.getIcon("12_Warrior/3548_Deliverance"), abilityType: AbilityType.Utility, xivDbId: "3548" },
         }
       ]
     },
@@ -146,10 +146,10 @@ export class JobRegistry {
       ].sort(this.abilitySortFn),
       stances: [
         {
-          ability: { name: "Sword Oath", duration: 0, cooldown: 10, icon: this.getIcon("11_Paladin/0026_Sword Oath"), abilityType: AbilityType.Utility, xivDbId:"1000381" },
+          ability: { name: "Sword Oath", duration: 0, cooldown: 10, icon: this.getIcon("11_Paladin/0026_Sword Oath"), abilityType: AbilityType.Utility, xivDbId:"26" },
         },
         {
-          ability: { name: "Shield Oath", duration: 0, cooldown: 10, icon: this.getIcon("11_Paladin/0028_Shield Oath"), abilityType: AbilityType.Utility, xivDbId: "1000079" },
+          ability: { name: "Shield Oath", duration: 0, cooldown: 10, icon: this.getIcon("11_Paladin/0028_Shield Oath"), abilityType: AbilityType.Utility, xivDbId: "28" },
         }
       ]
     },

@@ -155,7 +155,7 @@ export class BossTargetMap extends BaseMap<string, VisTimelineItem> {
 }
 
 export class JobStanceMap extends BaseMap<string, VisTimelineItem> {
-  abilityName: string;
+  ability: M.IAbility;
   loaded: boolean;
 }
 
@@ -521,9 +521,13 @@ export class BossAttacksHolder extends BaseHolder<string, VisTimelineItem, BossA
       let visible = (filter.attacks.isTankBuster && it.attack.isTankBuster);
       visible = visible || (filter.attacks.isAoe && it.attack.isAoe);
       visible = visible || (filter.attacks.isShareDamage && it.attack.isShareDamage);
+      
       if (!visible) {
         visible = filter.attacks.isOther && !(it.attack.isTankBuster || it.attack.isAoe || it.attack.isShareDamage);
       }
+
+      visible = visible && (filter.attacks.isMagical && it.attack.type === M.DamageType.Magical || filter.attacks.isPhysical && it.attack.type === M.DamageType.Physical || filter.attacks.isUnaspected && it.attack.type === M.DamageType.None);
+      
 
       const item = this.visBossItems.getById(it.id);
 

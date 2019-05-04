@@ -2,7 +2,8 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from "@angular/material";
 import { first } from 'rxjs/operators';
-import { AuthenticationService } from "../../services/AuthenticationService"
+import { IAuthenticationService } from "../../services/authentication.service-interface"
+import { authenticationServiceToken } from "../../services/authentication.service-provider"
 
 @Component({
     selector: "loginDialog",
@@ -18,7 +19,7 @@ export class LoginDialog implements OnInit {
     constructor(
         private snackBar: MatSnackBar,
         private formBuilder: FormBuilder,
-        private authenticationService: AuthenticationService,
+        @Inject(authenticationServiceToken)private authenticationService: IAuthenticationService,
         public dialogRef: MatDialogRef<LoginDialog>,
         @Inject(MAT_DIALOG_DATA) public data: any) {
 

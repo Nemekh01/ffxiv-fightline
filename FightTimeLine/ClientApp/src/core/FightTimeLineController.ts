@@ -30,8 +30,8 @@ export class FightTimeLineController {
   private loadedBoss: M.IBoss;
   private loadedFight: M.IFight;
   private loading: boolean = false;
-  private commandFactory: CommandFactory = new CommandFactory(this.startDate);
-  public hasChanges = false;
+  private commandFactory = new CommandFactory(this.startDate);
+  hasChanges = false;
 
   private filter: M.IFilter = {
     abilities: {
@@ -51,6 +51,9 @@ export class FightTimeLineController {
       isShareDamage: true,
       isTankBuster: true,
       isOther: true,
+      isMagical: true,
+      isPhysical: true,
+      isUnaspected: true,
       keywords: []
     }
   };
@@ -355,11 +358,9 @@ export class FightTimeLineController {
 
     if (this.holders.bossTargets.initialBossTarget === this.bossGroup) return;
 
-    let latestBossTime = null; // this.getLatestBossAttackTime();
-
     const date = new Date(this.startDate);
     date.setMinutes(30);
-    latestBossTime = date;
+    const latestBossTime = date;
 
 
     const bossTargetChangeAbilities = this.holders.itemUsages
@@ -815,7 +816,7 @@ export class FightTimeLineController {
               return {
                 id: value.id,
                 job: a.parentId,
-                ability: value.abilityName,
+                ability: value.ability.name,
                 start: Utils.formatTime(new Date(value.item.start.valueOf() as number)),
                 end: Utils.formatTime(new Date(value.item.end.valueOf() as number)),
               };
@@ -1336,7 +1337,8 @@ export class FightTimeLineController {
   getItems(items: any[]): any[] {
     return [
       ...this.holders.bossAttacks.getByIds(items),
-      ...this.holders.itemUsages.getByIds(items)
+      ...this.holders.itemUsages.getByIds(items),
+      ...this.holders.stances.getByIds(items)
     ];
   }
 }

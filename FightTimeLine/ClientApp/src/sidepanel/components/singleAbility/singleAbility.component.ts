@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { ISidePanelComponent } from "../ISidePanelComponent"
 import * as H from "../../../core/DataHolders"
+import * as X from "@xivapi/angular-client"
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: "singleAbility",
@@ -8,9 +10,10 @@ import * as H from "../../../core/DataHolders"
   styleUrls: ["./singleAbility.component.css"],
 })
 export class SingleAbilityComponent implements OnInit, OnDestroy, ISidePanelComponent {
-  
 
-  constructor() {
+  description: any;
+
+  constructor(private xivapi: X.XivapiService, private sanitizer: DomSanitizer) {
 
   }
 
@@ -22,6 +25,9 @@ export class SingleAbilityComponent implements OnInit, OnDestroy, ISidePanelComp
 
   setItems(items: any[]): void {
     this.items = items;
+    this.xivapi.get(X.XivapiEndpoint.Action, Number(this.it.ability.xivDbId)).subscribe(a => {
+      this.description = this.sanitizer.bypassSecurityTrustHtml(a.Description.replace(new RegExp("\\n+", "g"),"<br/>"));
+    });
   }
 
   ngOnInit(): void {

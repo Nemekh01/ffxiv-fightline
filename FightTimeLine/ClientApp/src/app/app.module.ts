@@ -38,7 +38,8 @@ import { AvatarModule } from 'ngx-avatar';
 import { PingComponent } from "../fightline/ping/ping.component";
 import * as Sentry from "@sentry/browser";
 import { environment } from "../environments/environment"
-import {MaterialModule} from "./material.module"
+import { MaterialModule } from "./material.module"
+import { XivapiClientModule } from "@xivapi/angular-client"
 
 Sentry.init({
   dsn: "https://aa772d49f3bb4a33851f765d5d5f2d86@sentry.io/1407389",
@@ -109,6 +110,7 @@ export function provideConfig() {
     SplitPaneModule,
     ContextMenuModule,
     MaterialModule,
+    XivapiClientModule.forRoot(),
     AvatarModule.forRoot({
       colors: avatarColors
     }),

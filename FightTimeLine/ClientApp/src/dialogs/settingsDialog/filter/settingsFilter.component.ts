@@ -23,6 +23,9 @@ export class SettingsFilterComponent {
   isAoe = true;
   isShare = true;
   isOther = true;
+  isMagical = true;
+  isPhysical = true;
+  isUnaspected = true;
 
   public set(filter: IFilter): void {
     this.selfDefensive = filter.abilities.selfDefence;
@@ -39,6 +42,9 @@ export class SettingsFilterComponent {
     this.isAoe = filter.attacks.isAoe;
     this.isShare = filter.attacks.isShareDamage;
     this.isOther = filter.attacks.isOther;
+    this.isMagical = filter.attacks.isMagical;
+    this.isPhysical = filter.attacks.isPhysical;
+    this.isUnaspected = filter.attacks.isUnaspected;
   }
 
 
@@ -63,6 +69,9 @@ export class SettingsFilterComponent {
         isAoe: this.isAoe,
         isShareDamage: this.isShare,
         isOther: this.isOther,
+        isPhysical: this.isPhysical,
+        isMagical: this.isMagical,
+        isUnaspected: this.isUnaspected,
         keywords: []
       }
     };

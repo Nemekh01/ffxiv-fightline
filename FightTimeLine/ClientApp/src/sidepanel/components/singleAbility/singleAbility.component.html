@@ -1,6 +1,9 @@
 <div>
-  <img [src]="it.ability.icon" class="icon"/>
+  <img [src]="it.ability.icon" class="icon" />
   <span class="abilityName">{{it.ability.name}}</span>
+</div>
+<div>
+  <span class="abilityDescription" [innerHtml]="description"></span>
 </div>
 
 

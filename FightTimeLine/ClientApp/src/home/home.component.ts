@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatSnackBar, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
 
@@ -6,10 +6,9 @@ import { DialogService } from "../services/index"
 import { ChangeNotes } from "../changeNotes"
 
 
-import { RecentActivityService, IRecentActivity } from "../services/RecentActivitiesService"
+import * as S from "../services/index"
 
-import { AuthenticationService } from "../services/AuthenticationService"
-import { LocalStorageService } from "../services/LocalStorageService"
+
 
 @Component({
   selector: "home",
@@ -22,11 +21,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   public constructor(
     private dialogService: DialogService,
-    public authenticationService: AuthenticationService,
+    @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private recentService: RecentActivityService,
-    private storage: LocalStorageService
+    private recentService: S.RecentActivityService,
+    private storage: S.LocalStorageService
   ) {
 
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, HostListener } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, Inject } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -146,7 +146,6 @@ export class FightLineComponent implements OnInit, OnDestroy {
     snap: (date: Date) => date,
     groupEditable: { order: false }
   };
-
   optionsBoss = <VisTimelineOptions>{
     width: "100%",
     height: "100%",
@@ -243,7 +242,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     private location: Location,
     private router: Router,
     private dialogService: S.DialogService,
-    public authenticationService: S.AuthenticationService,
+    @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
     private settingsService: S.SettingsService,
     private storage: S.LocalStorageService,
     public teamWorkService: S.TeamWorkService,
@@ -803,7 +802,6 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   showWhatsNew() {
-
     const promise = new Promise<void>((resolve) => {
       const changes = ChangeNotes.changes;
       const latestRev = changes[0];
@@ -833,7 +831,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     dispatcher.on("SidePanel Similar Click").subscribe(value => {
       this.visTimelineService.setSelectionToId(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks([value]);
-      this.fightLineController.notifySelect("enemy", value);
+      this.fightLineController.notifySelect("enemy", [value]);
       this.visTimelineService.focusOnId(this.visTimelineBoss, value, { animation: false });
       const w = this.visTimelineService.getWindow(this.visTimelineBoss);
       this.visTimelineService.setWindow(this.visTimeline, w.start, w.end, { animation: false });
@@ -853,7 +851,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.visTimelineService.setSelectionToId(this.visTimeline, value);
       this.visTimelineService.setSelectionToId(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks([]);
-      this.fightLineController.notifySelect("friend", value);
+      this.fightLineController.notifySelect("friend", [value]);
       this.visTimelineService.focusOnId(this.visTimeline, value, { animation: false });
       const w = this.visTimelineService.getWindow(this.visTimeline);
       this.visTimelineService.setWindow(this.visTimelineBoss, w.start, w.end, { animation: false });

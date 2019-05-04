@@ -816,7 +816,7 @@ export class AddStanceCommand implements Command {
 
     context.holders.stances.add({
       id: this.id,
-      abilityName: ability.name,
+      ability: ability,
       item: context.itemBuilder.createStanceUsage(ability, this.id, stancesAbility.id, this.start, this.end, context.highlightLoaded() && this.loaded),
       loaded: this.loaded
     });
@@ -859,11 +859,11 @@ export class RemoveStanceCommand implements Command {
   }
 
   reverse(context: ICommandExecutionContext): void {
-    const item = context.itemBuilder.createStanceUsage(this.ability, this.id, this.abilityMapId, this.start, this.end, context.highlightLoaded() || this.loaded);
+    const item = context.itemBuilder.createStanceUsage(this.ability, this.id, this.abilityMapId, this.start, this.end, context.highlightLoaded() && this.loaded);
 
     context.holders.stances.add({
       id: this.id,
-      abilityName: this.ability.name,
+      ability: this.ability,
       item: item,
       loaded: this.loaded
     });
@@ -875,7 +875,7 @@ export class RemoveStanceCommand implements Command {
     const itemMap = context.holders.stances.get(this.id);
     const abilityMap = context.holders.abilities.get(itemMap.item.group);
 
-    this.ability = context.holders.jobs.get(abilityMap.parentId).job.stances.find((it) => it.ability.name === itemMap.abilityName).ability;
+    this.ability = context.holders.jobs.get(abilityMap.parentId).job.stances.find((it) => it.ability.name === itemMap.ability.name).ability;
     this.start = new Date(itemMap.item.start as number);
     this.end = new Date(itemMap.item.end as number);
     this.abilityMapId = abilityMap.id;
@@ -913,10 +913,7 @@ export class MoveStanceCommand implements Command {
     if (item.item.start !== this.moveStartFrom || item.item.end !== this.moveEndFrom) {
       item.item.start = this.moveStartFrom;
       item.item.end = this.moveEndFrom;
-      const stance = context.holders.stances.get(this.id);
-      const ab = context.holders.abilities.get(stance.item.group);
-      const job = context.holders.jobs.get(ab.parentId);
-      const ability = context.jobRegistry.getStanecAbilityForJob(job.job.name, stance.abilityName);
+      const ability = item.ability;
       //item.item.title = this.abilityName + " " + Utils.formatTime(new Date(item.item.start)) + " - " + Utils.formatTime(new Date(item.item.end));
       item.item.title = `<img class='abilityIcon' src='${ability.icon}'/>${ability.name}  ${Utils.formatTime(new Date(item.item.start))} - ${Utils.formatTime(new Date(item.item.end))}`;
       context.holders.stances.update([item]);
@@ -934,10 +931,8 @@ export class MoveStanceCommand implements Command {
 
     if (item.item.start !== this.moveStartTo || item.item.end !== this.moveEndTo) {
 
-      this.abilityName = item.abilityName;
-      const ab = context.holders.abilities.get(item.item.group);
-      const job = context.holders.jobs.get(ab.parentId);
-      const ability = context.jobRegistry.getStanecAbilityForJob(job.job.name, item.abilityName);
+      this.abilityName = item.ability.name;
+      const ability = item.ability;
 
       item.item.start = this.moveStartTo;
       item.item.end = this.moveEndTo;

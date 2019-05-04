@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener,Input, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener,Input, Output, EventEmitter,Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatSnackBar, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
 
@@ -15,7 +15,7 @@ import { LocalStorageService } from "../services/LocalStorageService"
 
 
 
-import { AuthenticationService } from "../services/AuthenticationService"
+import { IAuthenticationService, authenticationServiceToken } from "../services/index"
 
 @Component({
   selector: "toolbar",
@@ -83,7 +83,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   public constructor(
     private dialogService: DialogService,
-    private authenticationService: AuthenticationService,
+    @Inject(authenticationServiceToken)private authenticationService: IAuthenticationService,
     private notification: ScreenNotificationsService,
     private router: Router,
     private storage: LocalStorageService

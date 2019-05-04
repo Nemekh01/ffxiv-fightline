@@ -61,6 +61,24 @@ export class ScreenNotificationsService {
     });
   }
 
+  public showUnableToLoadFights() {
+    this.snackBar.open("Unable to load fights",
+      null,
+      {
+        duration: 2000
+      }
+    );
+  }
+
+  public showUnableToRemoveFights() {
+    this.snackBar.open("Unable to remove fights",
+      null,
+      {
+        duration: 2000
+      }
+    );
+  }
+
   public showConnectedToSession() {
     this.snackBar.open("Connected",
       null,

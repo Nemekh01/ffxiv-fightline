@@ -35,6 +35,8 @@ export class SingleAttackComponent implements OnInit, OnDestroy, ISidePanelCompo
     this.holders = holders;
     this.defs = this.calculateDefs();
     this.similar = this.holders.bossAttacks.filter(it => it.attack.name === this.it.attack.name && it.id !== this.it.id);
+    
+    
   }
 
   calculateDefs() {

@@ -28,6 +28,9 @@ export class SettingsService {
           isOther: true,
           isShareDamage: true,
           isTankBuster: true,
+          isPhysical: true,
+          isMagical: true,
+          isUnaspected: true,
           keywords: []
         }
       },

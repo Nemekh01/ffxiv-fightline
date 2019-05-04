@@ -1,17 +1,21 @@
 import { Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { LocalStorageService } from "./LocalStorageService";
+import { IAuthenticationService } from "./authentication.service-interface";
 
 @Injectable()
-export class AuthenticationService {
+export class AuthenticationService implements IAuthenticationService {
 
-  @Output("usernameChanged") usernameChanged: EventEmitter<void> = new EventEmitter<void>();
-  @Output("authenticatedChanged") authenticatedChanged: EventEmitter<void> = new EventEmitter<void>();
-  user:any;
-  constructor(private http: HttpClient, private storage: LocalStorageService) { }
+  @Output("usernameChanged") usernameChanged = new EventEmitter<void>();
+  @Output("authenticatedChanged") authenticatedChanged = new EventEmitter<void>();
+  private user:any;
+  constructor(
+    private readonly http: HttpClient,
+    private readonly storage: LocalStorageService) { }
 
-  login(username: string, password: string) {
+  login(username: string, password: string):Observable<any> {
     return this.http.post<any>('/api/token/createtoken', { username: username, password: password })
       .pipe(map((res: any) => {
         // login successful if there's a jwt token in the response
@@ -27,13 +31,13 @@ export class AuthenticationService {
       }));
   }
 
-  logout() {
+  logout(): Observable<any> {
     // remove user from local storage to log user out
     this.user = null;
     this.storage.removeItem('currentUser');
     this.authenticatedChanged.emit();
     this.usernameChanged.emit();
-    
+    return Observable.of(null);
   }
 
   get authenticated(): boolean {
