@@ -10,11 +10,16 @@ interface IItemHolder<TI> {
   item: TI;
 }
 
-interface IBaseHolderItem<TKey, TItem extends { className?: string }> {
+export interface IBaseHolderItem<TKey> {
   id: TKey;
 }
 
-abstract class BaseMap<TKey, TItem extends { className?: string }, TData> implements IBaseHolderItem<TKey, TItem> {
+export interface IMoveable {
+  start: Date;
+  move(delta: number): boolean;
+}
+
+abstract class BaseMap<TKey, TItem extends { className?: string }, TData> implements IBaseHolderItem<TKey> {
   id: TKey;
   protected item: TItem;
   protected data: TData = <TData>({});
@@ -80,15 +85,6 @@ export class Holders {
   setHighLightLoadedView(highlightLoaded: boolean): void {
     this.itemUsages.setHighlightLoaded(highlightLoaded);
     this.stances.setHighlightLoaded(highlightLoaded);
-  }
-
-  move(ids: string[], delta: number) {
-    const items = this.itemUsages.getByIds(ids);
-    items.forEach(it => {
-      //      it.move(delta);
-    });
-    this.itemUsages.update(items);
-
   }
 }
 
@@ -188,7 +184,6 @@ export interface IJobMapData {
   actorName?: string;
   collapsed?: boolean;
 }
-
 export class JobMap extends BaseMap<string, VisTimelineGroup, IJobMapData> {
   onDataUpdate(data: IJobMapData): void {
     if (this.abilityIds)
@@ -267,7 +262,7 @@ export interface IBossAttackMapData {
   vertical?: boolean;
   attack?: M.IBossAbility;
 }
-export class BossAttackMap extends BaseMap<string, VisTimelineItem, IBossAttackMapData> {
+export class BossAttackMap extends BaseMap<string, VisTimelineItem, IBossAttackMapData> implements IMoveable {
   onDataUpdate(data: IBossAttackMapData): void {
     this.setItem(this.createBossAttack(this.id, data.attack, data.vertical));
   }
@@ -276,8 +271,6 @@ export class BossAttackMap extends BaseMap<string, VisTimelineItem, IBossAttackM
     super(id);
     this.applyData(data);
   }
-
-  //  get attack: M.IBossAbility;
 
   get start(): Date {
     return this.item.start as Date;
@@ -310,6 +303,12 @@ export class BossAttackMap extends BaseMap<string, VisTimelineItem, IBossAttackM
       Utils.escapeHtml(ability.name) +
       "</div></div>";
   }
+
+  move(delta: number): boolean {
+    const newDate = new Date(this.startAsNumber + delta * 1000);
+    this.applyData({ attack: { offset: Utils.formatTime(newDate) } });
+    return true;
+  }
 }
 
 export interface IAbilityUsageMapData {
@@ -318,7 +317,9 @@ export interface IAbilityUsageMapData {
   loaded?: boolean;
   showLoaded?: boolean;
 }
-export class AbilityUsageMap extends BaseMap<string, VisTimelineItem, IAbilityUsageMapData> {
+export class AbilityUsageMap extends BaseMap<string, VisTimelineItem, IAbilityUsageMapData> implements IMoveable {
+
+
   onDataUpdate(data: IAbilityUsageMapData): void {
     this.setItem(this.createAbilityUsage(this.id, this.ability, data));
   }
@@ -380,6 +381,12 @@ export class AbilityUsageMap extends BaseMap<string, VisTimelineItem, IAbilityUs
 
   get loaded(): boolean {
     return this.data.loaded;
+  }
+
+  move(delta: number): boolean {
+    const newDate = new Date(this.startAsNumber + delta * 1000);
+    this.applyData({ start: newDate });
+    return true;
   }
 }
 
@@ -536,7 +543,17 @@ export interface IJobStanceMapData {
   loaded?: boolean;
   showLoaded?: boolean;
 }
-export class JobStanceMap extends BaseMap<string, VisTimelineItem, IJobStanceMapData> {
+export class JobStanceMap extends BaseMap<string, VisTimelineItem, IJobStanceMapData> implements IMoveable {
+  move(delta: number): boolean {
+    const newDateStart = new Date(this.start.valueOf() as number + delta * 1000);
+    const newDateEnd = new Date(this.end.valueOf() as number + delta * 1000);
+    this.applyData({
+      start: newDateStart,
+      end: newDateEnd
+    });
+    return true;
+  }
+
   onDataUpdate(data: IJobStanceMapData): void {
     this.setItem(this.createStanceUsage(this.stanceAbility, this.id, this.ability.id, data.start, data.end, data.loaded, data.showLoaded));
   }
@@ -616,7 +633,7 @@ export class AbilityAvailabilityMap extends BaseMap<string, VisTimelineItem, IAb
 }
 
 
-class BaseHolder<TK, TI, T extends IBaseHolderItem<TK, TI>> {
+class BaseHolder<TK, TI, T extends IBaseHolderItem<TK>> {
   protected items: { [id: string]: T } = {};
 
   add(i: T): void {

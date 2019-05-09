@@ -9,3 +9,15 @@
   width: 36px;
   height: 36px;
 }
+
+.abilityDescription {
+  padding: 2px;
+}
+
+.usedTime {
+  margin-right: 2px;
+}
+
+.usedTarget {
+  margin-left: 3px;
+}

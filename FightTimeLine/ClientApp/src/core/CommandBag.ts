@@ -1,4 +1,4 @@
-﻿import {Command, UndoRedoController } from "./UndoRedo"
+import {Command, UndoRedoController } from "./UndoRedo"
 import {CombinedCommand} from "./Commands"
 
 export class CommandBag {
@@ -13,10 +13,10 @@ export class CommandBag {
         this.commandsBag.push(command);
     }
 
-    evaluate(length: number, callback:()=>void): void {
+    evaluate(length: number, callback?:()=>void): void {
         if (this.commandsBag.length >= length) {
             this.commandStorage.execute(new CombinedCommand(this.commandsBag));
-            if (callback!=null)
+            if (callback)
                 callback();
             this.commandsBag = [];
         }

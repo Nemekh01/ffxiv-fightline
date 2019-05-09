@@ -14,6 +14,7 @@ import *  as FF from "./FFLogs"
 import { AbilityUsagesCollector, BossAttacksCollector, JobPetCollector, StancesCollector } from "./FflogsCollectors/FFLogsCollectors"
 import { SettingsService } from "../services/SettingsService"
 import { settings } from "./Jobs/index"
+import * as _ from "lodash";
 
 
 export class FightTimeLineController {
@@ -242,15 +243,8 @@ export class FightTimeLineController {
       return;
     }
 
-    if (time === undefined) return;
+    if (!time) return;
     time.setMilliseconds(0);
-//    if (time < Utils.getDateFromOffset(0, this.startDate)) {
-//      const map = this.holders.abilities.get(group);
-//      if (map) {
-//        this.toggleCompactViewAbility(map.id);
-//      }
-//      return;
-//    };
 
     if (group === this.bossGroup || group === undefined) {
       if (time >= this.startDate) {
@@ -299,8 +293,7 @@ export class FightTimeLineController {
           this.commandBag.push(new C.MoveStanceCommand(item.id.toString(), item.start as Date, item.end as Date));
         } else
           if (this.idgen.isBossAttack(item.id)) {
-            const map = this.holders.bossAttacks.get(item.id.toString());
-            this.commandBag.push(new C.ChangeBossAttackCommand(map.id, { offset: Utils.formatTime(new Date(item.start)) }, false));
+            this.commandBag.push(new C.ChangeBossAttackCommand(item.id.toString(), { offset: Utils.formatTime(new Date(item.start)) }, false));
             if (this.tools.stickyAttacks) {
               const afterMe = this.holders.bossAttacks.filter(it => it.start >= found.time && it.id !== item.id);
               this.commandBag.push(new C.CombinedCommand(afterMe.map(it => {
@@ -314,7 +307,7 @@ export class FightTimeLineController {
           }
     }
 
-    this.commandBag.evaluate(this.holders.selectionRegistry.length, null);
+    this.commandBag.evaluate(this.holders.selectionRegistry.length);
   }
 
   updateTools(tools: M.ITools): void {
@@ -389,8 +382,7 @@ export class FightTimeLineController {
 
     switch (type) {
       case M.EntryType.AbilityUsage:
-        const map = this.holders.abilities.get(item.group);
-        const ability = map.ability;
+        const ability = this.holders.abilities.get(item.group).ability;
         return (item.end as number) - (item.start as number) === ability.cooldown * 1000 && new Date(item.start) >= new Date(this.startDate.valueOf() as number - ((ability.requiresBossTarget?0:1) * 30 * 1000)) &&
           !this.holders.itemUsages.checkDatesOverlap(item.group, new Date(item.start), new Date(item.end), item.id.toString(), this.holders.selectionRegistry);
       case M.EntryType.StanceUsage:
@@ -1168,48 +1160,25 @@ export class FightTimeLineController {
   }
 
   moveSelection(delta: number): void {
-    //    const items = this.holders.selectionRegistry.getAll();
-    //    if (items && items.length) {
-    //      const ids = items.map(it => it.id);
-    //      this.holders.move(ids, delta);
-    //    }
-    //
-    //    const toRemove = [
-    //      this.holders.itemUsages.getByIds(ids),
-    //      this.holders.stances.getByIds(ids),
-    //      this.holders.bossAttacks.getByIds(ids)
-    //    ];
-    //    for (let r of toRemove.filter(it => !!it)) {
-    //      r.move(delta);
-    //    }
-    //
-    //    items.forEach(x => {
-    //      const copy = Utils.clone(x.item);
-    //      copy.start = new Date((x.item.start.valueOf() as number) + delta * 1000);
-    //      if (x.item.end)
-    //        copy.end = new Date((x.item.end.valueOf() as number) + delta * 1000);
-    //      if (this.idgen.isAbilityUsage(x.id) &&
-    //        this.holders.itemUsages.checkDatesOverlap(
-    //          x.item.group,
-    //          new Date(copy.start.valueOf() as number),
-    //          new Date(copy.end.valueOf() as number),
-    //          x.id,
-    //          this.holders.selectionRegistry)) {
-    //        return; //todo: find next free spot
-    //      }
-    //
-    //      if (this.idgen.isStanceUsage(x.id) &&
-    //        this.holders.stances.checkDatesOverlap(
-    //          x.item.group,
-    //          new Date(copy.start.valueOf() as number),
-    //          new Date(copy.end.valueOf() as number),
-    //          x.id,
-    //          this.holders.selectionRegistry)) {
-    //        return; //todo: find next free spot
-    //      }
-    //
-    //      this.notifyMove(copy);
-    //    });
+    const items = this.holders.selectionRegistry.getAll();
+    if (items && items.length) {
+      const ids = items.map(it => it.id);
+      const toMove: (H.IMoveable & {id: string, ability?: H.AbilityMap, end?: Date})[] = (_.flatten([
+        this.holders.itemUsages.getByIds(ids),
+        this.holders.stances.getByIds(ids),
+        this.holders.bossAttacks.getByIds(ids)
+      ]).filter(it => !!it)) as any;
+
+      for (let r of toMove) {
+        const newDate = new Date(r.start.valueOf() as number + delta * 1000);
+        const newDateEnd = new Date(r.end.valueOf() as number + delta * 1000);
+        const item = { id: r.id, start: newDate, end: newDateEnd, group: r.ability.id, content: null };
+        if (this.canMove(item)) {
+          r.move(delta); //todo: set to exact date
+          this.notifyMove(item);
+        }
+      }
+    }
   }
 
   execute(data: any): void {

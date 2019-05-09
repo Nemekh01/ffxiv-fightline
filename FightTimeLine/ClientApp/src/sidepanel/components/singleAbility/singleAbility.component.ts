@@ -6,6 +6,7 @@ import * as X from "@xivapi/angular-client"
 import { Utils } from "../../../core/Utils"
 import { settings } from "../../../core/Jobs/index"
 import { DomSanitizer } from '@angular/platform-browser';
+import * as S from "../../../services/index"
 
 @Component({
   selector: "singleAbility",
@@ -16,7 +17,7 @@ export class SingleAbilityComponent implements OnInit, OnDestroy, ISidePanelComp
 
   description: any;
   ptyMemUsages: any[];
-  constructor(private xivapi: X.XivapiService, private sanitizer: DomSanitizer) {
+  constructor(private xivapi: X.XivapiService, private sanitizer: DomSanitizer, private dispatcher: S.DispatcherService) {
 
   }
 
@@ -48,13 +49,20 @@ export class SingleAbilityComponent implements OnInit, OnDestroy, ISidePanelComp
         const job = data && data.value && holders.jobs.get(data.value);
         const string = job && job.actorName;
         return {
+          id: it.id,
           offset: Utils.formatTime(it.start),
           icon: job && job.job && job.job.icon,
           target: string
         };
       });
     }
+  }
 
+  similarClick(val: any) {
+    this.dispatcher.dispatch({
+      name: "SidePanel Defense Click",
+      payload: val.id
+    });
   }
 
   private getEndpoint(type: string): X.XivapiEndpoint {

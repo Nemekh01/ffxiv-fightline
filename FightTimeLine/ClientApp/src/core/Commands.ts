@@ -283,6 +283,7 @@ export class ChangeBossAttackCommand implements Command {
     });
 
     context.holders.bossAttacks.update(bossAttackMaps);
+    context.holders.selectionRegistry.updateDate(this.id, Utils.getDateFromOffset(this.bossAbility.offset));
 
     context.update({ updateBossAttacks: [this.id], updateBossTargets: true });
   }
@@ -299,6 +300,7 @@ export class ChangeBossAttackCommand implements Command {
     });
 
     context.holders.bossAttacks.update(bossAttackMaps);
+    context.holders.selectionRegistry.updateDate(this.id, Utils.getDateFromOffset(this.bossAbility.offset));
 
     context.update({ updateBossAttacks: [this.id], updateBossTargets: true });
   }
