@@ -208,6 +208,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     window.open("https://discord.gg/xRppKj4", "_blank");
   }
 
+  gotoGithub() {
+    window.open("https://github.com/Airex/ffxiv-fightline/issues", "_blank");
+  }
+
 
   privacy() {
     window.open("/privacy", "_blank");

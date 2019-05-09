@@ -864,7 +864,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.sidepanel.setItems(this.fightLineController.getItems(value), this.fightLineController.getHolders());
     });
 
-    dispatcher.on("SidePanel Defense Click").subscribe(value => {
+    dispatcher.on("SidePanel Ability Click").subscribe(value => {
       this.visTimelineService.setSelectionToId(this.visTimeline, value);
       this.visTimelineService.setSelectionToId(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks([]);

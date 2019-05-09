@@ -84,7 +84,7 @@ export class SingleAttackComponent implements OnInit, OnDestroy, ISidePanelCompo
 
   defenseClick(val: any) {
     this.dispatcher.dispatch({
-      name: "SidePanel Defense Click",
+      name: "SidePanel Ability Click",
       payload: val.id
     });
   }

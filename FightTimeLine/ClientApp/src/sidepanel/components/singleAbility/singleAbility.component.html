@@ -7,13 +7,10 @@
 </div>
 <div>
   <sidepanel-area header="Used on" *ngIf="!!ptyMemUsages">
-    
-      <div *ngFor="let it of ptyMemUsages">
-        @<a class="similarLink" (click)="similarClick(it)"><span class="usedTime">{{it.offset}}</span></a><img class="abilityIcon" [src]="it.icon" /> <span class="usedTarget">{{it.target}}</span>
-      </div>
-    
-
-  </sidepanel-area>
+    <div *ngFor="let it of ptyMemUsages">
+      @<a class="similarLink" (click)="similarClick(it)"><span class="usedTime">{{it.offset}}</span></a><img class="abilityIcon" [src]="it.icon" /> <span class="usedTarget">{{it.target}}</span>
+    </div>
+    </sidepanel-area>
 </div>
 
 

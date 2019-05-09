@@ -3,7 +3,17 @@
     <div>
       <nz-form-item [nzFlex]="true">
         <nz-form-control [nzSpan]="code?20:24">
-          <input nz-input [formControl]="reportSearchControl" placeholder="https://www.fflogs.com/reports/..." fflogs [matcher]="'reports\/([a-zA-Z0-9]{16})\/?(?:(?:#.*fight=([^&]*))|$)'" (onMatch)="onMatch($event)" />
+          <nz-input-group nzSize="large" [nzSuffix]="suffixIcon">
+            <input nz-input name="reportSearch" [(ngModel)]="reportValue" placeholder="https://www.fflogs.com/reports/..." (ngModelChange)="onSearch($event)" fflogs [matcher]="'reports\/([a-zA-Z0-9]{16})\/?(?:(?:#.*fight=([^&]*))|$)'" (onMatch)="onMatch($event)" [nzAutocomplete]="auto" />
+          </nz-input-group>
+          <ng-template #suffixIcon>
+            <i nz-icon type="search"></i>
+          </ng-template>
+          <nz-autocomplete #auto>
+            <nz-auto-option *ngFor="let r of recent" [nzValue]="r.url">
+              {{r.name}} {{r.timestamp | date:'short'}}
+            </nz-auto-option>
+          </nz-autocomplete>
         </nz-form-control>
         <nz-form-control>
           <nz-switch name="asdf" nzCheckedChildren="Kills Only" nzUnCheckedChildren="All" [ngStyle]="{'visibility': code ? '' : 'hidden', 'margin-left':'5px'}" [ngModel]="true" #showKills></nz-switch>

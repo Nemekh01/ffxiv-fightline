@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 
 import { FFLogsService } from "../../services/FFLogsService"
+import { RecentActivityService } from "../../services/RecentActivitiesService"
 import { Utils } from "../../core/Utils"
 import { ReportFightsResponse } from "../../core/FFLogs"
 
@@ -19,21 +20,26 @@ import { NzModalRef } from "ng-zorro-antd";
 export class FFLogsImportDialog implements OnInit {
 
   ngOnInit(): void {
-    this.reportSearchControl.setValue(this.code);
-    this.onSearch(this.code);
+    if (this.code)
+      this.reportValue = "https://www.fflogs.com/reports/" + this.code;
+    this.onSearch(this.reportValue);
   }
 
-  //  @ViewChild("fights") public fights: any;
-  reportSearchControl = new FormControl();
+  reportValue: string;
+
   container: any = { zones: [] };
   @Input() code: string;
   searchAreaDisplay = "none";
   dialogContentHeight = "60px";
+  recent: any;
+
 
   constructor(
     public dialogRef: NzModalRef,
     public service: FFLogsService,
+    public recentService: RecentActivityService,
     private router: Router) {
+
   }
 
   onSearch(data: string): void {
@@ -62,14 +68,13 @@ export class FFLogsImportDialog implements OnInit {
             .then((it: ReportFightsResponse) => {
               this.dialogContentHeight = "360px";
               this.searchAreaDisplay = "block";
-              //        this.dialogRef.getInstance()."700px", "500px");
-
               const groupBy = key => array =>
                 array.reduce((objectsByKeyValue, obj) => {
                   const value = obj[key];
                   objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
                   return objectsByKeyValue;
-                }, {});
+                },
+                  {});
 
               var gr = groupBy('zoneName');
 
@@ -77,6 +82,9 @@ export class FFLogsImportDialog implements OnInit {
             });
         }
       }
+    } else {
+      this.dialogContentHeight = "60px";
+      this.searchAreaDisplay = "none";
     }
   }
 
