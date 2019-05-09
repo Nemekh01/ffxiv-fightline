@@ -1,3 +1,5 @@
+import * as FF from "./FFLogs"
+
 export enum Role {
   Tank,
   Healer,
@@ -9,8 +11,6 @@ export interface IJob {
   name: string;
   icon?: string;
   abilities: Array<IAbility>;
-  canBeTargetForBoss: boolean;
-  canHavePet?: boolean;
   role: Role;
   pets?: IPet[];
   defaultPet?: string;
@@ -67,17 +67,118 @@ export interface IContextMenuData {
   handler: (item: any) => void;
   isDivider?: boolean;
   isDowntime?: boolean;
-  filter?: IFilter;
+  filter?: IAbilityFilter;
   pets?: any[];
   isCheckBox?: boolean;
   checked?: boolean;
   hidden?: any[];
 }
 
+export const byName = (id: string, ...names: string[]) => {
+  return new ByNameDetecor(id, ...names);
+}
+
+export const byBuffApply = (id: number, abilityName?: string) => {
+  return new ByBuffApplyDetector(id, abilityName);
+}
+
+export const byBuffRemove = (id: number, abilityName?: string, offsetCorrect?: number) => {
+  return new ByBuffRemoveDetector(id, abilityName, offsetCorrect);
+}
+
+const isAbility = (ev: FF.Event): ev is FF.AbilityEvent => {
+  return (ev.type === "cast" || ev.type === "cast");
+}
+
+const isBuffApply = (ev: FF.Event): ev is FF.BuffEvent => {
+  return (ev.type === "applybuff");
+}
+
+const isBuffRemove = (ev: FF.Event): ev is FF.BuffEvent => {
+  return (ev.type === "removebuff");
+}
+
+export interface IDetectionDependencies {
+  abilities: number[];
+  buffs: number[];
+}
+
+export interface IDetectionStrategy {
+  process(ev: FF.Event): { offset: number, name: string };
+  deps: IDetectionDependencies;
+}
+
+class ByNameDetecor implements IDetectionStrategy {
+  private names: string[];
+  constructor(private id: string, ...names: string[]) {
+    this.names = names;
+  }
+
+  process(ev: FF.Event): { offset: number; name: string } {
+    if (isAbility(ev)) {
+      if (this.names.some(n => n === ev.ability.name)) {
+        return { offset: ev.timestamp, name: this.names[0] }
+      }
+    }
+    return null;
+  }
+
+  get deps(): IDetectionDependencies {
+    return {
+      abilities: [parseInt(this.id)],
+      buffs: []
+    }
+  }
+}
+
+class ByBuffApplyDetector implements IDetectionStrategy {
+  constructor(private id: number, private abilityName?: string) {
+  }
+
+  process(ev: FF.Event): { offset: number; name: string } {
+    if (isBuffApply(ev)) {
+      if (ev.ability.guid === this.id) {
+        return { offset: ev.timestamp, name: this.abilityName || ev.ability.name }
+      }
+    }
+    return null;
+  }
+
+  get deps(): IDetectionDependencies {
+    return {
+      abilities: [],
+      buffs: [this.id]
+    };
+  }
+}
+
+
+class ByBuffRemoveDetector implements IDetectionStrategy {
+  constructor(private id: number, private abilityName?: string,  private offsetCorrection?: number) {
+  }
+
+  process(ev: FF.Event): { offset: number; name: string } {
+    if (isBuffRemove(ev)) {
+      if (ev.ability.guid === this.id) {
+        return { offset: ev.timestamp - (this.offsetCorrection || 0), name: this.abilityName || ev.ability.name }
+      }
+    }
+    return null;
+  }
+
+  get deps(): IDetectionDependencies {
+    return {
+      abilities: [],
+      buffs: [this.id]
+    };
+  }
+}
+
 export interface IAbility {
   name: string;
   duration: number;
   cooldown: number;
+  requiresBossTarget?: boolean;
   icon?: string;
   xivDbId?: string;
   xivDbType?: string;
@@ -85,9 +186,8 @@ export interface IAbility {
   extendDurationOnNextAbility?: number;
   settings?: IAbilitySetting[] | null;
   abilityType: AbilityType;
-  nameToMatch?: string;
   pet?: string;
-  detectByBuff?:string;
+  detectStrategy?: IDetectionStrategy;
 }
 
 export interface IAbilitySetting {
@@ -110,16 +210,6 @@ export interface IRelatedAbilitiesOptions {
   parentOnly?: boolean;
 }
 
-export interface IChangeBossTargetAbility extends IAbility {
-  changesBossTarget?: boolean;
-}
-
-export interface IDefenceAbility extends IAbility {
-  damageAffected: DamageType;
-  goodForTankBusters?: boolean;
-  isUltimateSave?: boolean;
-}
-
 export enum EntryType {
   Unknown,
   BossAttack,
@@ -136,9 +226,9 @@ export enum EntryType {
 
 
 export interface IBossAbility {
-  name: string;
-  type: DamageType;
-  offset: number | string;
+  name?: string;
+  type?: DamageType;
+  offset?: string;
   isTankBuster?: boolean;
   isAoe?: boolean;
   isShareDamage?: boolean;
@@ -151,29 +241,33 @@ export enum DamageType {
   All = DamageType.Physical | DamageType.Magical
 }
 
+export interface IAbilityFilter {
+  selfDefence?: boolean;
+  partyDefence?: boolean;
+  selfDamageBuff?: boolean;
+  partyDamageBuff?: boolean;
+  damage?: boolean;
+  healing?: boolean;
+  healingBuff?: boolean;
+  utility?: boolean;
+  pet?: boolean;
+  unused?: boolean;
+};
+
+export interface IBossAttackFilter {
+  isTankBuster: boolean;
+  isAoe: boolean;
+  isShareDamage: boolean;
+  isOther: boolean;
+  isMagical: boolean;
+  isPhysical: boolean;
+  isUnaspected: boolean;
+  keywords: string[];
+}
+
 export interface IFilter {
-  abilities: {
-    selfDefence?: boolean;
-    partyDefence?: boolean;
-    selfDamageBuff?: boolean;
-    partyDamageBuff?: boolean;
-    damage?: boolean;
-    healing?: boolean;
-    healingBuff?: boolean;
-    utility?: boolean;
-    pet?: boolean;
-    unused?: boolean;
-  };
-  attacks?: {
-    isTankBuster: boolean;
-    isAoe: boolean;
-    isShareDamage: boolean;
-    isOther: boolean;
-    isMagical: boolean;
-    isPhysical: boolean;
-    isUnaspected: boolean;
-    keywords: string[];
-  };
+  abilities: IAbilityFilter;
+  attacks?: IBossAttackFilter;
 }
 
 export interface IView {

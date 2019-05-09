@@ -1,6 +1,4 @@
 import { Component, Inject } from "@angular/core";
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
-
 
 @Component({
   selector: "helpDialog",
@@ -11,11 +9,10 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
 export class HelpDialog {
 
   constructor(
-    public dialogRef: MatDialogRef<HelpDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any) { }
+    ) { }
 
   onNoClick(): void {
-    this.dialogRef.close();
+    
   }
 
   showSection(section: string) {

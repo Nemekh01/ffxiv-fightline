@@ -69,7 +69,10 @@ export class OffsetWheelDirective {
   }
 
   handleParse(value: string): Date {
-    return Utils.getDateFromOffset(value, new Date(946677600000));
+    if (value)
+      return Utils.getDateFromOffset(value, new Date(946677600000));
+    else
+      return new Date(946677600000);
   }
 
   constructor(private el: ElementRef, private control: NgControl) {

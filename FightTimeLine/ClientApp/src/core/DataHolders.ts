@@ -1,14 +1,49 @@
 import * as M from "./Models";
 import { ClassNameBuilder } from "./ClassNameBuilder";
 import { VisTimelineItems, VisTimelineItem, VisTimelineGroup, VisTimelineGroups } from "ngx-vis"
+import { Utils } from "./Utils";
+import { settings } from "./Jobs/index";
+import * as lod from "lodash";
 
-class BaseMap<T, TI> {
-  id: T;
+
+interface IItemHolder<TI> {
   item: TI;
+}
 
-  constructor(val: any) {
-    this.id = val && val.id || null;
-    this.item = val && val.item || null;
+interface IBaseHolderItem<TKey, TItem extends { className?: string }> {
+  id: TKey;
+}
+
+abstract class BaseMap<TKey, TItem extends { className?: string }, TData> implements IBaseHolderItem<TKey, TItem> {
+  id: TKey;
+  protected item: TItem;
+  protected data: TData = <TData>({});
+
+  constructor(id: TKey, item?: TItem) {
+    this.id = id;
+    this.item = item;
+  }
+
+  protected buildClass(cls: { [value: string]: boolean }): string {
+    const b = new ClassNameBuilder("");
+    b.set(cls);
+    return b.build() || "dummy";
+  }
+
+  applyData(data?: TData): void {
+    if (data)
+      this.data = lod.merge(this.data, data);
+    this.onDataUpdate(this.data);
+  }
+
+  abstract onDataUpdate(data: TData): void;
+
+  setItem(item: TItem): void {
+    if (!this.item)
+      this.item = item;
+    else {
+      Object.assign(this.item, item);
+    }
   }
 }
 
@@ -43,51 +78,57 @@ export class Holders {
   }
 
   setHighLightLoadedView(highlightLoaded: boolean): void {
+    this.itemUsages.setHighlightLoaded(highlightLoaded);
+    this.stances.setHighlightLoaded(highlightLoaded);
+  }
 
-    const items = this.itemUsages.getAll();
+  move(ids: string[], delta: number) {
+    const items = this.itemUsages.getByIds(ids);
     items.forEach(it => {
-      if (it.loaded) {
-        const b = new ClassNameBuilder(it.item.className);
-        b.set([{ value: "loaded", flag: highlightLoaded }]);
-        it.item.className = b.build();
-      }
+      //      it.move(delta);
     });
     this.itemUsages.update(items);
 
-    const ss = this.stances.getAll();
-    ss.forEach(it => {
-      if (it.loaded) {
-        const b = new ClassNameBuilder(it.item.className);
-        b.set([{ value: "loaded", flag: highlightLoaded }]);
-        it.item.className = b.build();
-      }
-    });
-    this.stances.update(ss);
   }
 }
 
-export class AbilitySelectionMap extends BaseMap<string, VisTimelineItem> {
+export class AbilitySelectionMap extends BaseMap<string, VisTimelineItem, any> {
+  onDataUpdate(data): void { }
+
+  constructor(id: string, time: Date) {
+    super(id);
+    this.time = time;
+  }
   time: Date;
 }
 
-
-export class AbilityMap extends BaseMap<string, VisTimelineGroup> {
-
-  constructor(val: any) {
-    super(val);
-    this.parentId = val && val.parentId || null;
-    this.ability = val && val.ability || null;
-    this.isStance = val && val.isStance || null;
-    this.hidden = val && val.hidden || null;
-    this.isCompact = val && val.isCompact || null;
-  }
-
-
-  parentId: string;
-  ability: M.IAbility;
-  isStance?: boolean;
+export interface IAbilityMapData {
   hidden?: boolean;
   isCompact?: boolean;
+  filtered?: boolean;
+}
+export class AbilityMap extends BaseMap<string, VisTimelineGroup, IAbilityMapData> {
+  onDataUpdate(data: IAbilityMapData): void {
+    this.setItem(this.isStance ? this.createStances(this.id, data.hidden) : this.createJobAbility(this.ability, this.id, data.isCompact, data.hidden || data.filtered));
+  }
+
+  constructor(id: string, job: JobMap, ability: M.IAbility, isStance: boolean, data?: IAbilityMapData) {
+    super(id);
+    this.job = job;
+    this.ability = ability;
+    this.isStance = isStance;
+
+    this.applyData(Object.assign({ hidden: false, isCompact: false }, data) as IAbilityMapData);
+  }
+
+  job: JobMap;
+  ability: M.IAbility;
+  isStance: boolean;
+
+
+  public getSettingOfType(type: string): M.IAbilitySetting {
+    return this.ability.settings && this.ability.settings.find(it => it.type === type);
+  }
 
   public get isDef(): boolean {
     return (this.ability.abilityType & M.AbilityType.SelfDefense) === M.AbilityType.SelfDefense ||
@@ -106,65 +147,476 @@ export class AbilityMap extends BaseMap<string, VisTimelineGroup> {
   public get isSelfDamage(): boolean {
     return (this.ability.abilityType & M.AbilityType.SelfDamageBuff) === M.AbilityType.SelfDamageBuff;
   }
+
+  createStances(id: string, hidden: boolean): VisTimelineGroup {
+    const key: any = { sgDummy: true };
+    key[`sg${id}`] = false;
+
+    return <VisTimelineGroup>{
+      id: id,
+      visible: !hidden,
+      subgroupStack: key,
+      content: "Stance",
+    }
+  }
+
+  createJobAbility(ability: M.IAbility, id: string, compact: boolean, hidden: boolean): VisTimelineGroup {
+    const key: any = { sgDummy: true };
+    key[`sg${id}`] = false;
+
+    return {
+      id: id,
+      subgroupStack: key,
+      className: this.buildClass({ compact: compact }),
+      visible: !hidden,
+      content: ability.icon
+        ? `<span><img class='abilityIcon' src='${ability.icon}'/><span class='abilityName'>${ability.name}</span></span>`
+        : ability.name,
+    } as VisTimelineGroup;
+  }
+
+  get hidden(): boolean {
+    return this.data.hidden;
+  }
+
+  get isCompact(): boolean {
+    return this.data.isCompact;
+  }
 }
 
-export class JobMap extends BaseMap<string, VisTimelineGroup> {
-  job: M.IJob;
-  actorName: string;
-  filter?: M.IFilter;
-  pet?: string;
-  isCompactView?: boolean;
+export interface IJobMapData {
+  actorName?: string;
   collapsed?: boolean;
 }
 
-export class BossAttackMap extends BaseMap<string, VisTimelineItem> {
-  attack: M.IBossAbility;
+export class JobMap extends BaseMap<string, VisTimelineGroup, IJobMapData> {
+  onDataUpdate(data: IJobMapData): void {
+    if (this.abilityIds)
+      this.setItem(this.createJob(this.job, data.actorName, this.id, this.abilityIds, data.collapsed));
+  }
+
+  static jobIndex = 0;
+
+  constructor(id: string, job: M.IJob, data: IJobMapData, filter?: M.IAbilityFilter, pet?: string) {
+    super(id);
+    this.job = job;
+    this.filter = filter ||
+      {
+        damage: undefined,
+        selfDefence: undefined,
+        partyDefence: undefined,
+        healing: undefined,
+        healingBuff: undefined,
+        partyDamageBuff: undefined,
+        selfDamageBuff: undefined,
+        unused: undefined,
+        pet: undefined,
+        utility: undefined
+      };
+    this.pet = pet || job.defaultPet;
+    this.applyData(data);
+  }
+
+  job: M.IJob;
+  filter?: M.IAbilityFilter;
+  pet: string;
+  isCompact: boolean = false;
+
+  get actorName(): string {
+    return this.data.actorName || "";
+  }
+
+  getDisplayName(): string {
+    return this.job.name + " " + this.data.actorName;
+  }
+
+  createJob(job: M.IJob, actorName: string, id: string, abilityIds: string[], collapsed: boolean): VisTimelineGroup {
+
+    return <VisTimelineGroup>{
+      id: id,
+      subgroupStack: false,
+      nestedGroups: abilityIds,
+      content: `<img class='abilityIcon' src='${job.icon}'/><span class='jobName'>${job.name}<span>`,
+      showNested: !collapsed,
+      value: JobMap.jobIndex++,
+      title: actorName,
+
+    }
+  }
+
+  get collapsed(): boolean {
+    return this.data.collapsed || false;
+  }
+
+  private abilityIds: string[];
+
+  useAbilities(abilityIds: string[]) {
+    this.abilityIds = abilityIds;
+    this.applyData({});
+  }
+
+  detectAbility(event: any): any {
+    const data = this.job.abilities.map(a => a.detectStrategy.process(event)).filter(a => !!a);
+    if (data.length > 1)
+      throw Error("More then 1 ability");
+    return data[0];
+  }
 }
 
-export class AbilityUsageMap extends BaseMap<string, VisTimelineItem> {
-  ability: M.IAbility;
+export interface IBossAttackMapData {
+  vertical?: boolean;
+  attack?: M.IBossAbility;
+}
+export class BossAttackMap extends BaseMap<string, VisTimelineItem, IBossAttackMapData> {
+  onDataUpdate(data: IBossAttackMapData): void {
+    this.setItem(this.createBossAttack(this.id, data.attack, data.vertical));
+  }
+
+  constructor(id: string, data: IBossAttackMapData) {
+    super(id);
+    this.applyData(data);
+  }
+
+  //  get attack: M.IBossAbility;
+
+  get start(): Date {
+    return this.item.start as Date;
+  }
+
+  get startAsNumber(): number {
+    return this.start.valueOf() as number;
+  }
+
+  get attack(): M.IBossAbility {
+    return this.data.attack;
+  }
+
+  createBossAttack(id: string, attack: M.IBossAbility, vertical: boolean): VisTimelineItem {
+    const cls = { bossAttack: true, vertical: vertical };
+    cls[M.DamageType[attack.type]] = true;
+    return {
+      id: id,
+      content: this.createBossAttackElement(attack),
+      start: Utils.getDateFromOffset(attack.offset),
+      group: "boss",
+      type: "box",
+      className: this.buildClass(cls),
+      title: attack.offset
+    }
+  }
+
+  private createBossAttackElement(ability: M.IBossAbility): string {
+    return "<div><div class='marker'></div><div class='name'>" +
+      Utils.escapeHtml(ability.name) +
+      "</div></div>";
+  }
+}
+
+export interface IAbilityUsageMapData {
+  start?: Date;
+  ogcdAsPoints?: boolean;
+  loaded?: boolean;
+  showLoaded?: boolean;
+}
+export class AbilityUsageMap extends BaseMap<string, VisTimelineItem, IAbilityUsageMapData> {
+  onDataUpdate(data: IAbilityUsageMapData): void {
+    this.setItem(this.createAbilityUsage(this.id, this.ability, data));
+  }
+
+  constructor(id: string, ability: AbilityMap, settings: M.IAbilitySettingData[], data: IAbilityUsageMapData) {
+    super(id);
+    this.ability = ability;
+    this.calculatedDuration = ability.ability.duration;
+    this.settings = settings;
+
+    this.applyData(Object.assign({ ogcdAsPoints: false, loaded: false, showLoaded: false }, data));
+  }
+
+  ability: AbilityMap;
   calculatedDuration: number;
   settings: M.IAbilitySettingData[];
-  loaded: boolean;
+
+
+  get start(): Date {
+    return this.item.start as Date;
+  }
+
+  get end(): Date {
+    return this.item.end as Date;
+  }
+
+  get startAsNumber(): number {
+    return this.item.start.valueOf() as number;
+  }
+
+  get endAsNumber(): number {
+    return this.item.end.valueOf() as number;
+  }
+
+  getSettingData(name: string): M.IAbilitySettingData {
+    return this.settings && this.settings.find(it => it.name === name);
+  }
+
+  getSetting(name: string): M.IAbilitySetting {
+    return this.ability.ability.settings && this.ability.ability.settings.find(it => it.name === name);
+  }
+
+  createAbilityUsage(id: string, ability: AbilityMap, data: IAbilityUsageMapData): VisTimelineItem {
+    const start = data.start;
+    const end = new Date(start.valueOf() as number + ability.ability.cooldown * 1000);
+
+    return <VisTimelineItem>{
+      id: id,
+      start: start,
+      end: end,
+      group: ability.id,
+      className: this.buildClass({ ability: true, compact: ability.isCompact, loaded: data.showLoaded && data.loaded }),
+      content: "",
+      subgroup: "sg" + ability.id,
+      type: data.ogcdAsPoints ? "point" : "range",
+      title: `<img class='tooltipAbilityIcon' src='${ability.ability.icon}'/><span>${Utils.formatTime(start)} - ${Utils.formatTime(end)}</span>`,
+    };
+  }
+
+  get loaded(): boolean {
+    return this.data.loaded;
+  }
 }
 
-export class BossDownTimeMap extends BaseMap<string, VisTimelineItem> {
+
+export interface IBossDownTimeMapData {
+  start?: Date;
+  end?: Date;
+  color?: string;
+}
+export class BossDownTimeMap extends BaseMap<string, VisTimelineItem, IBossDownTimeMapData> {
+  onDataUpdate(data: IBossDownTimeMapData): void {
+    this.setItem(this.createDownTime(this.id, data.start, data.end, data.color));
+  }
+
   startId: string;
   endId: string;
-  color: string;
 
-  constructor(val: any) {
-    super(val);
-    this.startId = val && val.startId || null;
-    this.endId = val && val.endId || null;
-    this.color = val && val.color || null;
+  get start(): Date {
+    return this.item.start as Date;
   }
 
-  setColor(color: string): void {
-    this.color = color;
-    this.item.className = "downtime " + color;
+  get end(): Date {
+    return this.item.end as Date;
+  }
+
+  set start(v: Date) {
+    this.item.start = v;
+  }
+
+  set end(v: Date) {
+    this.item.end = v;
+  }
+
+  constructor(id: string, startId: string, endId: string, data: IBossDownTimeMapData) {
+    super(id);
+    this.startId = startId;
+    this.endId = endId;
+    this.applyData(data);
+  }
+
+  createDownTime(id: string, start: Date, end: Date, color: string): VisTimelineItem {
+    return {
+      start: start,
+      end: end,
+      id: id,
+      content: "",
+      type: "background",
+      className: "downtime " + color
+    }
+  }
+
+  get color(): string {
+    return this.data.color;
   }
 }
 
-export class HeatmapMap extends BaseMap<string, VisTimelineItem> {
-  ability: M.IAbility;
+export interface IHeatmapMapData {
+  start?: Date;
+  end?: Date;
+}
+export class HeatmapMap extends BaseMap<string, VisTimelineItem, IHeatmapMapData> {
+  onDataUpdate(data: IHeatmapMapData): void {
+    this.setItem(this.createHeatMap(data.start, data.end, this.id, this.target));
+  }
+
+  constructor(id: string, target: string, data: IHeatmapMapData) {
+    super(id);
+    this.target = target;
+    this.applyData(data);
+  }
+
+  get start(): Date {
+    return this.item.start as Date;
+  }
+
+  get end(): Date {
+    return this.item.end as Date;
+  }
+
+  set start(v: Date) {
+    this.item.start = v;
+  }
+
+  set end(v: Date) {
+    this.item.end = v;
+  }
+
+  target: string;
+
+  createHeatMap(start: Date, end: Date, id: string, group?: string) {
+    const result = <VisTimelineItem>{
+      start: start,
+      end: end,
+      id: id,
+      content: "",
+      type: "background",
+      className: "buffMap",
+    };
+    if (group) {
+      result.group = group;
+    }
+    return result;
+  }
 }
 
-export class BossTargetMap extends BaseMap<string, VisTimelineItem> {
+export interface IBossTargetMapData {
+  start?: Date;
+  end?: Date;
+}
+export class BossTargetMap extends BaseMap<string, VisTimelineItem, IBossTargetMapData> {
+  onDataUpdate(data: IBossTargetMapData): void {
+    this.setItem(this.createBossTarget(this.id, data.start, data.end, this.target));
+  }
 
+  constructor(id: string, target: string, data: IBossTargetMapData) {
+    super(id);
+    this.target = target;
+    this.applyData(data);
+  }
+  target: string;
+
+  get start(): Date {
+    return this.item.start as Date;
+  }
+
+  get end(): Date {
+    return this.item.end as Date;
+  }
+
+  set start(v: Date) {
+    this.item.start = v;
+  }
+
+  set end(v: Date) {
+    this.item.end = v;
+  }
+
+  createBossTarget(id: string, start: Date, end: Date, target: string): VisTimelineItem {
+    return {
+      id: id,
+      start: start,
+      end: end,
+      group: target,
+      className: "targets",
+      type: "background",
+      content: "",
+    }
+  }
 }
 
-export class JobStanceMap extends BaseMap<string, VisTimelineItem> {
-  ability: M.IAbility;
+export interface IJobStanceMapData {
+  start?: Date;
+  end?: Date;
+  loaded?: boolean;
+  showLoaded?: boolean;
+}
+export class JobStanceMap extends BaseMap<string, VisTimelineItem, IJobStanceMapData> {
+  onDataUpdate(data: IJobStanceMapData): void {
+    this.setItem(this.createStanceUsage(this.stanceAbility, this.id, this.ability.id, data.start, data.end, data.loaded, data.showLoaded));
+  }
+
+  constructor(id: string, ability: AbilityMap, stanceAbility: M.IAbility, data: IJobStanceMapData) {
+    super(id);
+    this.ability = ability;
+    this.stanceAbility = stanceAbility;
+    this.applyData(Object.assign({ loaded: false, showLoaded: false }, data));
+  }
+
+  ability: AbilityMap;
+  stanceAbility: M.IAbility;
   loaded: boolean;
+
+  get start(): Date {
+    return this.item.start as Date;
+  }
+
+  get end(): Date {
+    return this.item.end as Date;
+  }
+
+  set start(v: Date) {
+    this.item.start = v;
+  }
+
+  set end(v: Date) {
+    this.item.end = v;
+  }
+  createStanceUsage(ability: M.IAbility, id: string, parentId: string, start: Date, end: Date, loaded: boolean, showLoaded: boolean): VisTimelineItem {
+
+    return <VisTimelineItem>{
+      id: id,
+      start: start,
+      end: end,
+      group: parentId,
+      className: this.buildClass({ stance: true, loaded: loaded && showLoaded }),
+      content: "<img class='abilityIcon' src='" + ability.icon + "'/>",
+      subgroup: "sg" + parentId,
+      type: "range",
+      title: `<img class='tooltipAbilityIcon' src='${ability.icon}'/>${ability.name}  ${Utils.formatTime(start)} - ${Utils.formatTime(end)}`,
+    };
+  }
 }
 
-export class AbilityAvailabilityMap extends BaseMap<string, VisTimelineItem> {
-  ability: M.IAbility;
+export interface IAbilityAvailabilityMap {
+  start?: Date;
+  end?: Date;
+  available?: boolean;
+}
+export class AbilityAvailabilityMap extends BaseMap<string, VisTimelineItem, IAbilityAvailabilityMap> {
+  onDataUpdate(data: IAbilityAvailabilityMap): void {
+    this.setItem(this.createAbilityAvailability(this.id, this.ability.id, data.start, data.end, data.available));
+  }
+
+  constructor(id: string, ability: AbilityMap, data?: IAbilityAvailabilityMap) {
+    super(id);
+    this.ability = ability;
+    this.applyData(data);
+  }
+
+  ability: AbilityMap;
+
+  createAbilityAvailability(id: string, abilityId: string, start: Date, end: Date, available: boolean): VisTimelineItem {
+    return {
+      start: start,
+      end: end,
+      id: id,
+      content: "",
+      group: abilityId,
+      editable: false,
+      type: "background",
+      className: "availability " + (available ? "available" : "notAvailable")
+    }
+  }
 }
 
 
-class BaseHolder<TK, TI, T extends BaseMap<TK, TI>> {
+class BaseHolder<TK, TI, T extends IBaseHolderItem<TK, TI>> {
   protected items: { [id: string]: T } = {};
 
   add(i: T): void {
@@ -176,7 +628,15 @@ class BaseHolder<TK, TI, T extends BaseMap<TK, TI>> {
   }
 
   protected get values(): T[] {
-    return Object.keys(this.items).map(it => this.items[it]);
+    return Object.values(this.items) as T[];
+  }
+
+  protected itemsOf(items: T[]): TI[] {
+    return items.map((it) => (<IItemHolder<TI>><any>it).item);
+  }
+
+  protected itemOf(item: T): TI {
+    return (<IItemHolder<TI>><any>item).item;
   }
 
   filter(predicate: (it: T) => boolean): T[] {
@@ -221,7 +681,7 @@ export class StancesHolder extends BaseHolder<string, VisTimelineItem, JobStance
   }
   add(i: JobStanceMap): void {
     super.add(i);
-    this.visItems.add(i.item);
+    this.visItems.add(this.itemOf(i));
   }
 
   clear(): void {
@@ -229,9 +689,9 @@ export class StancesHolder extends BaseHolder<string, VisTimelineItem, JobStance
     super.clear();
   }
 
-  checkDatesOverlap(group: number, start: Date, end: Date, id?: string, selectionRegistry?: AbilitySelectionHolder): boolean {
+  checkDatesOverlap(group: string, start: Date, end: Date, id?: string, selectionRegistry?: AbilitySelectionHolder): boolean {
     if (this.values.length > 0) {
-      return this.values.some((x: JobStanceMap) => (id === undefined || x.id !== id) && x.item.group === group && x.item.start < end && x.item.end > start && (!selectionRegistry || !selectionRegistry.get(x.id)));
+      return this.values.some((x: JobStanceMap) => (id === undefined || x.id !== id) && x.ability.id === group && x.start < end && x.end > start && (!selectionRegistry || !selectionRegistry.get(x.id)));
     }
     return false;
   }
@@ -242,7 +702,57 @@ export class StancesHolder extends BaseHolder<string, VisTimelineItem, JobStance
   }
 
   update(items: JobStanceMap[]) {
-    this.visItems.update(items.map(x => x.item));
+    this.visItems.update(this.itemsOf(items));
+  }
+
+  setHighlightLoaded(highlightLoaded: boolean) {
+    const toUpdate: JobStanceMap[] = [];
+    this.values.forEach(it => {
+      if (it.loaded) {
+        it.applyData({ showLoaded: highlightLoaded });
+        toUpdate.push(it);
+      }
+    });
+    this.update(toUpdate);
+  }
+
+  getNext(time: Date): Date {
+    let minV: JobStanceMap = null;
+    this.values.forEach(v => {
+      if (v.start > time) {
+        if (minV) {
+          if (minV.start > v.start)
+            minV = v;
+        }
+        else {
+          minV = v;
+        }
+      }
+    });
+    if (minV) {
+      return new Date((minV.start.valueOf() as number) - 1000);
+    }
+    return new Date(946677600000 + 30 * 60 * 1000);
+
+  }
+
+  getPrev(time: Date): Date {
+    let maxV: JobStanceMap = null;
+    this.values.forEach(v => {
+      if (v.end < time) {
+        if (maxV) {
+          if (maxV.end < v.end)
+            maxV = v;
+        }
+        else {
+          maxV = v;
+        }
+      }
+    });
+    if (maxV) {
+      return new Date((maxV.end.valueOf() as number) + 1000);
+    }
+    return new Date(946677600000);
   }
 }
 
@@ -254,7 +764,7 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
 
   add(i: AbilityMap): void {
     super.add(i);
-    this.visItems.add(i.item);
+    this.visItems.add(this.itemOf(i));
   }
 
   remove(ids: string[]): void {
@@ -269,28 +779,23 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
   }
 
   getByParentId(parentId: string): AbilityMap[] {
-    return this.filter((b: AbilityMap) => b.parentId === parentId);
+    return this.filter((b: AbilityMap) => b.job.id === parentId);
   }
 
   isBossTargetForGroup(group: string): boolean {
-    return this.values.find((b: AbilityMap) => group === b.id && (b.ability as M.IChangeBossTargetAbility).changesBossTarget && b.parentId !== "boss") !== undefined;
+    return this.values.find((b: AbilityMap) => group === b.id && b.ability.settings && b.ability.settings.some(s => s.name === settings.changesTarget.name) && b.job.id !== "boss") !== undefined;
   }
 
   getParent(group: string): string {
-    return (this.values.find((b: AbilityMap) => group === b.id) as AbilityMap).parentId;
+    return this.values.find((b: AbilityMap) => group === b.id).job.id;
   }
 
   getByParentAndAbility(id: string, ability: string): AbilityMap {
-    return this.values.find((b: AbilityMap) => b.parentId === id && !!b.ability &&
-      (b.ability.name.toUpperCase() === ability.toUpperCase() || (b.ability.nameToMatch || "").toUpperCase() === ability.toUpperCase()));
-  }
-
-  getByParentAndBuff(id: string, buff: string): AbilityMap {
-    return this.values.find((b: AbilityMap) => b.parentId === id && !!b.ability && (b.ability.detectByBuff == buff));
+    return this.values.find((b: AbilityMap) => b.job.id === id && !!b.ability && (b.ability.name.toUpperCase() === ability.toUpperCase()));
   }
 
   getStancesAbility(jobGroup: string): AbilityMap {
-    return this.values.find((b: AbilityMap) => b.parentId === jobGroup && b.isStance);
+    return this.values.find((b: AbilityMap) => b.job.id === jobGroup && b.isStance);
   }
 
   getNonStancesAbilities(): AbilityMap[] {
@@ -299,19 +804,19 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
 
 
   update(items: AbilityMap[]): void {
-    this.visItems.update(items.map(x => x.item));
+    this.visItems.update(this.itemsOf(items));
   }
 
-  applyFilter(filter: M.IFilter, job: (a) => JobMap, used: (a) => boolean) {
+  applyFilter(filter: M.IAbilityFilter, used: (a) => boolean) {
     this.values.forEach(value => {
-      const jobMap = job(value.parentId);
+      const jobMap = value.job;
       const visible = this.abilityFilter(value, filter, jobMap, used);
-      value.item.visible = visible;
+      value.applyData({ filtered: !visible });
     });
     this.update(this.values);
   }
 
-  private abilityFilter(value: AbilityMap, filter: M.IFilter, jobMap: JobMap, used: (a) => boolean): boolean {
+  private abilityFilter(value: AbilityMap, filter: M.IAbilityFilter, jobMap: JobMap, used: (a) => boolean): boolean {
     const jobFilter = jobMap.filter;
     const filterUnit = (type: M.AbilityType, aType: M.AbilityType, globalFilter: boolean, jobFilter: boolean) => {
       let visible = false;
@@ -321,62 +826,27 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
           visible = jobFilter;
       }
       return visible;
-    }
+    };
     let visible: boolean;
-    if (this.filter == null || !value.ability) {
+    if (!filter || !value.ability) {
       visible = true;
     } else {
       if ((jobMap.pet || jobMap.job.defaultPet) && value.ability.pet && value.ability.pet !== (jobMap.pet || jobMap.job.defaultPet)) {
         visible = false;
       } else {
-        visible = filterUnit(value.ability.abilityType,
-          M.AbilityType.SelfDefense,
-          filter.abilities.selfDefence,
-          jobFilter.abilities.selfDefence);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.PartyDefense,
-            filter.abilities.partyDefence,
-            jobFilter.abilities.partyDefence);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.SelfDamageBuff,
-            filter.abilities.selfDamageBuff,
-            jobFilter.abilities.selfDamageBuff);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.PartyDamageBuff,
-            filter.abilities.partyDamageBuff,
-            jobFilter.abilities.partyDamageBuff);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.Damage,
-            filter.abilities.damage,
-            jobFilter.abilities.damage);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.HealingBuff,
-            filter.abilities.healingBuff,
-            jobFilter.abilities.healingBuff);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.Healing,
-            filter.abilities.healing,
-            jobFilter.abilities.healing);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.Pet,
-            filter.abilities.pet,
-            jobFilter.abilities.pet);
-        visible = visible ||
-          filterUnit(value.ability.abilityType,
-            M.AbilityType.Utility,
-            filter.abilities.utility,
-            jobFilter.abilities.utility);
+        visible = filterUnit(value.ability.abilityType, M.AbilityType.SelfDefense, filter.selfDefence, jobFilter.selfDefence);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDefense, filter.partyDefence, jobFilter.partyDefence);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.SelfDamageBuff, filter.selfDamageBuff, jobFilter.selfDamageBuff);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDamageBuff, filter.partyDamageBuff, jobFilter.partyDamageBuff);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Damage, filter.damage, jobFilter.damage);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.HealingBuff, filter.healingBuff, jobFilter.healingBuff);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Healing, filter.healing, jobFilter.healing);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Pet, filter.pet, jobFilter.pet);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Utility, filter.utility, jobFilter.utility);
 
-        if (!filter.abilities.unused ||
-          (jobFilter.abilities.unused !== undefined && !jobFilter.abilities.unused)) {
-          if (!jobFilter.abilities.unused)
+        if (!filter.unused ||
+          (jobFilter.unused !== undefined && !jobFilter.unused)) {
+          if (!jobFilter.unused)
             visible = visible && used(value.id);
         }
       }
@@ -398,7 +868,7 @@ export class JobsMapHolder extends BaseHolder<string, VisTimelineGroup, JobMap> 
 
   add(i: JobMap): void {
     super.add(i);
-    this.visItems.add(i.item);
+    this.visItems.add(this.itemOf(i));
     this.removeEmpty();
   }
 
@@ -415,7 +885,7 @@ export class JobsMapHolder extends BaseHolder<string, VisTimelineGroup, JobMap> 
   }
 
   update(items: JobMap[]): void {
-    this.visItems.update(items.map(x => x.item));
+    this.visItems.update(this.itemsOf(items));
   }
 
   getOrder(initialBossTarget: string): number {
@@ -427,13 +897,13 @@ export class JobsMapHolder extends BaseHolder<string, VisTimelineGroup, JobMap> 
   }
 
   serialize(): { id: string, name: string, order: number, pet: string, filter: any, compact: boolean, collapsed: boolean }[] {
-    const map = this.values.map((value: JobMap, index: number) => <any>{
+    const map = this.values.map((value: JobMap) => <any>{
       id: value.id,
       name: value.job.name,
       order: (this.visItems.get(value.id) as any).value,
       pet: value.pet,
       filter: value.filter,
-      compact: value.isCompactView,
+      compact: value.isCompact,
       collapsed: value.collapsed
     });
     return map;
@@ -464,11 +934,11 @@ export class BossAttacksHolder extends BaseHolder<string, VisTimelineItem, BossA
   }
 
   private addToBoard(i: BossAttackMap) {
-    this.visBossItems.add(i.item);
+    this.visBossItems.add(this.itemOf(i));
     this.visMainItems.add({
       id: this.prefix + i.id,
-      start: i.item.start,
-      end: new Date(i.item.start.valueOf() as number + 10),
+      start: i.start,
+      end: new Date(i.startAsNumber + 10),
       type: 'background',
       content: "",
       className: "bossAttack",
@@ -500,34 +970,29 @@ export class BossAttacksHolder extends BaseHolder<string, VisTimelineItem, BossA
   }
 
   update(itemsToUpdate: BossAttackMap[]): void {
-    itemsToUpdate.forEach(it => {
-      const v = this.get(it.id);
-      v.attack = it.attack;
-      v.item = it.item;
-    });
-    this.visBossItems.update(itemsToUpdate.filter(x => !!this.visBossItems.get(x.id)).map(x => x.item));
+    this.visBossItems.update(this.itemsOf(itemsToUpdate.filter(x => !!this.visBossItems.get(x.id))));
     this.visMainItems.update(itemsToUpdate.map(it => {
       const item = this.visMainItems.getById(this.prefix + it.id);
       if (!item) return null;
-      item.start = new Date(it.item.start.valueOf() as number);
+      item.start = it.start;
       item.end = new Date(item.start.valueOf() + 10);
       return item;
     }).filter(x => !!x));
   }
 
-  applyFilter(filter: M.IFilter): void {
+  applyFilter(filter: M.IBossAttackFilter): void {
     if (!filter) return;
     this.values.forEach(it => {
-      let visible = (filter.attacks.isTankBuster && it.attack.isTankBuster);
-      visible = visible || (filter.attacks.isAoe && it.attack.isAoe);
-      visible = visible || (filter.attacks.isShareDamage && it.attack.isShareDamage);
-      
+      let visible = (filter.isTankBuster && it.attack.isTankBuster);
+      visible = visible || (filter.isAoe && it.attack.isAoe);
+      visible = visible || (filter.isShareDamage && it.attack.isShareDamage);
+
       if (!visible) {
-        visible = filter.attacks.isOther && !(it.attack.isTankBuster || it.attack.isAoe || it.attack.isShareDamage);
+        visible = filter.isOther && !(it.attack.isTankBuster || it.attack.isAoe || it.attack.isShareDamage);
       }
 
-      visible = visible && (filter.attacks.isMagical && it.attack.type === M.DamageType.Magical || filter.attacks.isPhysical && it.attack.type === M.DamageType.Physical || filter.attacks.isUnaspected && it.attack.type === M.DamageType.None);
-      
+      visible = visible && (filter.isMagical && it.attack.type === M.DamageType.Magical || filter.isPhysical && it.attack.type === M.DamageType.Physical || filter.isUnaspected && it.attack.type === M.DamageType.None);
+
 
       const item = this.visBossItems.getById(it.id);
 
@@ -545,24 +1010,28 @@ export class BossAttacksHolder extends BaseHolder<string, VisTimelineItem, BossA
   }
 
   setVertical(verticalBossAttacks: boolean): void {
-    const all = this.getAll();
-    all.forEach(it => {
-      const b = new ClassNameBuilder(it.item.className);
-      b.set([{ value: "vertical", flag: verticalBossAttacks }]);
-      it.item.className = b.build();
+    this.values.forEach(it => {
+      it.applyData({ vertical: verticalBossAttacks });
     });
-    this.update(all);
+    this.update(this.values);
   }
 
   getAffectedAttacks(start: Date, calculatedDuration: number): string[] {
-    return this.filter(it => it.item.start >= start &&
-      new Date(start.valueOf() + calculatedDuration * 1000) >= it.item.start).map(it => it.id);
+    return this.filter(it => it.start >= start &&
+      new Date(start.valueOf() + calculatedDuration * 1000) >= it.start).map(it => it.id);
+  }
+
+  sync(id: string, date: Date) {
+    const item = this.visMainItems.get(this.prefix + id);
+    item.start = date;
+    item.end = new Date(item.start.valueOf() + 10);
+    this.visMainItems.update([item]);
   }
 }
 
 export class AbilitySelectionHolder extends BaseHolder<string, VisTimelineItem, AbilitySelectionMap> {
   updateDate(id: string, time: Date): void {
-    const found = this.values.find((it: AbilitySelectionMap) => it.id === id);
+    const found = this.items[id];
     if (found === null || found === undefined) {
       console.warn("Unable to update abilityUsage with id:" + id);
       return;
@@ -570,7 +1039,7 @@ export class AbilitySelectionHolder extends BaseHolder<string, VisTimelineItem, 
     found.time = time;
   }
 
-  getLength(): number {
+  get length(): number {
     return this.values.length;
   }
 }
@@ -581,7 +1050,7 @@ export class BossDownTimeHolder extends BaseHolder<string, VisTimelineItem, Boss
   setShowInPartyArea(showDowntimesInPartyArea: boolean): void {
     this.showInPartyArea = showDowntimesInPartyArea;
     if (this.showInPartyArea) {
-      this.values.forEach(it => this.visPartyItems.add(it.item));
+      this.values.forEach(it => this.visPartyItems.add(this.itemOf(it)));
     } else {
       this.values.forEach(it => this.visPartyItems.remove(it.id));
     }
@@ -593,9 +1062,10 @@ export class BossDownTimeHolder extends BaseHolder<string, VisTimelineItem, Boss
 
   add(i: BossDownTimeMap): void {
     super.add(i);
-    this.visBossItems.add(i.item);
+    const item = this.itemOf(i);
+    this.visBossItems.add(item);
     if (this.showInPartyArea)
-      this.visPartyItems.add(i.item);
+      this.visPartyItems.add(item);
   }
 
   remove(ids: string[]): void {
@@ -613,9 +1083,10 @@ export class BossDownTimeHolder extends BaseHolder<string, VisTimelineItem, Boss
   }
 
   update(items: BossDownTimeMap[]): void {
-    this.visBossItems.update(items.map(x => x.item));
+    const tu = this.itemsOf(items);
+    this.visBossItems.update(tu);
     if (this.showInPartyArea)
-      this.visPartyItems.update(items.map(x => x.item));
+      this.visPartyItems.update(tu);
   }
 
   getById(id: string): BossDownTimeMap {
@@ -625,6 +1096,16 @@ export class BossDownTimeHolder extends BaseHolder<string, VisTimelineItem, Boss
 
 export class AbilityUsageHolder extends BaseHolder<string, VisTimelineItem, AbilityUsageMap> {
 
+  setHighlightLoaded(highlightLoaded: boolean) {
+    const toUpdate: AbilityUsageMap[] = [];
+    this.values.forEach(it => {
+      if (it.loaded) {
+        it.applyData({ showLoaded: highlightLoaded });
+        toUpdate.push(it);
+      }
+    });
+    this.update(toUpdate);
+  }
 
   constructor(private visItems: VisTimelineItems) {
     super();
@@ -632,7 +1113,7 @@ export class AbilityUsageHolder extends BaseHolder<string, VisTimelineItem, Abil
 
   add(i: AbilityUsageMap): void {
     super.add(i);
-    this.visItems.add(i.item);
+    this.visItems.add(this.itemOf(i));
   }
 
   clear(): void {
@@ -640,9 +1121,9 @@ export class AbilityUsageHolder extends BaseHolder<string, VisTimelineItem, Abil
     super.clear();
   }
 
-  checkDatesOverlap(group: number, start: Date, end: Date, id?: string, selectionRegistry?: AbilitySelectionHolder): boolean {
+  checkDatesOverlap(group: string, start: Date, end: Date, id?: string, selectionRegistry?: AbilitySelectionHolder): boolean {
     if (this.values.length > 0) {
-      return this.values.some((x: AbilityUsageMap) => (id === undefined || x.id !== id) && x.item.group === group && x.item.start < end && x.item.end > start && (!selectionRegistry || !selectionRegistry.get(x.id)));
+      return this.values.some((x: AbilityUsageMap) => (id === undefined || x.id !== id) && x.ability.id === group && x.start < end && x.end > start && (!selectionRegistry || !selectionRegistry.get(x.id)));
     }
     return false;
   }
@@ -653,11 +1134,11 @@ export class AbilityUsageHolder extends BaseHolder<string, VisTimelineItem, Abil
   }
 
   update(items: AbilityUsageMap[]) {
-    this.visItems.update(items.map(x => x.item));
+    this.visItems.update(this.itemsOf(items));
   }
 
   getByAbility(id: string): AbilityUsageMap[] {
-    return this.filter(it => it.item.group === id);
+    return this.filter(it => it.ability.id === id);
   }
 
   getSetting(id: string, name: string): any {
@@ -681,7 +1162,7 @@ export class BuffHeatmapHolder extends BaseHolder<string, VisTimelineItem, Heatm
 
   add(i: HeatmapMap): void {
     super.add(i);
-    this.visItems.add(i.item);
+    this.visItems.add(this.itemOf(i));
   }
 
   clear(): void {
@@ -695,7 +1176,7 @@ export class BuffHeatmapHolder extends BaseHolder<string, VisTimelineItem, Heatm
   }
 
   update(items: HeatmapMap[]) {
-    this.visItems.update(items.map(x => x.item));
+    this.visItems.update(this.itemsOf(items));
   }
 }
 
@@ -705,9 +1186,9 @@ export class BossTargetHolder extends BaseHolder<string, VisTimelineItem, BossTa
     super();
   }
 
-  add(i: HeatmapMap): void {
+  add(i: BossTargetMap): void {
     super.add(i);
-    this.visItems.add(i.item);
+    this.visItems.add(this.itemOf(i));
   }
 
   clear(): void {
@@ -721,7 +1202,7 @@ export class BossTargetHolder extends BaseHolder<string, VisTimelineItem, BossTa
   }
 
   update(items: BossTargetMap[]) {
-    this.visItems.update(items.map(x => x.item));
+    this.visItems.update(this.itemsOf(items));
   }
 
   get initialBossTarget(): string { return this.initial; }
@@ -736,7 +1217,7 @@ export class AbilityAvailablityHolder extends BaseHolder<string, VisTimelineItem
 
   add(i: AbilityAvailabilityMap): void {
     super.add(i);
-    this.visItems.add(i.item);
+    this.visItems.add(this.itemOf(i));
   }
 
   clear(): void {
@@ -750,11 +1231,11 @@ export class AbilityAvailablityHolder extends BaseHolder<string, VisTimelineItem
   }
 
   update(items: AbilityAvailabilityMap[]) {
-    this.visItems.update(items.map(x => x.item));
+    this.visItems.update(this.itemsOf(items));
   }
 
   removeForAbility(id: string): void {
-    const ids = this.filter(it => it.item.group === id);
+    const ids = this.filter(it => it.ability.id === id);
     this.remove(ids.map(it => it.id));
   }
 }

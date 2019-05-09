@@ -1,30 +1,29 @@
-<h1 mat-dialog-title>Load</h1>
-<div mat-dialog-content style="height: 360px;">
-    <form *ngIf="!loading && container.fights && container.fights.length>0">
-        <div class="importDialogList">
-            <mat-selection-list  #fights name="lst"  [(ngModel)]="selectedRowsChecked">
-                <mat-list-option *ngFor="let fight of container.fights" [value]="fight.id">
-                    {{fight.name}}
-                </mat-list-option>
-            </mat-selection-list>
-        </div>
-    </form>
+<nz-spin nzTip="Loading..." [nzSpinning]="loading">
+  <div style="height: 360px;">
+    <div *ngIf="!loading && container.fights && container.fights.length>0">
+      <div style="height: 360px;overflow: auto">
+        <nz-list #fights
+                 [nzDataSource]="container.fights"
+                 [nzRenderItem]="item"
+                 nzSize="small">
+          <ng-template #item let-item>
+            <nz-list-item [nzActions]="[removeAction]">
+              <nz-list-item-meta [nzTitle]="nzTitle">
+                <ng-template #nzTitle>
+                  <a (click)="select(item)">{{ item.name }}</a>
+                </ng-template>
+              </nz-list-item-meta>
+              <ng-template #removeAction><a nz-popconfirm nzTitle="Are you sure delete this fight?" (nzOnConfirm)="remove(item)"><i nz-icon nzType="delete" nzTheme="twotone"></i></a></ng-template>
+            </nz-list-item>
+          </ng-template>
+        </nz-list>
+      </div>
+    </div>
     <div *ngIf="!loading && (!container.fights || container.fights.length==0)">
-        No Data
+      <nz-empty></nz-empty>
     </div>
-    <div style="width: 100%; align-content: center" *ngIf="loading">
-        <mat-spinner ></mat-spinner>
-    </div>
-    
-</div>
-<div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()"  cdkFocusInitial>No Thanks</button>
-  <button mat-button (click)="onYesClick()" [disabled]="selectedRowsChecked.length!=1">Load</button>
-  <span class="example-spacer"></span>
-  <button mat-raised-button (click)="onRemoveClick()" color="warn" *ngIf="selectedRowsChecked.length>0">
-    <span *ngIf="confirmMode">Are you sure?</span>
-    <span *ngIf="!confirmMode">Remove {{getItemsCountString()}}</span>
-    <img *ngIf="removing" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-  </button>
-  <button mat-raised-button (click)="onCancelClick()" *ngIf="confirmMode">No</button>
-</div>
+  </div>
+</nz-spin>
+<ng-template #buttonsTempalte>
+  <button nz-button nzType="primary" (click)="onNoClick()" cdkFocusInitial>Cancel</button>
+</ng-template>

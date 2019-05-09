@@ -143,7 +143,6 @@ export interface AbilityEvent extends Event {
 }
 
 interface EffectEvent extends AbilityEvent {
-	// TODO: HitType enum would be nice
 	hitType: number;
 	tick?: boolean;
 
@@ -216,6 +215,7 @@ export interface IJobInfo {
   job: string;
   actorName: string;
   role?: number;
+  rid?: string;
 }
 
 

@@ -1,4 +1,4 @@
-﻿export class ClassNameBuilder {
+export class ClassNameBuilder {
     private classes: Array<string>;
     private changed: boolean = false;
 
@@ -40,13 +40,15 @@
         return this;
     }
 
-    set(input: { value: string, flag: boolean }[]): ClassNameBuilder {
-        for (let s of input) {
-            if (s.flag) {
-                this.add([s.value]);
+    set(input: { [value:string]:boolean }): ClassNameBuilder {
+        for (let s in input) {
+          if (input.hasOwnProperty(s)) {
+            if (input[s]) {
+              this.add([s]);
             } else {
-                this.remove([s.value]);
+              this.remove([s]);
             }
+          }
         }
         return this;
     }
@@ -56,6 +58,6 @@
     }
 
     build(): string {
-        return this.classes.join(" ");
+        return this.classes.join(" ") || "dummy";
     }
 }

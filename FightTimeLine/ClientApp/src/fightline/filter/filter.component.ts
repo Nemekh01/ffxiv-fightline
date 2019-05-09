@@ -70,31 +70,34 @@ export class FilterComponent {
   }
 
   updateFilter(): void {
-    this.changed.emit(<IFilter>{
-      abilities: {
-        selfDefence: this.selfDefensive,
-        partyDefence: this.partyDefensive,
-        defensive: this.selfDefensive,
-        selfDamageBuff: this.selfDamageBuff,
-        partyDamageBuff: this.partyDamageBuff,
-        damage: this.damage,
-        healing: this.healing,
-        healingBuff: this.healingBuff,
-        utility: this.utility,
-        pet: this.pet,
-        unused: this.unused
-      },
-      attacks: {
-        isTankBuster: this.isTankBuster,
-        isAoe: this.isAoe,
-        isShareDamage: this.isShare,
-        isOther: this.isOther,
-        isPhysical: this.isPhysical,
-        isMagical: this.isMagical,
-        isUnaspected: this.isUnaspected,
-        keywords: []
-      }
+    setTimeout(() => {
+      this.changed.emit(<IFilter>{
+        abilities: {
+          selfDefence: this.selfDefensive,
+          partyDefence: this.partyDefensive,
+          defensive: this.selfDefensive,
+          selfDamageBuff: this.selfDamageBuff,
+          partyDamageBuff: this.partyDamageBuff,
+          damage: this.damage,
+          healing: this.healing,
+          healingBuff: this.healingBuff,
+          utility: this.utility,
+          pet: this.pet,
+          unused: this.unused
+        },
+        attacks: {
+          isTankBuster: this.isTankBuster,
+          isAoe: this.isAoe,
+          isShareDamage: this.isShare,
+          isOther: this.isOther,
+          isPhysical: this.isPhysical,
+          isMagical: this.isMagical,
+          isUnaspected: this.isUnaspected,
+          keywords: []
+        }
+      })
     });
+    ;
   }
 }
 

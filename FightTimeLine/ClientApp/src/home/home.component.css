@@ -28,10 +28,6 @@
   padding-left: 15px;
 }
 
-.home-actions .home-column {
-  
-}
-
 .action-button {
   width: 95%;
   height: 80px;
@@ -42,8 +38,8 @@
   vertical-align: top;
 }
 
-.home-card .mat-card-header .mat-card-title {
-  font-size: 26px !important
+.home-card {
+  font-size: 26px !important;
 }
 .card-subtitle {
   font-weight: initial;
@@ -53,11 +49,17 @@
   margin-top: 5px;
 }
 
-mat-nav-list.mat-nav-list.mat-list-base {
+.recentList {
   overflow: hidden;
+  height: 500px;
+  cursor: pointer;
 }
 
-mat-nav-list.mat-nav-list.mat-list-base:hover {
+.recentList .ant-list-item:hover {
+  background-color: lightgray;
+}
+
+.recentList:hover {
   overflow: auto;
 }
 

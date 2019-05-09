@@ -1,20 +1,13 @@
 import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener,Input, Output, EventEmitter,Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MatSnackBar, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
-
 import {IJob, IFilter, IView} from "../core/Models";
-
 import { DialogService } from "../services/index"
 import { ChangeNotes } from "../changeNotes"
-
 import { FilterComponent } from "../fightline/filter/filter.component"
 import { ViewComponent } from "../fightline/view/view.component"
 import { PingComponent } from "../fightline/ping/ping.component"
 import { ScreenNotificationsService } from "../services/ScreenNotificationsService"
 import { LocalStorageService } from "../services/LocalStorageService"
-
-
-
 import { IAuthenticationService, authenticationServiceToken } from "../services/index"
 
 @Component({

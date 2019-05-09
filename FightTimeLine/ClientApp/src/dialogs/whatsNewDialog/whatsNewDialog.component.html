@@ -1,13 +1,9 @@
-<h1 mat-dialog-title>What's new</h1>
-<div mat-dialog-content style="height: 100%;">
-    <div *ngFor="let change of data">
-        <h3>{{change.date}}</h3>
-        <ul *ngFor="let item of change.items">
-            <li mat-line innerHtml="{{item}}"></li>
-        </ul>
-    </div>
-</div>
-<div mat-dialog-actions>
-    <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Close</button>
+<div style="height: 600px; overflow: auto; padding: 4px;">
+  <nz-timeline>
+    <nz-timeline-item *ngFor="let change of data">
+      <div><b>{{change.date}}</b></div>
+      <div *ngFor="let item of change.items" innerHtml="{{item}}"></div>
+    </nz-timeline-item>
+  </nz-timeline>
 </div>
 

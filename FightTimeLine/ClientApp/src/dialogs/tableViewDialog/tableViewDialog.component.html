@@ -1,33 +1,35 @@
-<h1 mat-dialog-title style="margin: 0; font-size: 12px">
-    <mat-form-field style="width: 50%">
-        <mat-select placeholder="Template" name="exportTemplatesList" [formControl]="exportTemplatesControl">
-            <mat-option *ngFor="let template of templates" [value]="template.name">
-                {{template.name}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
+<form nz-form>
+  <nz-form-item>
+    <nz-form-control nzSpan="12">
+      <nz-select nzPlaceHolder="Template" name="exportTemplatesList" [formControl]="exportTemplatesControl" nzSize="small">
+        <nz-option *ngFor="let template of templates" [nzValue]="template.name" [nzLabel]="template.name"></nz-option>
+      </nz-select>
+    </nz-form-control>
+    <nz-form-control nzSpan="12">
+      <button nz-button [disabled]="!this.exportTemplatesControl.value" (click)="show()" nzSize="small">Show</button>
+    </nz-form-control>
+  </nz-form-item>
+</form>
 
-    <button mat-raised-button [disabled]="!this.exportTemplatesControl.value" (click)="show()">Show</button>
-</h1>
-<div mat-dialog-content style="height: 100%">
-    <mat-table [dataSource]="set.rows" class="mat-elevation-z8" *ngIf="set">
-        <ng-container [matColumnDef]="column.text" *ngFor="let column of set.columns">
-            <mat-header-cell *matHeaderCellDef> <img class="abilityIcon" *ngIf="column.icon" [src]="column.icon" />{{column.text}} </mat-header-cell>
-            <mat-cell *matCellDef="let element" [ngStyle]="{'flex-wrap': 'wrap'}">
-                <div *ngFor="let d of element[columnNames.indexOf(column.text)]" style="margin-right: 2px;">
-                    <div *ngIf="d.lineColor" [ngStyle]="{'background-color':d.lineColor}" class='marker'></div>
-                    <p>
-                        <img class="abilityIcon" *ngIf="d.icon" [src]="d.icon" />
-                        {{d.text}}
-                    </p>
-                </div>
-            </mat-cell>
-        </ng-container>
-
-        <mat-header-row *matHeaderRowDef="columnNames"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: columnNames;"></mat-row>
-    </mat-table>
-</div>
-<div mat-dialog-actions>
-    <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Close</button>
+<div mat-dialog-content style="height: 650px">
+  <nz-table #table [nzData]="set.rows" *ngIf="set" [nzScroll]="{ y: '600px' }" [nzBordered]="true" [nzShowPagination]="false" nzSize="small">
+    <thead>
+      <tr>
+        <th *ngFor="let column of set.columns" [nzWidth]="getWidth(column.text, !!column.icon)"><img class="abilityIcon" *ngIf="column.icon" [src]="column.icon" />{{column.text}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of set.rows">
+        <td *ngFor="let cell of row">
+          <div *ngFor="let d of cell">
+            <div *ngIf="d.lineColor" [ngStyle]="{'background-color':d.lineColor}" class='marker'></div>
+            <div>
+              <img class="abilityIcon" *ngIf="d.icon" [src]="d.icon" />
+              {{d.text}}
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
 </div>

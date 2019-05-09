@@ -1,96 +1,115 @@
 <div class="toolbar">
-  <mat-toolbar>
-    <mat-toolbar-row>
-      <span style="margin-right: 10px" *ngIf="showHome">
-        <button mat-raised-button (click)="onHome()"  matTooltip="Home"><i class="material-icons" style="margin-right: 2px">home</i></button>
-      </span>
-      <span *ngIf="showTitle" class="toolbar-title">Fight Time Line</span>
-      <span *ngIf="showJobButton">
-        <button mat-raised-button color="primary" [matMenuTriggerFor]="addJobMenu">Add Job</button>
-        <mat-menu #addJobMenu="matMenu">
-          <button mat-menu-item *ngFor="let c of jobs" (click)="onAddJob(c.name)">
-            <img [src]="c.icon" style="width: 30px; height: 30px; margin-right: 6px;" />
-            <span style="font-weight: bold">{{c.name}}</span>
-          </button>
-        </mat-menu>
-      </span>
-      <span *ngIf="showMenu">
-        <button mat-raised-button [matMenuTriggerFor]="mainMenu" matTooltip="Menu"><i class="material-icons" style="margin-right: 2px">menu</i></button>
-        <mat-menu #mainMenu="matMenu">
-          <button mat-menu-item (click)="onNew()">New</button>
-          <button mat-menu-item (click)="onLoad()">Load</button>
-          <button mat-menu-item (click)="onSave()">Save</button>
-          <button mat-menu-item (click)="onOpenBossTemplates()">Boss templates</button>
-          <button mat-menu-item (click)="onShowAsTable()">Table view</button>
-          <button mat-menu-item (click)="onImport()">Import from FFLogs</button>
-          <button mat-menu-item (click)="onExportToTable()">Export to Google Sheets (BETA)</button>
-          <button mat-menu-item *ngIf="!connected" (click)="onStartSession()">Start Team Work session (BETA)</button>
-          <button mat-menu-item *ngIf="connected" (click)="onStopSession()">Stop Team Work session</button>
-        </mat-menu>
-      </span>
-      <span style="margin-left: 10px" *ngIf="showUndoRedo">
-        <button mat-raised-button (click)="onUndo()" [disabled]="!canUndo" matTooltip="Undo"><i class="material-icons">undo</i></button>
-        <button mat-raised-button (click)="onRedo()" [disabled]="!canRedo" matTooltip="Redo"><i class="material-icons">redo</i></button>
-      </span>
-      <span style="margin-left: 10px" *ngIf="showfilter">
-        <button mat-raised-button (click)="openFilter($event)"><i class="material-icons" style="margin-right: 2px">filter_list</i>Filter</button>
-      </span>
-      <span style="margin-left: 10px" *ngIf="showView">
-        <button mat-raised-button (click)="openView($event)"><i class="material-icons" style="margin-right: 2px">view_module</i>View</button>
-      </span>
-      <span style="margin-left: 10px" *ngIf="!toolToUse && showTools">
-        <button mat-raised-button [matMenuTriggerFor]="toolsMenu"><i class="material-icons" style="margin-right: 2px">build</i>Tools</button>
-        <mat-menu #toolsMenu="matMenu">
-          <button mat-menu-item (click)="useTool(t)" *ngFor="let t of availableTools">{{t}}</button>
-        </mat-menu>
-      </span>
-      <span style="margin-left: 10px" *ngIf="!!toolToUse && showTools">
-        <button mat-raised-button color="warn" (click)="useTool(null)">{{toolToUse}}</button>
-      </span>
-      <span style="margin-left: 10px; display: flex" *ngIf="showTeamwork">
-        <avatarWithPing *ngFor="let user of connectedUsers" [owner]="user.owner" textSizeRatio="3" [name]="user.name" [id]="user.id"></avatarWithPing>
-      </span>
+  <span style="margin-right: 10px" *ngIf="showHome">
+    <button nz-button (click)="onHome()" nz-tooltip nzTitle="Home"><i nz-icon type="home"></i></button>
+  </span>
+  <span *ngIf="showTitle" class="toolbar-title">Fight Time Line</span>
+  <span *ngIf="showJobButton">
+    <nz-dropdown [nzTrigger]="'click'">
+      <button nz-dropdown nz-button nzType="primary">Add Job</button>
+      <ul nz-menu>
+        <li nz-menu-item *ngFor="let c of jobs" (click)="onAddJob(c.name)">
+          <img [src]="c.icon" style="width: 30px; height: 30px; margin-right: 6px;" />
+          <span style="font-weight: bold">{{c.name}}</span>
+        </li>
+      </ul>
+    </nz-dropdown>
+  </span>
+  <span *ngIf="showMenu">
+    <nz-dropdown [nzTrigger]="'click'">
+      <button nz-dropdown nz-button nz-tooltip nzTitle="Menu"><i nz-icon type="menu"></i></button>
+      <ul nz-menu>
+        <li nz-menu-item (click)="onNew()">New</li>
+        <li nz-menu-item (click)="onLoad()">Load</li>
+        <li nz-menu-item (click)="onSave()">Save</li>
+        <li nz-menu-item (click)="onOpenBossTemplates()">Boss templates</li>
+        <li nz-menu-item (click)="onShowAsTable()">Table view</li>
+        <li nz-menu-item (click)="onImport()">Import from FFLogs</li>
+        <li nz-menu-item (click)="onExportToTable()">Export to Google Sheets (BETA)</li>
+        <li nz-menu-item *ngIf="!connected" (click)="onStartSession()">Start Team Work session (BETA)</li>
+        <li nz-menu-item *ngIf="connected" (click)="onStopSession()">Stop Team Work session</li>
+      </ul>
+    </nz-dropdown>
+  </span>
+  <span style="margin-left: 10px" *ngIf="showUndoRedo">
+    <nz-button-group>
+      <button nz-button (click)="onUndo()" [disabled]="!canUndo" nzPlacement="bottom"><i nz-icon type="undo"></i>Undo</button>
+      <button nz-button (click)="onRedo()" [disabled]="!canRedo"  nzPlacement="bottom"><i nz-icon type="redo"></i>Redo</button>
+    </nz-button-group>
+  </span>
+  <span style="margin-left: 10px" *ngIf="showfilter">
+    <button nz-button (click)="openFilter($event)"><i nz-icon type="filter" theme="fill"></i>Filter</button>
+  </span>
+  <span style="margin-left: 10px" *ngIf="showView">
+    <button nz-button (click)="openView($event)"><i nz-icon type="eye" theme="fill"></i>View</button>
+  </span>
+  <span style="margin-left: 10px" *ngIf="!toolToUse && showTools">
+    <nz-dropdown [nzTrigger]="'click'">
+      <button nz-dropdown nz-button><i nz-icon type="tool" theme="fill"></i>Tools</button>
+      <ul nz-menu>
+        <li nz-menu-item (click)="useTool(t)" *ngFor="let t of availableTools">{{t}}</li>
+      </ul>
+    </nz-dropdown>
+  </span>
+  <span style="margin-left: 10px" *ngIf="!!toolToUse && showTools">
+    <button nz-button nzType="danger" (click)="useTool(null)">{{toolToUse}}</button>
+  </span>
+  <span style="margin-left: 10px; display: flex" *ngIf="showTeamwork">
+    <avatarWithPing *ngFor="let user of connectedUsers" [owner]="user.owner" textSizeRatio="3" [name]="user.name" [id]="user.id"></avatarWithPing>
+  </span>
 
-      <span class="example-spacer"></span>
+  <span class="example-spacer"></span>
 
-      <button mat-mini-fab matTooltip="Account" [color]="authenticated?'primary':'warn'" [matMenuTriggerFor]="accountMenu">
-        <mat-icon aria-label="Account">perm_identity</mat-icon>
+  <span>
+    <nz-dropdown [nzTrigger]="'click'">
+      <button nz-dropdown nz-button nz-tooltip nzShape="circle" nzTitle="Account" [nzType]="authenticated?'primary':'danger'">
+        <i nz-icon type="user" aria-label="Account"></i>
       </button>
-      <mat-menu #accountMenu="matMenu" [overlapTrigger]="false">
-        <button mat-menu-item (click)="login()" *ngIf="!authenticated">
+      <ul nz-menu>
+        <li nz-menu-item (click)="login()" *ngIf="!authenticated">
           Sign in
-        </button>
-        <button mat-menu-item (click)="register()" *ngIf="!authenticated">
+        </li>
+        <li nz-menu-item (click)="register()" *ngIf="!authenticated">
           Sign up
-        </button>
-        <button mat-menu-item *ngIf="authenticated">
+        </li>
+        <li nz-menu-item *ngIf="authenticated">
           Logged as {{username}}
-        </button>
-        <button mat-menu-item (click)="logout()" *ngIf="authenticated">
+        </li>
+        <li nz-menu-item (click)="logout()" *ngIf="authenticated">
           Sign out
-        </button>
-      </mat-menu>
-      <button mat-mini-fab color="primary" matTooltip="Refresh" (click)="onRefresh()" style="margin-left: 10px" *ngIf="showRefresh">
-        <mat-icon aria-label="Refresh">refresh</mat-icon>
-      </button>
-      <button mat-mini-fab color="primary" matTooltip="Settings" (click)="openSettings()" style="margin-left: 10px">
-        <mat-icon aria-label="Settings">settings</mat-icon>
-      </button>
-      <button mat-mini-fab color="primary" matTooltip="Contact me in Discord" (click)="gotoDiscord()" style="margin-left: 10px">
-        <svg style="width: 24px; height: 24px;" viewBox="0 0 24 24">
-          <path fill="#ffffff" d="M22,24L16.75,19L17.38,21H4.5A2.5,2.5 0 0,1 2,18.5V3.5A2.5,2.5 0 0,1 4.5,1H19.5A2.5,2.5 0 0,1 22,3.5V24M12,6.8C9.32,6.8 7.44,7.95 7.44,7.95C8.47,7.03 10.27,6.5 10.27,6.5L10.1,6.33C8.41,6.36 6.88,7.53 6.88,7.53C5.16,11.12 5.27,14.22 5.27,14.22C6.67,16.03 8.75,15.9 8.75,15.9L9.46,15C8.21,14.73 7.42,13.62 7.42,13.62C7.42,13.62 9.3,14.9 12,14.9C14.7,14.9 16.58,13.62 16.58,13.62C16.58,13.62 15.79,14.73 14.54,15L15.25,15.9C15.25,15.9 17.33,16.03 18.73,14.22C18.73,14.22 18.84,11.12 17.12,7.53C17.12,7.53 15.59,6.36 13.9,6.33L13.73,6.5C13.73,6.5 15.53,7.03 16.56,7.95C16.56,7.95 14.68,6.8 12,6.8M9.93,10.59C10.58,10.59 11.11,11.16 11.1,11.86C11.1,12.55 10.58,13.13 9.93,13.13C9.29,13.13 8.77,12.55 8.77,11.86C8.77,11.16 9.28,10.59 9.93,10.59M14.1,10.59C14.75,10.59 15.27,11.16 15.27,11.86C15.27,12.55 14.75,13.13 14.1,13.13C13.46,13.13 12.94,12.55 12.94,11.86C12.94,11.16 13.45,10.59 14.1,10.59Z" />
-        </svg>
-      </button>
-      <button mat-mini-fab matTooltip="Help" [matMenuTriggerFor]="helpMenu" style="margin-left: 10px">
-        <mat-icon aria-label="Help">help</mat-icon>
-      </button>
-      <mat-menu #helpMenu="matMenu">
-        <button mat-menu-item (click)="showWhatsNewInt()">What's new</button>
-        <button mat-menu-item (click)="showHelp()">Help</button>
-      </mat-menu>
+        </li>
+      </ul>
+    </nz-dropdown>
+  </span>
+  <span>
+    <button nz-button nzShape="circle" nzType="primary" nz-tooltip nzTitle="Refresh" (click)="onRefresh()" style="margin-left: 10px" *ngIf="showRefresh">
+      <i nz-icon type="sync"></i>
+    </button>
+  </span>
+  <span>
+    <button nz-button nzShape="circle" nzType="primary" nz-tooltip nzTitle="Settings" (click)="openSettings()" style="margin-left: 10px">
+      <i nz-icon type="setting" aria-label="Settings"></i>
+    </button>
+  </span>
+  <span>
+    <button nz-button nzType="primary" nzShape="circle" nz-tooltip nzTitle="Contact me in Discord" (click)="gotoDiscord()" style="margin-left: 10px">
+      <svg style="width: 1em; height: 1em;" viewBox="0 0 24 24">
+        <path fill="#ffffff" d="M22,24L16.75,19L17.38,21H4.5A2.5,2.5 0 0,1 2,18.5V3.5A2.5,2.5 0 0,1 4.5,1H19.5A2.5,2.5 0 0,1 22,3.5V24M12,6.8C9.32,6.8 7.44,7.95 7.44,7.95C8.47,7.03 10.27,6.5 10.27,6.5L10.1,6.33C8.41,6.36 6.88,7.53 6.88,7.53C5.16,11.12 5.27,14.22 5.27,14.22C6.67,16.03 8.75,15.9 8.75,15.9L9.46,15C8.21,14.73 7.42,13.62 7.42,13.62C7.42,13.62 9.3,14.9 12,14.9C14.7,14.9 16.58,13.62 16.58,13.62C16.58,13.62 15.79,14.73 14.54,15L15.25,15.9C15.25,15.9 17.33,16.03 18.73,14.22C18.73,14.22 18.84,11.12 17.12,7.53C17.12,7.53 15.59,6.36 13.9,6.33L13.73,6.5C13.73,6.5 15.53,7.03 16.56,7.95C16.56,7.95 14.68,6.8 12,6.8M9.93,10.59C10.58,10.59 11.11,11.16 11.1,11.86C11.1,12.55 10.58,13.13 9.93,13.13C9.29,13.13 8.77,12.55 8.77,11.86C8.77,11.16 9.28,10.59 9.93,10.59M14.1,10.59C14.75,10.59 15.27,11.16 15.27,11.86C15.27,12.55 14.75,13.13 14.1,13.13C13.46,13.13 12.94,12.55 12.94,11.86C12.94,11.16 13.45,10.59 14.1,10.59Z" />
+      </svg>
+    </button>
+  </span>
 
-    </mat-toolbar-row>
-  </mat-toolbar>
+  <span>
+    <nz-dropdown [nzTrigger]="'click'">
+      <button nz-dropdown nz-button nzType="dashed" nzShape="circle" style="margin-left: 10px">
+        <i nz-icon type="question" aria-label="Help"></i>
+      </button>
+      <ul nz-menu>
+        <li nz-menu-item (click)="showWhatsNewInt()">What's new</li>
+        <li nz-menu-item (click)="showHelp()">Help</li>
+      </ul>
+    </nz-dropdown>
+    
+  </span>
 </div>
 <abilityFilter #filter (changed)="updateFilter($event)"></abilityFilter>
 <viewMenu #view (changed)="updateView($event)"></viewMenu>

@@ -1,18 +1,12 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener } from "@angular/core";
-import { Location } from "@angular/common";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener,Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MatSnackBar, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
 import { IBossAbility, IFight, IAbilitySetting, IAbilitySettingData } from "../core/Models";
-import { ContextMenuService, ContextMenuComponent } from "ngx-contextmenu";
 
-import { FightsService } from "../services/FightService"
+
+import { IFightService, fightServiceToken } from "../services/index"
 import { SettingsService } from "../services/SettingsService"
 import { LocalStorageService } from "../services/LocalStorageService"
 import { JobRegistry } from "../core/JobRegistry"
-import { ChangeNotes } from "../changeNotes"
-import { WhatsNewDialog } from "../dialogs/whatsNewDialog/whatsNewDialog.component"
-import { HelpDialog } from "../dialogs/helpDialog/helpDialog.component"
 
 import { FirstTemplate } from "../core/ExportTemplates/FirstTemplate"
 import { EachRowOneSecondTemplate } from "../core/ExportTemplates/EachRowOneSecondTemplate"
@@ -20,7 +14,6 @@ import { BossAttackDefensiveTemplate } from "../core/ExportTemplates/BossAttackD
 import { ExportTemplate, ExportData, IExportResultItem } from "../core/BaseExportTemplate"
 import { IExportResultSet } from "../core/BaseExportTemplate"
 import { ISerializeData, IBossAbilityUsageData } from "../core/FightTimeLineController";
-import { SettingsDialog } from "../dialogs/settingsDialog/settingsDialog.component"
 
 
 @Component({
@@ -37,8 +30,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
   jobRegistry = new JobRegistry();
 
   public constructor(
-    private dialog: MatDialog,
-    private fightService: FightsService,
+    @Inject(fightServiceToken) private fightService: IFightService,
     private route: ActivatedRoute,
     private router: Router,
     private storage: LocalStorageService,
@@ -117,49 +109,6 @@ export class TableViewComponent implements OnInit, OnDestroy {
       }
     };
   }
-
-  gotoDiscord() {
-    window.open("https://discord.gg/xRppKj4", "_blank");
-  }
-
-  showHelp(): Promise<void> {
-    const promise = new Promise<void>((resolve) => {
-      console.log("help requested");
-      const dialogRef = this.dialog.open(HelpDialog,
-        {
-          width: "90%",
-          height: "90%",
-        });
-      dialogRef.afterClosed().subscribe(() => {
-        this.storage.setString("help_shown", "yes");
-        resolve();
-      });
-    });
-
-    return promise;
-  }
-
-
-  showWhatsNewInt(change?: any) {
-    const changes = change || ChangeNotes.changes;
-    const ref = this.dialog.open(WhatsNewDialog,
-      {
-        width: "90%",
-        height: "90%",
-        data: changes
-      }
-    );
-    return ref;
-  }
-
-  openSettings(): void {
-    this.dialog.open(SettingsDialog,
-      {
-        width: "90%",
-        height: "90%"
-      });
-  }
-
 
   ngOnDestroy(): void {
 

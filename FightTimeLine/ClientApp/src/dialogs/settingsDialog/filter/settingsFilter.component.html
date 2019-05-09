@@ -1,59 +1,63 @@
-<div class="settings-filter">
-  <div>
-    Ability types:
+<div class="filter-container">
+  <div class="settings-filter">
+    <div>
+      Ability types:
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="selfDefensive">Self Defense</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="partyDefensive">Party Defense</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="selfDamageBuff">Self Damage Buff</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="partyDamageBuff">Party Damage Buff</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="damage">OGCD Damage</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="healing">Healing</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="healingBuff">Healing Buff</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="utility">Utility</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="pet">Pets</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="unused">Show unused</label>
+    </div>
   </div>
   <div>
-    <mat-checkbox [(ngModel)]="selfDefensive">Self Defense</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="partyDefensive">Party Defense</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="selfDamageBuff">Self Damage Buff</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="partyDamageBuff">Party Damage Buff</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="damage">OGCD Damage</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="healing">Healing</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="healingBuff">Healing Buff</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="utility">Utility</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="pet">Pets</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="unused">Show unused</mat-checkbox>
-  </div>
-  <div>
-    Boss attack types:
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="isTankBuster">Tank buster</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="isAoe">AOE</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="isShare">Share damage</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="isOther">Other</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="isMagical">Magical damage</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="isPhysical">Physical damage</mat-checkbox>
-  </div>
-  <div>
-    <mat-checkbox [(ngModel)]="isUnaspected">Unaspected damage</mat-checkbox>
+    <div>
+      Boss attack types:
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="isTankBuster">Tank buster</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="isAoe">AOE</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="isShare">Share damage</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="isOther">Other</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="isMagical">Magical damage</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="isPhysical">Physical damage</label>
+    </div>
+    <div>
+      <label nz-checkbox [(ngModel)]="isUnaspected">Unaspected damage</label>
+    </div>
   </div>
 </div>

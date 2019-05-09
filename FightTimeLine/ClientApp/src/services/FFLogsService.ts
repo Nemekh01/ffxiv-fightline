@@ -9,6 +9,7 @@ import "rxjs/add/observable/from";
 import "rxjs/add/observable/of";
 import { Event, ReportEventsResponse, ReportFightsResponse, IJobInfo, Events } from "../core/FFLogs"
 import { FFLogsImportBossAttacksSource } from "./SettingsService"
+import * as _ from "lodash"
 
 
 @Injectable()
@@ -36,12 +37,12 @@ export class FFLogsService {
 
     return this.httpClient.get(this.fflogsUrl + "v1/report/fights/" + code + "?translate=true&api_key=" + this.apiKey).pipe(
       tap((val: ReportFightsResponse) => {
-        const cache = this.storage.getObject<ICacheItem[]>("fights_cache") || [];
+        const fcache = this.storage.getObject<ICacheItem[]>("fights_cache") || [];
         const item = { key: code, timestamp: new Date(), data: val };
-        cache.push(item);
-        if (cache.length > 15)
-          cache.splice(0, cache.length - 15);
-        this.storage.setObject("fights_cache", cache);
+        fcache.push(item);
+        if (fcache.length > 15)
+          fcache.splice(0, fcache.length - 15);
+        this.storage.setObject("fights_cache", fcache);
       })).toPromise();
   }
 
@@ -50,7 +51,7 @@ export class FFLogsService {
   }
 
   async getEvents(code: string, instance: number, callBack: (percentage: number) => void): Promise<Events> {
-    let settings = this.settings.load();
+    const settings = this.settings.load();
     const bossAttacksSource = settings.fflogsImport.bossAttacksSource;
 
     let cache = this.storage.getObject<ICacheItem[]>("events_cache");
@@ -113,10 +114,10 @@ export class FFLogsService {
 
     const js = new JobRegistry().getJobs().filter(j => jobs.some(j1 => j1.job === j.name));
 
-    const abilityIds = js.map(j => j.abilities.filter(a => !!a.xivDbId).map(a => a.xivDbId).join()).join();
-    const abilityByBuffIds = js.map(j => j.abilities.filter(a => !!a.detectByBuff).map(a => a.detectByBuff).join()).filter(a=>!!a).join();
-    const stances = js.map(j => j.stances && j.stances.filter(a => !!a.ability.xivDbId).map(a => a.ability.xivDbId).join()).filter(a => !!a).join();
-    const buffs = [stances, abilityByBuffIds].join();
+    const abilityIds = _.uniq(_.flattenDeep(_.concat([], js.map(j => j.abilities.map(a => a.detectStrategy.deps.abilities))))).filter(a => !!a).join();
+    const abilityByBuffIds = _.concat([],js.map(j => j.abilities.map(a => a.detectStrategy.deps.buffs)));
+    const stances = _.concat([],js.map(j => j.stances && j.stances.map(a => a.ability.detectStrategy.deps.buffs)));
+    const buffs = _.uniq(_.flattenDeep(_.concat(stances, abilityByBuffIds))).filter(a => !!a).join();
     const partyIds = jobs.map(j => j.id.join()).join();
 
     const bossAutoAttacks =

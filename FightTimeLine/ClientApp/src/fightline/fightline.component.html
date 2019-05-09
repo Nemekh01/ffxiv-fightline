@@ -1,75 +1,81 @@
-<mat-sidenav-container class="example-container" hasBackdrop="false">
-  <mat-sidenav #sidenav [(opened)]="sideNavOpened" position="end" mode="over" [disableClose]="true" ngClass="side-panel">
-    <div style="width: 300px;">
-      <div style="height: 54px">
+<toolbar #toolbar
+         showHome="true"
+         showJobButton="true"
+         showMenu="true"
+         showUndoRedo="true"
+         showfilter="true"
+         showView="true"
+         showTools="true"
+         showTeamwork="true"
+         showRefresh="true"
+         [jobs]="jobs"
+         [authenticated]="authenticationService.authenticated"
+         [username]="authenticationService.username"
+         [canUndo]="fightLineController.canUndo"
+         [canRedo]="fightLineController.canRedo"
+         [connectedUsers]="teamWorkService.users"
+         [connected]="teamWorkService.connected"
+         [availableTools]="['Downtime','Sticky Attacks']"
+         (addJob)="addJob($event)"
+         (undo)="undo()"
+         (redo)="redo()"
+         (tool)="useTool($event)"
+         (exportToTable)="exportToTable()"
+         (showTable)="showAsTable()"
+         (refresh)="refresh()"
+         (saveFight)="saveFight()"
+         (filterUpdate)="updateFilter($event)"
+         (viewUpdate)="updateView($event)"
+         (startNew)="onNew()"
+         (sessionStart)="startSession()"
+         (sessionStop)="stopSession()"
+         (bossTemplates)="openBossTemplates()">
+</toolbar>
+<div class="main-content">
 
-      </div>
-      <div style="background-color: white">
-        <sidepanel #sidepanel></sidepanel>
+  <horizontal-split-pane primary-component-minsize="50"
+                         secondary-component-minsize="300"
+                         separator-thickness="3"
+                         primary-component-initialratio="0.06">
+    <div class="split-pane-content-primary" style="width: 100%; height: 100%">
+      <div class="boss-timeline-container" style="width: 100%; height: 100%">
+        <div class="boss-timeline" [visTimeline]="visTimelineBoss" style="width: 100%; height: 100%"
+             [visTimelineItems]="visTimelineItemsBoss"
+             [visTimelineGroups]="visTimelineGroupsBoss"
+             (initialized)="timelineBossInitialized()"></div>
       </div>
     </div>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <toolbar #toolbar
-             showHome="true"
-             showJobButton="true"
-             showMenu="true"
-             showUndoRedo="true"
-             showfilter="true"
-             showView="true"
-             showTools="true"
-             showTeamwork="true"
-             showRefresh="true"
-             [jobs]="jobs"
-             [authenticated]="authenticationService.authenticated"
-             [username]="authenticationService.username"
-             [canUndo]="fightLineController.canUndo"
-             [canRedo]="fightLineController.canRedo"
-             [connectedUsers]="teamWorkService.users"
-             [connected]="teamWorkService.connected"
-             [availableTools]="['Downtime','Sticky Attacks']"
-             (addJob)="addJob($event)"
-             (undo)="undo()"
-             (redo)="redo()"
-             (tool)="useTool($event)"
-             (exportToTable)="exportToTable()"
-             (showTable)="showAsTable()"
-             (refresh)="refresh()"
-             (saveFight)="saveFight()"
-             (filterUpdate)="updateFilter($event)"
-             (viewUpdate)="updateView($event)"
-             (startNew)="onNew()"
-             (sessionStart)="startSession()"
-             (sessionStop)="stopSession()"
-             (bossTemplates)="openBossTemplates()"
-             >
-    </toolbar>
-    <div class="main-content">
-      <horizontal-split-pane primary-component-minsize="50"
-                             secondary-component-minsize="300"
-                             separator-thickness="3"
-                             primary-component-initialratio="0.06">
-        <div class="split-pane-content-primary" style="width: 100%; height: 100%">
-          <div class="boss-timeline-container" style="width: 100%; height: 100%">
-            <div class="boss-timeline" [visTimeline]="visTimelineBoss" style="width: 100%; height: 100%"
-                 [visTimelineItems]="visTimelineItemsBoss"
-                 [visTimelineGroups]="visTimelineGroupsBoss"
-                 (initialized)="timelineBossInitialized()"></div>
-          </div>
-        </div>
-        <div class="split-pane-content-secondary" style="width: 100%; height: 100%">
-          <div class="timeline-container" style="width: 100%; height: 100%">
-            <div class="timeline" [visTimeline]="visTimeline" style="width: 100%; height: 100%"
-                 [visTimelineItems]="visTimelineItems"
-                 [visTimelineGroups]="visTimelineGroups"
-                 (initialized)="timelineInitialized()"
-                 (window:keyup)="keyPressed($event)"></div>
-          </div>
-        </div>
-      </horizontal-split-pane>
+    <div class="split-pane-content-secondary" style="width: 100%; height: 100%">
+      <div class="timeline-container" style="width: 100%; height: 100%">
+        <div class="timeline" [visTimeline]="visTimeline" style="width: 100%; height: 100%"
+             [visTimelineItems]="visTimelineItems"
+             [visTimelineGroups]="visTimelineGroups"
+             (initialized)="timelineInitialized()"
+             (window:keyup)="keyPressed($event)"></div>
+      </div>
     </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </horizontal-split-pane>
 
+</div>
+
+<nz-drawer #sidenav
+           [nzVisible]="sideNavOpened"
+           nzPlacement="right"
+           [nzClosable]="false"
+           [nzMask]="false"
+           nzWidth="305px"
+           [nzMaskClosable]="true"
+           [nzBodyStyle]="{padding: '2px'}"
+           [nzMaskStyle]="{width:'0px !important'}">
+  <div style="width: 300px;">
+    <div style="height: 54px">
+
+    </div>
+    <div style="background-color: white">
+      <sidepanel #sidepanel></sidepanel>
+    </div>
+  </div>
+</nz-drawer>
 <fightLineContextMenu #contextMenu (filterUpdated)="updateFilter($event)"></fightLineContextMenu>
 <ng-progress [speed]="500" [trickleSpeed]="30000" [showSpinner]="false"></ng-progress>
+

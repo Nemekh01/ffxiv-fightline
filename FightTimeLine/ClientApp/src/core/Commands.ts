@@ -1,5 +1,5 @@
 import { Command, ICommandExecutionContext, ICommandData } from "./UndoRedo"
-import { IAbility, IBossAbility, IJob, IFilter, IAbilitySettingData } from "./Models"
+import { IAbility, IBossAbility, IJob, IFilter, IAbilitySettingData, IAbilityFilter,Role } from "./Models"
 import * as H from "./DataHolders"
 import { Utils } from "./Utils"
 import { Guid } from "guid-typescript"
@@ -34,7 +34,7 @@ export class CombinedCommand implements Command {
 export class AddJobCommand implements Command {
 
 
-  private filter: IFilter;
+  private filter: IAbilityFilter;
 
   constructor(private id: string, private jobName: string, private actorName: string, private prevBossTarget: string, private doUpdates: boolean, private pet: string, private collapsed: boolean) {
 
@@ -54,8 +54,8 @@ export class AddJobCommand implements Command {
   }
 
   reverse(context: ICommandExecutionContext): void {
-    const subgroups = context.holders.abilities.getByParentId(this.id);
-    for (let sg of subgroups) {
+    const abilities = context.holders.abilities.getByParentId(this.id);
+    for (let sg of abilities) {
       context.holders.abilities.remove([sg.id]);
     }
     const job = context.holders.jobs.get(this.id);
@@ -69,66 +69,43 @@ export class AddJobCommand implements Command {
   }
 
   execute(context: ICommandExecutionContext): void {
-    const job = context.jobRegistry.getJobs().find((job: IJob) => job.name === this.jobName) as IJob;
+    const job = context.jobRegistry.getJobs().find(it => it.name === this.jobName);
     const abilityIds = new Array<string>();
     let index = 0;
 
-    if (job.stances && job.stances.length > 0) {
+    const map = {
+      id: this.id,
+      job: job,
+      actorName: this.actorName,
+      isCompactView: context.isCompactView(),
+      collapsed: this.collapsed
+    };
+    const jobMap = new H.JobMap(map.id, map.job, { actorName: map.actorName, collapsed: map.collapsed }, this.filter, this.pet);
+
+    if (job.stances && job.stances.length) {
       const nextId = this.id + "_" + index;
       abilityIds.push(nextId);
-      context.holders.abilities.add(new H.AbilityMap({
-        id: nextId,
-        parentId: this.id,
-        ability: null,
-        hidden: false,
-        isStance: true,
-        item: context.itemBuilder.createStances(nextId)
-      }));
+      context.holders.abilities.add(new H.AbilityMap(
+        nextId,
+        jobMap,
+        null,
+        true,
+        { hidden: false }
+      ));
       index++;
     }
 
     for (let a of job.abilities) {
       const nextId = this.id + "_" + index;
       abilityIds.push(nextId);
-
-      context.holders.abilities.add(new H.AbilityMap({
-        id: nextId,
-        parentId: this.id,
-        ability: a,
-        hidden: false,
-        item: context.itemBuilder.createJobAbility(a, nextId, context.isCompactView()),
-        isCompact: context.isCompactView()
-      }));
+      context.holders.abilities.add(new H.AbilityMap(nextId, jobMap, a, false, { hidden: false }));
       index++;
     }
 
-    const map = <H.JobMap>{
-      id: this.id,
-      item: context.itemBuilder.createJob(job, this.actorName, this.id, abilityIds, this.collapsed),
-      job: job,
-      pet: this.pet || job.defaultPet,
-      actorName: this.actorName,
-      filter: this.filter || {
-        abilities: {
-          damage: undefined,
-          selfDefence: undefined,
-          partyDefence: undefined,
-          healing: undefined,
-          healingBuff: undefined,
-          partyDamageBuff: undefined,
-          selfDamageBuff: undefined,
-          unused: undefined,
-          pet: undefined,
-          utility: undefined
-        }
-      },
-      isCompactView: context.isCompactView(),
-      collapsed: this.collapsed
-    };
-    context.holders.jobs.add(map);
+    jobMap.useAbilities(abilityIds);
+    context.holders.jobs.add(jobMap);
 
-
-    if ((context.holders.bossTargets.initialBossTarget == undefined || context.holders.bossTargets.initialBossTarget === "boss") && map.job.canBeTargetForBoss)
+    if ((context.holders.bossTargets.initialBossTarget == undefined || context.holders.bossTargets.initialBossTarget === "boss") && map.job.role === Role.Tank)
       context.holders.bossTargets.initialBossTarget = this.id;
 
     if (this.doUpdates)
@@ -137,7 +114,7 @@ export class AddJobCommand implements Command {
 }
 
 export class RemoveJobCommand implements Command {
-  private storedData: { abilityMaps: string, jobMap: string, wasBossTarget: boolean, actor: string, filter: IFilter, order: number } = <any>{};
+  private storedData: { abilityMaps: any, jobMap: any, wasBossTarget: boolean } = <any>{};
 
   constructor(private id: string) {
   }
@@ -153,25 +130,24 @@ export class RemoveJobCommand implements Command {
 
   reverse(context: ICommandExecutionContext): void {
 
-    const abilityMaps = JSON.parse(this.storedData.abilityMaps) as IAbilityWithUsages[];
-    const jobMap = JSON.parse(this.storedData.jobMap) as H.JobMap;
-    jobMap.isCompactView = context.isCompactView();
+    const abilityMaps = this.storedData.abilityMaps as IAbilityWithUsages[];
+    const jobMap = this.storedData.jobMap as H.JobMap;
+    jobMap.isCompact = context.isCompactView();
     context.holders.jobs.add(jobMap);
 
     abilityMaps.forEach((it: IAbilityWithUsages) => {
-      it.map.isCompact = context.isCompactView();
+      it.map.applyData({
+        isCompact: context.isCompactView()
+      });
       context.holders.abilities.add(it.map);
       it.usages.forEach((x) => {
-        x.item.start = new Date(x.item.start.valueOf() as number);
-        x.item.end = new Date(x.item.end.valueOf() as number);
-        context.holders.itemUsages.add({
-          id: x.id,
-          calculatedDuration: it.map.ability.duration,
-          ability: it.map.ability,
-          settings: x.settings,
-          item: context.itemBuilder.createAbilityUsage(it.map.ability, x.id, x.item.group, new Date(x.item.start.valueOf() as number), context.ogcdAttacksAsPoints(it.map.ability), it.map.isCompact, context.highlightLoaded() && x.loaded),
-          loaded: x.loaded
-        });
+        context.holders.itemUsages.add(new H.AbilityUsageMap(x.id, it.map, x.settings,
+          {
+            start: x.start,
+            loaded: x.loaded,
+            showLoaded: context.highlightLoaded(),
+            ogcdAsPoints: context.ogcdAttacksAsPoints(it.map.ability)
+          }));
       });
     });
 
@@ -182,13 +158,13 @@ export class RemoveJobCommand implements Command {
   }
 
   execute(context: ICommandExecutionContext): void {
-    const abilitiesToStore: Array<IAbilityWithUsages> = new Array<IAbilityWithUsages>();
+    const abilitiesToStore: Array<IAbilityWithUsages> = [];
     const abilities = context.holders.abilities.getByParentId(this.id);
     const job = context.holders.jobs.get(this.id);
 
     for (let ab of abilities) {
 
-      const abs = context.holders.itemUsages.filter((it) => it.item.group === ab.id);
+      const abs = context.holders.itemUsages.getByAbility(ab.id);
       abilitiesToStore.push(<IAbilityWithUsages>{
         map: ab,
         usages: abs
@@ -198,8 +174,8 @@ export class RemoveJobCommand implements Command {
       context.holders.abilities.remove([ab.id]);
     }
 
-    this.storedData.abilityMaps = JSON.stringify(abilitiesToStore);
-    this.storedData.jobMap = JSON.stringify(job);
+    this.storedData.abilityMaps = abilitiesToStore;
+    this.storedData.jobMap = job;
 
     context.holders.jobs.remove([this.id]);
 
@@ -215,7 +191,7 @@ export class RemoveJobCommand implements Command {
 
 export class AddBossAttackCommand implements Command {
 
-  constructor(private id: string, private time: Date, private bossAbility: IBossAbility) {
+  constructor(private id: string, private bossAbility: IBossAbility) {
   }
 
   serialize(): ICommandData {
@@ -223,32 +199,31 @@ export class AddBossAttackCommand implements Command {
       name: "addBossAttack",
       params: {
         id: this.id,
-        time: Utils.formatTime(this.time),
         attack: this.bossAbility
       }
     };
   }
 
   reverse(context: ICommandExecutionContext): void {
-
     context.holders.bossAttacks.remove([this.id]);
-    context.update({ updateBossTargets: true, updateIntersectedWithBossAttackAtDate: this.time });
+    context.update({ updateBossTargets: true, updateIntersectedWithBossAttackAtDate: Utils.getDateFromOffset(this.bossAbility.offset) });
   }
 
   execute(context: ICommandExecutionContext): void {
-    context.holders.bossAttacks.add({
-      id: this.id,
-      attack: this.bossAbility,
-      item: context.itemBuilder.createBossAttack(this.id, this.bossAbility, this.time, context.verticalBossAttacks())
-    });
+    context.holders.bossAttacks.add(new H.BossAttackMap(this.id,
+      {
+        attack: this.bossAbility,
+        vertical: context.verticalBossAttacks()
+      }
+    ));
 
-    context.update({ updateBossAttacks: [this.id], updateBossTargets: true, updateIntersectedWithBossAttackAtDate: this.time });
+    context.update({ updateBossAttacks: [this.id], updateBossTargets: true, updateIntersectedWithBossAttackAtDate: Utils.getDateFromOffset(this.bossAbility.offset) });
   }
 }
 
 export class RemoveBossAttackCommand implements Command {
   private bossAbility: IBossAbility;
-  constructor(private id: string, private time: Date, private updateAttacks: boolean) {
+  constructor(private id: string, private updateAttacks: boolean) {
   }
 
   serialize(): ICommandData {
@@ -256,26 +231,26 @@ export class RemoveBossAttackCommand implements Command {
       name: "removeBossAttack",
       params: {
         id: this.id,
-        time: Utils.formatTime(this.time),
         updateAttacks: this.updateAttacks
       }
     };
   }
 
   reverse(context: ICommandExecutionContext): void {
-    context.holders.bossAttacks.add({
-      id: this.id,
-      attack: this.bossAbility,
-      item: context.itemBuilder.createBossAttack(this.id, this.bossAbility, this.time, context.verticalBossAttacks())
-    });
+    context.holders.bossAttacks.add(new H.BossAttackMap(this.id,
+      {
+        attack: this.bossAbility,
+        vertical: context.verticalBossAttacks()
+      }));
 
-    context.update({ updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: this.time });
+    context.update({ updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: Utils.getDateFromOffset(this.bossAbility.offset) });
   }
 
   execute(context: ICommandExecutionContext): void {
-    this.bossAbility = context.holders.bossAttacks.get(this.id).attack;
+    const map = context.holders.bossAttacks.get(this.id);
+    this.bossAbility = map.attack;
     context.holders.bossAttacks.remove([this.id]);
-    context.update({ updateIntersectedWithBossAttackAtDate: this.time, updateBossTargets: true });
+    context.update({ updateIntersectedWithBossAttackAtDate: Utils.getDateFromOffset(this.bossAbility.offset), updateBossTargets: true });
   }
 }
 
@@ -297,9 +272,16 @@ export class ChangeBossAttackCommand implements Command {
   }
 
   reverse(context: ICommandExecutionContext): void {
-    const bossAttackMaps = JSON.parse(this.prevDatas) as H.BossAttackMap[];
+    const pbossAttackMaps = JSON.parse(this.prevDatas) as any[];
 
-    bossAttackMaps.forEach((it) => it.item = context.itemBuilder.createBossAttack(it.id, it.attack, new Date(it.item.start.valueOf() as number), context.verticalBossAttacks()));
+    const prevData = context.holders.bossAttacks.get(this.id);
+    const bossAttackMaps = this.updateAllWithSameName ? context.holders.bossAttacks.getByName(prevData.attack.name) : [prevData];
+
+    bossAttackMaps.forEach((it) => {
+      const data = { attack: pbossAttackMaps.find(v => v.id === it.id).attack as IBossAbility };
+      it.applyData(data);
+    });
+
     context.holders.bossAttacks.update(bossAttackMaps);
 
     context.update({ updateBossAttacks: [this.id], updateBossTargets: true });
@@ -308,11 +290,12 @@ export class ChangeBossAttackCommand implements Command {
   execute(context: ICommandExecutionContext): void {
     const prevData = context.holders.bossAttacks.get(this.id);
     const bossAttackMaps = this.updateAllWithSameName ? context.holders.bossAttacks.getByName(prevData.attack.name) : [prevData];
-    this.prevDatas = JSON.stringify(bossAttackMaps);
+    this.prevDatas = JSON.stringify(bossAttackMaps.map(v => {
+      return { id: v.id, attack: v.attack }
+    }));
 
     bossAttackMaps.forEach((it) => {
-      it.attack = this.bossAbility;
-      it.item = context.itemBuilder.createBossAttack(it.id, this.bossAbility, it.item.start as Date, context.verticalBossAttacks());
+      it.applyData({ attack: this.bossAbility });
     });
 
     context.holders.bossAttacks.update(bossAttackMaps);
@@ -344,16 +327,15 @@ export class MoveCommand implements Command {
     if (item === undefined || item === null) return;
 
     const affectedAttacks = [
-      ...context.holders.bossAttacks.getAffectedAttacks(item.item.start as Date, this.ability.duration),
+      ...context.holders.bossAttacks.getAffectedAttacks(item.start as Date, this.ability.duration),
       ...context.holders.bossAttacks.getAffectedAttacks(this.moveTo as Date, this.ability.duration)
     ];
 
-    if (item.item.start !== this.moveFrom) {
+    if (item.start !== this.moveFrom) {
+      item.applyData({
+        start: this.moveFrom,
+      });
 
-      item.item.start = this.moveFrom;
-      const end = new Date(new Date(this.moveFrom).setSeconds(this.moveFrom.getSeconds() + this.ability.cooldown));
-      item.item.end = end;
-      item.item.title = "<img class='abilityIcon' src='" + this.ability.icon + "'/>" + Utils.formatTime(new Date(item.item.start)) + " - " + Utils.formatTime(new Date(item.item.end));
       context.holders.itemUsages.update([item]);
     }
 
@@ -367,19 +349,18 @@ export class MoveCommand implements Command {
     const item = context.holders.itemUsages.get(this.id);
     if (item === undefined || item === null) return;
 
-    this.moveFrom = new Date(item.item.start as number);
-    this.ability = context.holders.abilities.get(context.holders.itemUsages.get(this.id).item.group).ability;
+    this.moveFrom = item.start;
+    this.ability = context.holders.itemUsages.get(this.id).ability.ability;
     console.log(`Moving to ${this.moveTo.toString()} from ${this.moveFrom.toString()}`);
 
     const affectedAttacks = [
-      ...context.holders.bossAttacks.getAffectedAttacks(item.item.start as Date, this.ability.duration),
+      ...context.holders.bossAttacks.getAffectedAttacks(item.start as Date, this.ability.duration),
       ...context.holders.bossAttacks.getAffectedAttacks(this.moveTo as Date, this.ability.duration)
     ];
-    if (item.item.start !== this.moveTo) {
-      item.item.start = this.moveTo;
-      const end = new Date(new Date(this.moveTo).setSeconds(this.moveTo.getSeconds() + this.ability.cooldown));
-      item.item.end = end;
-      item.item.title = "<img class='abilityIcon' src='" + this.ability.icon + "'/>" + Utils.formatTime(new Date(item.item.start)) + " - " + Utils.formatTime(new Date(item.item.end));
+    if (item.start !== this.moveTo) {
+      item.applyData({
+        start: this.moveTo
+      });
       context.holders.itemUsages.update([item]);
     }
     context.holders.selectionRegistry.updateDate(this.id, this.moveTo);
@@ -391,45 +372,46 @@ export class MoveCommand implements Command {
   }
 }
 
-export class MoveBossAttackCommand implements Command {
-
-  constructor(private moveTo: Date, private moveFrom: Date, private id: string) {
-  }
-
-  serialize(): ICommandData {
-    return {
-      name: "moveBossAttack",
-      params: {
-        id: this.id,
-        moveTo: Utils.formatTime(this.moveTo),
-        moveFrom: Utils.formatTime(this.moveFrom)
-      }
-    };
-  }
-
-  reverse(context: ICommandExecutionContext): void {
-    const item = context.holders.bossAttacks.get(this.id);
-    if (item.item.start !== this.moveFrom) {
-      item.item.start = this.moveFrom;
-      item.item.title = Utils.formatTime(new Date(item.item.start));
-      item.attack.offset = Utils.formatTime(new Date(this.moveFrom));
-      context.holders.bossAttacks.update([item]);
-    }
-    context.update({ updateBossTargets: true, updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: item.item.start as Date });
-  }
-
-  execute(context: ICommandExecutionContext): void {
-    const item = context.holders.bossAttacks.get(this.id);
-    if (item.item.start !== this.moveTo) {
-      item.item.start = this.moveTo;
-      item.item.title = Utils.formatTime(new Date(item.item.start));
-      item.attack.offset = Utils.formatTime(new Date(item.item.start));
-      context.holders.bossAttacks.update([item]);
-    }
-    context.holders.selectionRegistry.updateDate(this.id, this.moveTo);
-    context.update({ updateBossTargets: true, updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: item.item.start as Date });
-  }
-}
+//export class MoveBossAttackCommand implements Command {
+//
+//  constructor(private moveTo: Date, private moveFrom: Date, private id: string) {
+//  }
+//
+//  serialize(): ICommandData {
+//    return {
+//      name: "moveBossAttack",
+//      params: {
+//        id: this.id,
+//        moveTo: Utils.formatTime(this.moveTo),
+//        moveFrom: Utils.formatTime(this.moveFrom)
+//      }
+//    };
+//  }
+//
+//  reverse(context: ICommandExecutionContext): void {
+//    const item = context.holders.bossAttacks.get(this.id);
+//    if (item.start !== this.moveFrom) {
+//      item.applyData({
+//        start: this.moveFrom
+//      });
+//
+//      context.holders.bossAttacks.update([item]);
+//    }
+//    context.update({ updateBossTargets: true, updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: item.start as Date });
+//  }
+//
+//  execute(context: ICommandExecutionContext): void {
+//    const item = context.holders.bossAttacks.get(this.id);
+//    if (item.start !== this.moveTo) {
+//      item.applyData({
+//        start: this.moveTo
+//      });
+//      context.holders.bossAttacks.update([item]);
+//    }
+//    context.holders.selectionRegistry.updateDate(this.id, this.moveTo);
+//    context.update({ updateBossTargets: true, updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: item.start as Date });
+//  }
+//}
 
 export class AddAbilityCommand implements Command {
 
@@ -462,20 +444,20 @@ export class AddAbilityCommand implements Command {
 
     const abilityMap = context.holders.abilities.getByParentAndAbility(this.jobGroup, this.abilityName);
 
-    const item = context.itemBuilder.createAbilityUsage(
-      abilityMap.ability, this.id, abilityMap.id, this.time, context.ogcdAttacksAsPoints(abilityMap.ability), abilityMap.isCompact, context.highlightLoaded() && this.loaded);
+    const item = new H.AbilityUsageMap(this.id,
+      abilityMap,
+      this.settings,
+      {
+        start: this.time,
+        loaded: this.loaded,
+        showLoaded: context.highlightLoaded(),
+        ogcdAsPoints: context.ogcdAttacksAsPoints(abilityMap.ability)
+      });
 
     if (context.checkDatesOverlap(abilityMap.id, item.start as Date, item.end as Date))
       return;
 
-    context.holders.itemUsages.add({
-      id: this.id,
-      calculatedDuration: abilityMap.ability.duration,
-      ability: abilityMap.ability,
-      settings: this.settings,
-      item: item,
-      loaded: this.loaded
-    });
+    context.holders.itemUsages.add(item);
 
     context.update({
       abilityChanged: abilityMap.ability,
@@ -490,6 +472,7 @@ export class RemoveAbilityCommand implements Command {
   private time: Date;
   private abilityMapId: string;
   private loaded: boolean;
+  private settings: any[];
 
   constructor(private id: string, private updateBossAttack: boolean) {
   }
@@ -506,36 +489,32 @@ export class RemoveAbilityCommand implements Command {
 
   reverse(context: ICommandExecutionContext): void {
     const amap = context.holders.abilities.get(this.abilityMapId);
-    const item = context.itemBuilder.createAbilityUsage(this.ability, this.id, this.abilityMapId, this.time, context.ogcdAttacksAsPoints(this.ability), amap.isCompact, context.highlightLoaded() && this.loaded);
 
-    context.holders.itemUsages.add({
-      id: this.id,
-      calculatedDuration: this.ability.duration,
-      ability: this.ability,
-      item: item,
-      settings: null,
-      loaded: this.loaded
-    });
-
+    context.holders.itemUsages.add(new H.AbilityUsageMap(this.id, amap, this.settings,
+      {
+        start: this.time,
+        loaded: this.loaded,
+        showLoaded: context.highlightLoaded(),
+        ogcdAsPoints: context.ogcdAttacksAsPoints(this.ability)
+      }));
     context.update({
       abilityChanged: this.ability,
-      updateBossAttacks: context.holders.bossAttacks.getAffectedAttacks(item.start as Date, this.ability.duration)
+      updateBossAttacks: context.holders.bossAttacks.getAffectedAttacks(this.time as Date, this.ability.duration)
     });
   }
 
   execute(context: ICommandExecutionContext): void {
 
-
     const item = context.holders.itemUsages.get(this.id);
-
-    this.ability = item.ability;
-    this.time = new Date(item.item.start as number);
-    this.abilityMapId = item.item.group;
+    this.ability = item.ability.ability;
+    this.abilityMapId = item.ability.id;
+    this.time = item.start;
     this.loaded = item.loaded;
+    this.settings = item.settings;
     context.holders.itemUsages.remove([this.id]);
     context.update({
       abilityChanged: this.ability,
-      updateBossAttacks: context.holders.bossAttacks.getAffectedAttacks(item.item.start as Date, item.calculatedDuration)
+      updateBossAttacks: context.holders.bossAttacks.getAffectedAttacks(item.start as Date, item.calculatedDuration)
     });
   }
 }
@@ -622,13 +601,14 @@ export class AddDowntimeCommand implements Command {
 
   execute(context: ICommandExecutionContext): void {
 
-    context.holders.bossDownTime.add(new H.BossDownTimeMap({
-      id: this.id,
-      startId: this.data.startId || Guid.create().toString(),
-      endId: this.data.endId || Guid.create().toString(),
-      color: this.color || "",
-      item: context.itemBuilder.createDownTime(this.id, this.data.start, this.data.end, this.color)
-    }));
+    context.holders.bossDownTime.add(new H.BossDownTimeMap(this.id,
+      this.data.startId || Guid.create().toString(),
+      this.data.endId || Guid.create().toString(),
+      {
+        start: this.data.start,
+        end: this.data.end,
+        color: this.color || ""
+      }));
 
     context.update({ updateDowntimeMarkers: true });
   }
@@ -657,11 +637,9 @@ export class ChangeDowntimeCommand implements Command {
   reverse(context: ICommandExecutionContext): void {
     const value = context.holders.bossDownTime.get(this.id);
 
-    const item = value.item;
+    value.start = this.prevStartDate;
 
-    item.start = this.prevStartDate;
-
-    item.end = this.prevEndDate;
+    value.end = this.prevEndDate;
 
     context.holders.bossDownTime.update([value]);
 
@@ -671,13 +649,12 @@ export class ChangeDowntimeCommand implements Command {
 
   execute(context: ICommandExecutionContext): void {
     const value = context.holders.bossDownTime.get(this.id);
-    const item = value.item;
 
-    this.prevStartDate = item.start as Date;
-    item.start = this.start;
+    this.prevStartDate = value.start;
+    value.start = this.start;
 
-    this.prevEndDate = item.end as Date;
-    item.end = this.end;
+    this.prevEndDate = value.end;
+    value.end = this.end;
 
 
     context.holders.bossDownTime.update([value]);
@@ -708,7 +685,10 @@ export class ChangeDowntimeColorCommand implements Command {
   reverse(context: ICommandExecutionContext): void {
     const value = context.holders.bossDownTime.get(this.id);
 
-    value.setColor(this.prevColor);
+    value.applyData({
+      color: this.prevColor
+    });
+
     context.holders.bossDownTime.update([value]);
 
 
@@ -719,7 +699,9 @@ export class ChangeDowntimeColorCommand implements Command {
     const value = context.holders.bossDownTime.get(this.id);
 
     this.prevColor = value.color;
-    value.setColor(this.newColor);
+    value.applyData({
+      color: this.newColor
+    });
 
     context.holders.bossDownTime.update([value]);
 
@@ -742,21 +724,20 @@ export class RemoveDownTimeCommand implements Command {
   }
 
   reverse(context: ICommandExecutionContext): void {
-    context.holders.bossDownTime.add(new H.BossDownTimeMap({
-      id: this.id,
-      startId: this.data.startId,
-      endId: this.data.endId,
-      color: this.prevColor,
-      item: context.itemBuilder.createDownTime(this.id, this.data.start, this.data.end, this.prevColor)
-    }));
+    context.holders.bossDownTime.add(new H.BossDownTimeMap(this.id, this.data.startId, this.data.endId,
+      {
+        start: this.data.start,
+        end: this.data.end,
+        color: this.prevColor
+      }));
 
     context.update({ updateDowntimeMarkers: true });
   }
 
   execute(context: ICommandExecutionContext): void {
     const map = context.holders.bossDownTime.get(this.id);
-    const item = map.item;
-    this.data = { start: item.start as Date, startId: map.startId, end: item.end as Date, endId: map.endId };
+    const item = map;
+    this.data = { start: item.start, startId: map.startId, end: item.end, endId: map.endId };
     this.prevColor = map.color;
     context.holders.bossDownTime.remove([this.id]);
 
@@ -814,12 +795,13 @@ export class AddStanceCommand implements Command {
     const stancesAbility = context.holders.abilities.getStancesAbility(this.jobGroup);
     const ability = jobmap.job.stances.find((it) => it.ability.name === this.abilityName).ability;
 
-    context.holders.stances.add({
-      id: this.id,
-      ability: ability,
-      item: context.itemBuilder.createStanceUsage(ability, this.id, stancesAbility.id, this.start, this.end, context.highlightLoaded() && this.loaded),
-      loaded: this.loaded
-    });
+    context.holders.stances.add(new H.JobStanceMap(this.id, stancesAbility, ability,
+      {
+        start: this.start,
+        end: this.end,
+        loaded: this.loaded,
+        showLoaded: context.highlightLoaded()
+      }));
   }
 
   serialize(): ICommandData {
@@ -859,26 +841,24 @@ export class RemoveStanceCommand implements Command {
   }
 
   reverse(context: ICommandExecutionContext): void {
-    const item = context.itemBuilder.createStanceUsage(this.ability, this.id, this.abilityMapId, this.start, this.end, context.highlightLoaded() && this.loaded);
-
-    context.holders.stances.add({
-      id: this.id,
-      ability: this.ability,
-      item: item,
-      loaded: this.loaded
-    });
-
+    const abMap = context.holders.abilities.get(this.abilityMapId);
+    context.holders.stances.add(new H.JobStanceMap(this.id, abMap, this.ability,
+      {
+        start: this.start,
+        end: this.end,
+        loaded: this.loaded,
+        showLoaded: context.highlightLoaded()
+      }));
     //   context.update({ abilityChanged: this.ability, updateBossAttacks: true });
   }
 
   execute(context: ICommandExecutionContext): void {
     const itemMap = context.holders.stances.get(this.id);
-    const abilityMap = context.holders.abilities.get(itemMap.item.group);
 
-    this.ability = context.holders.jobs.get(abilityMap.parentId).job.stances.find((it) => it.ability.name === itemMap.ability.name).ability;
-    this.start = new Date(itemMap.item.start as number);
-    this.end = new Date(itemMap.item.end as number);
-    this.abilityMapId = abilityMap.id;
+    this.ability = itemMap.stanceAbility;
+    this.start = itemMap.start;
+    this.end = itemMap.end;
+    this.abilityMapId = itemMap.ability.id;
     this.loaded = itemMap.loaded;
 
     context.holders.stances.remove([this.id]);
@@ -889,7 +869,6 @@ export class RemoveStanceCommand implements Command {
 export class MoveStanceCommand implements Command {
   private moveStartFrom: Date;
   private moveEndFrom: Date;
-  private abilityName: string;
 
   constructor(private id: string, private moveStartTo: Date, private moveEndTo: Date) {
   }
@@ -910,12 +889,12 @@ export class MoveStanceCommand implements Command {
     const item = context.holders.stances.get(this.id);
     if (item === undefined || item === null) return;
 
-    if (item.item.start !== this.moveStartFrom || item.item.end !== this.moveEndFrom) {
-      item.item.start = this.moveStartFrom;
-      item.item.end = this.moveEndFrom;
-      const ability = item.ability;
-      //item.item.title = this.abilityName + " " + Utils.formatTime(new Date(item.item.start)) + " - " + Utils.formatTime(new Date(item.item.end));
-      item.item.title = `<img class='abilityIcon' src='${ability.icon}'/>${ability.name}  ${Utils.formatTime(new Date(item.item.start))} - ${Utils.formatTime(new Date(item.item.end))}`;
+    if (item.start !== this.moveStartFrom || item.end !== this.moveEndFrom) {
+      item.applyData({
+        start: this.moveStartFrom,
+        end: this.moveEndFrom
+      });
+
       context.holders.stances.update([item]);
     }
 
@@ -925,20 +904,16 @@ export class MoveStanceCommand implements Command {
   execute(context: ICommandExecutionContext): void {
     const item = context.holders.stances.get(this.id);
     if (item === undefined || item === null) return;
-     
-    this.moveStartFrom = new Date(item.item.start as number);
-    this.moveEndFrom = new Date(item.item.end as number);
 
-    if (item.item.start !== this.moveStartTo || item.item.end !== this.moveEndTo) {
+    this.moveStartFrom = item.start;
+    this.moveEndFrom = item.end;
 
-      this.abilityName = item.ability.name;
-      const ability = item.ability;
+    if (item.start !== this.moveStartTo || item.end !== this.moveEndTo) {
+      item.applyData({
+        start: this.moveStartTo,
+        end: this.moveEndTo
+      });
 
-      item.item.start = this.moveStartTo;
-      item.item.end = this.moveEndTo;
-      //item.item.title = this.abilityName + " " + Utils.formatTime(new Date(item.item.start)) + " - " + Utils.formatTime(new Date(item.item.end));
-      item.item.title = `<img class='abilityIcon' src='${ability.icon}'/>${ability.name}  ${Utils.formatTime(new Date(item.item.start))} - ${Utils.formatTime(new Date(item.item.end))}`;
-      
       context.holders.stances.update([item]);
     }
     context.holders.selectionRegistry.updateDate(this.id, this.moveStartTo);

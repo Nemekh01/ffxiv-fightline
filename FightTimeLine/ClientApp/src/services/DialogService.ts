@@ -1,61 +1,55 @@
 import { Injectable, Inject } from "@angular/core"
-import { HttpClient } from "@angular/common/http"
-import { Observable } from "rxjs"
-import { SettingsService, FFLogsImportBossAttacksSource } from "./SettingsService"
-import { Event, ReportEventsResponse, ReportFightsResponse, IJobInfo, Events } from "../core/FFLogs"
-import { MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
 import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight } from "../core/Models";
-import {LocalStorageService} from "./LocalStorageService";
-
-import {
-  WhatsNewDialog,
-  BossAttackDialog,
-  HelpDialog,
-  FightLoadDialog,
-  BossSaveDialog,
-  FightSaveDialog,
-  SettingsDialog,
-  AbilityEditDialog,
-  FFLogsImportDialog,
-  LoadingDialog,
-  LoginDialog,
-  RegisterDialog,
-  SessionCreateResultDialog,
-  ExportToTableDialog,
-  TableViewDialog,
-  BossTemplatesDialog
-} from "../dialogs/index"
+import { LocalStorageService } from "./LocalStorageService";
+import { NzModalRef, NzModalService } from 'ng-zorro-antd';
+import { Observable } from "rxjs";
+import * as D from "../dialogs/index"
 
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
-  constructor(private dialog: MatDialog, private storage: LocalStorageService) {
+  constructor(
+    private dialogs: NzModalService,
+    private storage: LocalStorageService) {
 
   }
 
   public get isAnyDialogOpened(): boolean {
-    return this.dialog.openDialogs.length > 0;
+    return this.dialogs.openModals.length > 0;
   }
+
+  dialog: any;
 
 
   openExportToTable(dataFn: () => any) {
-    this.dialog.open(ExportToTableDialog,
-      {
-        width: "700px",
-        height: "500px",
+    this.dialogs.create({
+      nzTitle: "Export to table",
+      nzWidth: 700,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzMaskClosable: false,
+      nzContent: D.ExportToTableDialog,
+      nzComponentParams: {
         data: dataFn()
-      });
+      }
+    });
   }
 
   openLogin() {
-    const dialogRef = this.dialog.open(LoginDialog,
-      {
-        width: "265px",
-        height: "360px",
-        disableClose: true
-      });
-    dialogRef.afterClosed().subscribe(result => {
+    const dialogRef = this.dialogs.create({
+      nzContent: D.LoginDialog,
+      nzTitle: "Login",
+      nzWidth: 265,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzCancelDisabled: true,
+      nzFooter: null,
+      nzMaskClosable: false
+    });
+    dialogRef.afterClose.subscribe(result => {
       if (result && result.signup) {
         setTimeout(() => {
           this.openRegister();
@@ -67,88 +61,137 @@ export class DialogService {
 
   openRegister(): Promise<any> {
 
-    const dialogRef = this.dialog.open(RegisterDialog,
-      {
-        width: "355px",
-        height: "425px",
-        disableClose: true
-      });
-    return dialogRef.afterClosed().toPromise();
+    const dialogRef = this.dialogs.create({
+      nzTitle: "Register",
+      nzContent: D.RegisterDialog,
+      nzWidth: 355,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzCancelDisabled: true,
+      nzFooter: null,
+      nzMaskClosable: false
+    });
+    return this.toPromise(dialogRef.afterClose);
   }
 
   openBossAttackAddDialog(bossAbility: IBossAbility, callBack: (b: any) => void): void {
-    const dialogRef = this.dialog.open(BossAttackDialog,
-      <MatDialogConfig<IBossAbility>>{
-        width: "700px",
-        height: "500px",
+    const dialogRef = this.dialogs.create({
+      nzTitle: null,
+      nzWidth: 700,
+      nzClosable: false,
+      nzMaskClosable: false,
+      nzContent: D.BossAttackDialog,
+      nzComponentParams: {
         data: bossAbility
-      });
-    dialogRef.afterClosed().subscribe(result => {
+      }
+    });
+
+    dialogRef.afterClose.subscribe(result => {
       callBack(result);
     });
   }
 
   openAbilityEditDialog(data: { settings: IAbilitySetting[], values: IAbilitySettingData[] },
     callBack: (b: any) => void): void {
-    const dialogRef = this.dialog.open(AbilityEditDialog,
-      <MatDialogConfig<{ settings: IAbilitySetting[]; values: IAbilitySettingData[] }>>{
-        width: "700px",
-        height: "500px",
+    const dialogRef = this.dialogs.create({
+      nzTitle: "Properties",
+      nzContent: D.AbilityEditDialog,
+      nzWidth: 700,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzCancelDisabled: true,
+      nzFooter: null,
+      nzMaskClosable: false,
+      nzComponentParams: {
         data: data
-      });
-    dialogRef.afterClosed().subscribe(result => {
+      }
+    });
+
+    dialogRef.afterClose.subscribe(result => {
       callBack(result);
     });
   }
 
   openLoad(): void {
-    this.dialog.open(FightLoadDialog,
-      {
-        width: "700px",
-        height: "500px",
-      });
+    this.dialogs.create({
+      nzTitle: "Load",
+      nzContent: D.FightLoadDialog,
+      nzWidth: 700,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzCancelDisabled: true,
+      nzFooter: null,
+      nzMaskClosable: false
+    });
   }
 
   openImportFromFFLogs(code: string = null): Promise<any> {
 
-    const dialogRef = this.dialog.open(FFLogsImportDialog,
-      {
-        width: "700px",
-        height: "200px",
-        data: code
-      });
+    const dialogRef = this.dialogs.create({
+      nzTitle: "Import from FFLogs",
+      nzWidth: 700,
+      nzClosable: false,
+      nzContent: D.FFLogsImportDialog,
+      nzComponentParams: {
+        code: code
+      }
+    });
 
-    return dialogRef.afterClosed().toPromise();
+    return this.toPromise(dialogRef.afterClose);
   }
 
-  openSaveBoss(dataFn:()=>any): Promise<any> {
-    const dialogref = this.dialog.open(BossSaveDialog,
-      {
-        width: "700px",
-        height: "500px",
+//  openSaveBoss(dataFn: () => any): Promise<any> {
+//    const dialogref = this.dialog.open(D.BossSaveDialog,
+//      {
+//        width: "700px",
+//        height: "500px",
+//        data: dataFn()
+//      });
+//    return dialogref.afterClosed().toPromise();
+//  }
+
+  openSaveFight(dataFn: () => any): Promise<IFight> {
+    const dialogref = this.dialogs.create({
+      nzTitle: "Save",
+      nzContent: D.FightSaveDialog,
+      nzWidth: 700,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzCancelDisabled: true,
+      nzFooter: null,
+      nzMaskClosable: false,
+      nzComponentParams: {
         data: dataFn()
-      });
-    return dialogref.afterClosed().toPromise();
+      }
+    });
+    return this.toPromise(dialogref.afterClose);
   }
 
-  openSaveFight(dataFn: ()=>any): Promise<IFight> {
-    const dialogref = this.dialog.open(FightSaveDialog,
-      {
-        width: "700px",
-        height: "500px",
-        data: dataFn()
+  private toPromise<T>(obs:Observable<T>):Promise<T> {
+    return new Promise((resolve, reject) => {
+      obs.subscribe((data) => {
+        resolve(data);
+      }, (error) => {
+        reject(error);
       });
-    return dialogref.afterClosed().toPromise();
+    });
   }
 
   openHelp(): Promise<void> {
     const promise = new Promise<void>((resolve) => {
-      const dialogRef = this.dialog.open(HelpDialog,
-        {
-          width: "90%",
-          height: "90%",
-        });
-      dialogRef.afterClosed().subscribe(() => {
+      const dialogRef = this.dialogs.create({
+        nzTitle: "Help",
+        nzContent: D.HelpDialog,
+        nzWidth: "80%",
+        nzClosable: false,
+        nzKeyboard: false,
+        nzMaskClosable: false,
+      });
+      dialogRef.afterClose.subscribe(() => {
         this.storage.setString("help_shown", "yes");
         resolve();
       });
@@ -158,66 +201,91 @@ export class DialogService {
   }
 
   openSettings(): void {
-    this.dialog.open(SettingsDialog,
-      {
-        width: "90%",
-        height: "90%"
-      });
+    this.dialogs.create({
+      nzTitle: null,
+      nzContent: D.SettingsDialog,
+      nzWidth: "900px",
+      nzClosable: false
+    });
   }
 
   executeWithLoading(action: (ref: { close(): void }) => void) {
-    let loadingDialogRef: MatDialogRef<LoadingDialog, any>;
+    let loadingDialogRef: any;
     setTimeout(() => {
-      loadingDialogRef = this.dialog.open(LoadingDialog,
-        {
-          width: "150px",
-          height: "200px",
-          disableClose: true
-        });
-      loadingDialogRef.afterOpen().subscribe(() => {
-        action({ close: () => loadingDialogRef.close() });
+      loadingDialogRef = this.dialogs.create({
+        nzContent: D.LoadingDialog,
+        nzTitle: null,
+        nzWidth: 150,
+        nzClosable: false,
+        nzKeyboard: false,
+        nzOkDisabled: true,
+        nzCancelDisabled: true,
+        nzFooter: null,
+        nzMaskClosable: false
+      });
+
+      loadingDialogRef.afterOpen.subscribe(() => {
+        action({ close: () => loadingDialogRef.destroy() });
       });
     });
   }
 
   openSessionUrl(key: string) {
-    this.dialog.open(SessionCreateResultDialog,
-      {
-        width: "700px",
-        height: "210px",
+    this.dialogs.create({
+      nzContent: D.SessionCreateResultDialog,
+      nzTitle: null,
+      nzWidth: 700,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzMaskClosable: false,
+      nzComponentParams: {
         data: document.getElementsByTagName("base")[0].href + "session/" + key
-      });
+      }
+    });
   }
 
   openTable(dataFn: () => any) {
-    this.dialog.open(TableViewDialog,
-      {
-        width: "90%",
-        height: "90%",
+    this.dialogs.create({
+      nzContent: D.TableViewDialog,
+      nzTitle: null,
+      nzWidth: "90%",
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzMaskClosable: false,
+      nzComponentParams: {
         data: dataFn()
       }
-    );
+    });
   }
 
   openBossTemplates(dataFn: () => any) {
-    this.dialog.open(BossTemplatesDialog,
-      {
-        width: "90%",
-        height: "90%",
-        data: dataFn()
-      }
-    );
+    this.dialogs.create({
+      nzContent: D.BossTemplatesDialog,
+      nzTitle: null,
+      nzWidth: "90%",
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzMaskClosable: false
+    });
   }
 
-  openWhatsNew(change?: any, notes?: any) : Promise<any> {
+  openWhatsNew(change?: any, notes?: any): Promise<any> {
     const changes = change || notes;
-    const ref = this.dialog.open(WhatsNewDialog,
-      {
-        width: "90%",
-        height: "90%",
+    const ref = this.dialogs.create({
+      nzContent: D.WhatsNewDialog,
+      nzTitle: "What is new",
+      nzWidth: "90%",
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzMaskClosable: false,
+      nzComponentParams: {
         data: changes
       }
-    );
-    return ref.afterClosed().toPromise();
+    });
+    return this.toPromise(ref.afterClose);
   }
 }

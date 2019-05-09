@@ -1,25 +1,28 @@
-import { Component, Inject } from "@angular/core";
-import { FormControl } from "@angular/forms"
-import { MatSnackBar, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
+import { Component, Inject, Input } from "@angular/core";
+import { ScreenNotificationsService } from "../../services/ScreenNotificationsService"
+import { NzModalRef } from "ng-zorro-antd"
 
 @Component({
-    selector: "sessionCreateResultDialog",
-    templateUrl: "./sessionCreateResultDialog.component.html",
-    styleUrls: ["./sessionCreateResultDialog.component.css"]
+  selector: "sessionCreateResultDialog",
+  templateUrl: "./sessionCreateResultDialog.component.html",
+  styleUrls: ["./sessionCreateResultDialog.component.css"]
 })
 
 export class SessionCreateResultDialog {
-    constructor(
-        private snackBar: MatSnackBar,
-        public dialogRef: MatDialogRef<SessionCreateResultDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: string) {
-    }
 
-    onNoClick(): void {
-        this.dialogRef.close();
-    }
+  @Input("data") data: string;
 
-    onCopied() {
-        this.snackBar.open("Url has been copied to clipboard", null, { duration: 2000 });
-    }
+  constructor(
+    private snackBar: ScreenNotificationsService,
+    public dialogRef: NzModalRef,
+  ) {
+  }
+
+  onNoClick(): void {
+    this.dialogRef.destroy();
+  }
+
+  onCopied() {
+    this.snackBar.info("Url has been copied to clipboard");
+  }
 }

@@ -65,10 +65,13 @@
 .settings-tab {
   display: flex;
   width: 250px;
+
 }
 
 .settings-container {
   padding: 8px;
+  width: 300px;
+  min-width: 250px;
 }
 
 .settings-title {

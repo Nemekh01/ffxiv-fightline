@@ -49,18 +49,19 @@ export class ViewComponent {
     });
   }
 
-
-
   updateView(): void {
-    this.changed.emit(<IView>{
-      buffmap: this.buffmap,
-      ogcdAsPoints: this.ogcdAsPoints,
-      showDowntimesInPartyArea: this.showDowntimesInPartyArea,
-      verticalBossAttacks: this.verticalBossAttacks,
-      compactView: this.compactView,
-      highlightLoaded: this.highlightLoaded,
-      showAbilityAvailablity: this.abilityAvailablity,
+    setTimeout(() => {
+      this.changed.emit(<IView>{
+        buffmap: this.buffmap,
+        ogcdAsPoints: this.ogcdAsPoints,
+        showDowntimesInPartyArea: this.showDowntimesInPartyArea,
+        verticalBossAttacks: this.verticalBossAttacks,
+        compactView: this.compactView,
+        highlightLoaded: this.highlightLoaded,
+        showAbilityAvailablity: this.abilityAvailablity,
+      });
     });
+
   }
 }
 

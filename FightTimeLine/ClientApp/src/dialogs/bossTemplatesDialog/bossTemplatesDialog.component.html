@@ -1,32 +1,21 @@
-<h1 mat-dialog-title>Boss Templates</h1>
-<div mat-dialog-content style="height: 100%;">
-    <mat-sidenav-container class="example-container">
-        <mat-sidenav mode="side" opened>
-            <mat-form-field>
-                <input matInput placeholder="Search" [formControl]="searchControl"/>
-            </mat-form-field>
-            <div class="zones-list" style="min-height: calc(100% - 64px)">
-                <mat-selection-list role="list">
-                    <mat-list-option role="listitem" *ngFor="let zone of zones">
-                        {{zone.name}}
-                    </mat-list-option>
-                </mat-selection-list>
-            </div>
-        </mat-sidenav>
-        <mat-sidenav-content>
-            <mat-toolbar>
+<div mat-dialog-content style="height: 600px; min-height: 600px;overflow: hidden">
+    <nz-layout>
+      <nz-sider nzTheme="light" style="overflow: auto; height: 100vh;">
+        
+          <input nz-input placeholder="Search" [formControl]="searchControl"/>
 
-            </mat-toolbar>
-            <div style="min-height: calc(100% - 64px)">
-                <mat-selection-list role="list">
-                    <mat-list-option role="listitem" [checkboxPosition]="'before'" *ngFor="let template of templates">
-                        {{template.name}}
-                    </mat-list-option>
-                </mat-selection-list>
-            </div>
-        </mat-sidenav-content>
-    </mat-sidenav-container>
-</div>
-<div mat-dialog-actions>
-    <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Close</button>
+        <ul nz-menu [nzMode]="'inline'">
+          <li nz-menu-item *ngFor="let zone of zones"> {{zone.name}} </li>            
+        </ul>
+      </nz-sider>
+      <nz-layout style="height: 600px">
+        <nz-content style="margin:24px 2px 2px 10px;overflow: auto">
+          <nz-list>
+            <nz-list-item *ngFor="let template of templates">
+              {{template.name}}
+            </nz-list-item>
+          </nz-list>
+        </nz-content>
+      </nz-layout>
+    </nz-layout>
 </div>

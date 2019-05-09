@@ -1,14 +1,10 @@
 import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MatSnackBar, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
 
 import { DialogService } from "../services/index"
 import { ChangeNotes } from "../changeNotes"
 
-
 import * as S from "../services/index"
-
-
 
 @Component({
   selector: "home",
@@ -20,9 +16,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   public container = { data: [] };
 
   public constructor(
+    private notification: S.ScreenNotificationsService,
     private dialogService: DialogService,
     @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
-    private snackBar: MatSnackBar,
     private router: Router,
     private recentService: S.RecentActivityService,
     private storage: S.LocalStorageService
@@ -111,14 +107,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   load(): void {
     if (!this.authenticationService.authenticated) {
-      this.snackBar.open("You must Sign in to proceed",
-        "Sign in",
-        {
-          duration: 2000,
-        }).onAction().subscribe(() => {
-          this.login();
-        });
-
+      this.notification.showSignInRequired(null);
       return;
     }
 

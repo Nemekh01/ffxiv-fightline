@@ -1,8 +1,8 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Input, Inject, OnInit, EventEmitter } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
 import { IBossAbility } from "../../core/Models";
 import { Time } from "../../heplers/TimeValidator";
+import { NzModalRef } from "ng-zorro-antd";
 
 @Component({
   selector: "bossAttackDialog",
@@ -10,22 +10,39 @@ import { Time } from "../../heplers/TimeValidator";
   styleUrls: ["./bossAttackDialog.component.css"]
 })
 
-export class BossAttackDialog {
+export class BossAttackDialog implements OnInit {
 
+  @Input("data") data: IBossAbility;
   editForm: FormGroup;
   submitted = false;
-
-
   newAttack = true;
 
   constructor(
     private formBuilder: FormBuilder,
-    public dialogRef: MatDialogRef<BossAttackDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: IBossAbility) {
-    this.newAttack = !data;
+    public dialogRef: NzModalRef) {
+
+   
+    
   }
 
   ngOnInit() {
+    this.newAttack = !this.data.name;
+    this.dialogRef.getInstance().nzFooter = [
+      {
+        label: "Cancel",
+        type: "primary",
+        onClick: () => this.dialogRef.destroy()
+      },
+      {
+        label: "Ok",
+        onClick: () => this.onSaveClick()
+      },
+      {
+        label: "Ok for All with same name",
+        onClick: () => this.onSaveAllClick(),
+        show: () => !this.newAttack
+      }];
+    
     this.editForm = this.formBuilder.group({
       bossAttackName: new FormControl(this.data.name, Validators.required),
       damageType: new FormControl(this.data.type, Validators.required),
@@ -77,7 +94,7 @@ export class BossAttackDialog {
       });
       return;
     }
-      
+
     this.updateResult();
 
     this.dialogRef.close({ updateAllWithSameName: true, data: this.data });

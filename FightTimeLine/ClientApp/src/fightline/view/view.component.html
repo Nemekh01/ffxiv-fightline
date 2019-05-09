@@ -1,23 +1,23 @@
 <context-menu #view>
   <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateView()" [(ngModel)]="showDowntimesInPartyArea">Downtimes in party area</mat-checkbox>
+    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="showDowntimesInPartyArea">Downtimes in party area</label>
   </ng-template>
   <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateView()" [(ngModel)]="buffmap">Buffs Heatmap</mat-checkbox>
+    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="buffmap">Buffs Heatmap</label>
   </ng-template>
   <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateView()" [(ngModel)]="ogcdAsPoints">OGCD attacks as points</mat-checkbox>
+    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="ogcdAsPoints">OGCD attacks as points</label>
   </ng-template>
   <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateView()" [(ngModel)]="verticalBossAttacks">Vertical Boss Attacks</mat-checkbox>
+    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="verticalBossAttacks">Vertical Boss Attacks</label>
   </ng-template>
   <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateView()" [(ngModel)]="compactView">Compact View</mat-checkbox>
+    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="compactView">Compact View</label>
   </ng-template>
   <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateView()" [(ngModel)]="highlightLoaded">Highlight Loaded</mat-checkbox>
+    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="highlightLoaded">Highlight Loaded</label>
   </ng-template>
   <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateView()" [(ngModel)]="abilityAvailablity">Abilities Availability Map</mat-checkbox>
+    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="abilityAvailablity">Abilities Availability Map</label>
   </ng-template>
 </context-menu>

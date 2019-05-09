@@ -1,5 +1,4 @@
-import { Component, Inject } from "@angular/core";
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
+import { Component, Inject, Input } from "@angular/core";
 
 
 @Component({
@@ -10,13 +9,6 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
 
 export class WhatsNewDialog {
 
-   
-
-    constructor(
-        public dialogRef: MatDialogRef<WhatsNewDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: any) { }
-
-    onNoClick(): void {
-        this.dialogRef.close();
-    }
+  @Input("data") data: any;
+    
 }

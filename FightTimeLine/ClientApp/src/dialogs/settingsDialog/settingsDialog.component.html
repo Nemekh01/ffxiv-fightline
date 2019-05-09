@@ -1,12 +1,12 @@
 
-<div mat-dialog-content style="min-height: 94%;">
-  <mat-tab-group [selectedIndex]="1" [dynamicHeight]="true">
-    <mat-tab [disabled]="true">
-      <ng-template mat-tab-label>
-        <h1 mat-dialog-title style="color: black;margin: 0 0 0">Settings</h1>
+<div style="min-height: 680px;">
+  <nz-tabset [nzSelectedIndex]="1">
+    <nz-tab [nzDisabled]="true" [nzTitle]="header">
+      <ng-template #header>
+        <h3 style="color: black;margin: 0 0 0">Settings</h3>
       </ng-template>
-    </mat-tab>
-    <mat-tab label="Main">
+    </nz-tab>
+    <nz-tab nzTitle="Main">
       <form [formGroup]="mainForm" class="settings-tab">
         <div class="settings-container">
           <div class="settings-title">
@@ -25,25 +25,25 @@
           </div>
         </div>
       </form>
-    </mat-tab>
-    <mat-tab label="FFLogs">
+    </nz-tab>
+    <nz-tab nzTitle="FFLogs">
       <form [formGroup]="fflogsForm" class="settings-tab">
         <div  class="settings-container">
           <div class="settings-title">
             Source for Boss attacks:
           </div>
           <div class="settings-body">
-            <mat-radio-group class="example-radio-group" formControlName="bossAttacksSource">
-              <mat-radio-button class="example-radio-button" value="cast">Cast</mat-radio-button>
-              <mat-radio-button class="example-radio-button" value="damage">Damage</mat-radio-button>
-            </mat-radio-group>
+            <nz-radio-group class="example-radio-group" formControlName="bossAttacksSource">
+              <label nz-radio class="example-radio-button" nzValue="cast">Cast</label>
+              <label nz-radio class="example-radio-button" nzValue="damage">Damage</label>
+            </nz-radio-group>
           </div>
           <div class="settings-title">
             Sort order after import
           </div>
           <div class="settings-body">
-            <div class="example-list" (cdkDropListDropped)="drop($event)">
-              <div class="example-box" *ngFor="let movie of container.classes">
+            <div class="example-list" cdkDropList (cdkDropListDropped)="drop($event)">
+              <div class="example-box" cdkDrag *ngFor="let movie of container.classes">
                 <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
                 <img [src]="movie.icon" style="margin-right: 10px" /> {{movie.name}}
               </div>
@@ -52,29 +52,22 @@
 
         </div>
       </form>
-    </mat-tab>
-    <mat-tab label="Teamwork">
+    </nz-tab>
+    <nz-tab nzTitle="Teamwork">
       <form [formGroup]="teamworkForm" class="settings-tab">
         <div  class="settings-container">
           <div class="settings-title">
             Display name:
           </div>
           <div class="settings-body">
-            <mat-form-field>
-              <input matInput formControlName="displayName" placeholder="Your preffered name here"/>
-            </mat-form-field>
+              <input nz-input formControlName="displayName" placeholder="Your preffered name here"/>
           </div>
         </div>
       </form>
-    </mat-tab>
-    <mat-tab label="Tableview">
+    </nz-tab>
+    <nz-tab nzTitle="Tableview">
       <form [formGroup]="tableViewForm" class="settings-tab">
       </form>
-    </mat-tab>
-
-  </mat-tab-group>
-</div>
-<div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">No Thanks</button>
-  <button mat-button (click)="onYesClick()" cdkFocusInitial>Save</button>
+    </nz-tab>
+  </nz-tabset>
 </div>
