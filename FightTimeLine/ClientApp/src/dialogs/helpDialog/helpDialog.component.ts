@@ -1,4 +1,5 @@
-import { Component, Inject } from "@angular/core";
+import { Component, Inject,OnInit, ViewChild, TemplateRef } from "@angular/core";
+import {NzModalRef} from "ng-zorro-antd";
 
 @Component({
   selector: "helpDialog",
@@ -6,9 +7,14 @@ import { Component, Inject } from "@angular/core";
   styleUrls: ["./helpDialog.component.css"]
 })
 
-export class HelpDialog {
+export class HelpDialog implements  OnInit {
+  ngOnInit(): void {
+    this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
+  }
 
+  @ViewChild("buttonsTemplate") buttonsTemplate : TemplateRef<any>;
   constructor(
+    private dialogRef: NzModalRef
     ) { }
 
   onNoClick(): void {

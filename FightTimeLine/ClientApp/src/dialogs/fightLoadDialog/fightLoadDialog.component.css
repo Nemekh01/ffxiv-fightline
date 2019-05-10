@@ -8,11 +8,14 @@
   height: 24px !important;
 }
 
-.listitem {
-  cursor: pointer;
-  padding-right: 3px;
+.loadList .ant-list-item:hover {
+  background-color: lightgray;
 }
 
-  .listitem:hover {
-    background-color: lightgray;
-  }
+.loadList .ant-list-item {
+  cursor: pointer;
+}
+
+i:hover {
+  color: red;
+}

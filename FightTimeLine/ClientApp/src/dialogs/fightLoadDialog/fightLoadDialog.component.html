@@ -5,15 +5,16 @@
         <nz-list #fights
                  [nzDataSource]="container.fights"
                  [nzRenderItem]="item"
-                 nzSize="small">
+                 nzSize="small"
+                 [ngClass]="{loadList:true}">
           <ng-template #item let-item>
             <nz-list-item [nzActions]="[removeAction]">
-              <nz-list-item-meta [nzTitle]="nzTitle">
+              <nz-list-item-meta [nzTitle]="nzTitle" (click)="select(item)">
                 <ng-template #nzTitle>
-                  <a (click)="select(item)">{{ item.name }}</a>
+                  {{ item.name }}
                 </ng-template>
               </nz-list-item-meta>
-              <ng-template #removeAction><a nz-popconfirm nzTitle="Are you sure delete this fight?" (nzOnConfirm)="remove(item)"><i nz-icon nzType="delete" nzTheme="twotone"></i></a></ng-template>
+              <ng-template #removeAction><a nz-popconfirm nzTitle="Are you sure delete this fight?" (nzOnConfirm)="remove(item,$event)"><i nz-icon nzType="delete" nzTheme="twotone"></i></a></ng-template>
             </nz-list-item>
           </ng-template>
         </nz-list>

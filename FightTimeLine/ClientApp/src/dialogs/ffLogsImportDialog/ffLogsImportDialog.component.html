@@ -28,12 +28,16 @@
             <nz-list-item>
               <b>{{item.key}}</b>
             </nz-list-item>
-            <nz-list-item  *ngFor="let fight of item.value | killsonly:showKills && showKills.checked" (click)="onClick(fight.id)" [ngClass]="{fflogsitem:true}">
+            <nz-list-item *ngFor="let fight of item.value | killsonly:showKills && showKills.checked" (click)="onClick(fight.id)" [ngClass]="{fflogsitem:true}">
               {{fight.name}} <span class="example-spacer"></span> {{fight.kill ? 'Kill' : 'Wipe'}} - {{formatTime(fight.start_time, fight.end_time)}}
-            </nz-list-item>            
+            </nz-list-item>
           </ng-template>
         </nz-list>
       </div>
     </div>
   </form>
 </div>
+<ng-template #buttonsTemplate>
+  <button nz-button nzType="primary" (click)="this.dialogRef.destroy()">Cancel</button>
+</ng-template>
+

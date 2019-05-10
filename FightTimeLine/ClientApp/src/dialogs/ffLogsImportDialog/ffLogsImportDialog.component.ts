@@ -1,4 +1,4 @@
-import { Component, Inject, ViewChild, Input, OnInit } from "@angular/core";
+import { Component, Inject, ViewChild, Input, OnInit, TemplateRef } from "@angular/core";
 import { Router } from "@angular/router";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 
@@ -22,12 +22,14 @@ export class FFLogsImportDialog implements OnInit {
   ngOnInit(): void {
     if (this.code)
       this.reportValue = "https://www.fflogs.com/reports/" + this.code;
+    this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
     this.onSearch(this.reportValue);
   }
 
   reportValue: string;
 
   container: any = { zones: [] };
+  @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
   @Input() code: string;
   searchAreaDisplay = "none";
   dialogContentHeight = "60px";

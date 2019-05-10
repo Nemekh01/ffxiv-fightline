@@ -19,7 +19,7 @@ import { ClassNameBuilder } from "../core/ClassNameBuilder"
 import { IdGenerator } from "../core/Generators"
 import { DownTimesController } from "../core/DownTimesController"
 import { ICommandData } from "../core/UndoRedo"
-import * as Sentry from "@sentry/browser";
+//import * as Sentry from "@sentry/browser";
 
 
 @Component({
@@ -831,17 +831,13 @@ export class FightLineComponent implements OnInit, OnDestroy {
         }
       }
 
-      const ref = this.showWhatsNewInt(changes);
+      const ref = this.dialogService.openWhatsNew(ChangeNotes.changes);
       ref.then(() => {
         this.storage.setString("whatsnew_shown", latestRev.revision.toString());
         resolve();
       });
     });
     return promise;
-  }
-
-  showWhatsNewInt(change?: any) {
-    return this.dialogService.openWhatsNew(change, ChangeNotes.changes);
   }
 
   private subscribeToDispatcher(dispatcher: S.DispatcherService) {
