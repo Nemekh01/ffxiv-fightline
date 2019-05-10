@@ -6,7 +6,7 @@
           <input name="sessionUrl" readonly="readonly" nz-input placeholder="URL" #inputTarget [(value)]="data" />
         </nz-input-group>
         <ng-template #suffixTemplate>
-          <i nz-icon nzType="copy" nzTheme="outline" (cbOnSuccess)="onCopied()" [ngxClipboard]="inputTarget"></i>
+          <i nz-icon nzType="copy" nzTheme="outline" (cbOnSuccess)="onCopied()" [ngxClipboard]="inputTarget" style="cursor: pointer"></i>
         </ng-template>
       </nz-form-control>
     </nz-form-item>

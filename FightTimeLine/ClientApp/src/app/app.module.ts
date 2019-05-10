@@ -34,7 +34,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OffsetWheelDirective } from "../heplers/OffsetWheelDirective"
 import { FFLogsMatcherDirective } from "../heplers/FFLogsMatchDirective"
 import { KillsOnlyPipe } from "../heplers/KillsPipe"
-import { AvatarModule } from 'ngx-avatar';
 import { PingComponent } from "../fightline/ping/ping.component";
 import * as Sentry from "@sentry/browser";
 import { AngularSplitModule } from 'angular-split';
@@ -59,7 +58,7 @@ export class SentryErrorHandler implements ErrorHandler {
   }
 }
 
-const avatarColors = ["#FFB6C1", "#2c3e50", "#95a5a6", "#f39c12", "#1abc9c"];
+
 
 const googleLoginOptions: SocialLogins.LoginOpt = {
   scope: "https://www.googleapis.com/auth/spreadsheets"
@@ -120,9 +119,6 @@ export function getBaseUrl() {
     VisModule,
     ContextMenuModule,
     XivapiClientModule.forRoot(),
-    AvatarModule.forRoot({
-      colors: avatarColors
-    }),
     NgxCaptchaModule,
     ClipboardModule,
     SocialLoginModule,

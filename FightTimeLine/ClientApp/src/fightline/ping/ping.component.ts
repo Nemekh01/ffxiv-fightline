@@ -1,5 +1,4 @@
-import { Component, Inject, EventEmitter, ViewChild, Output, Input } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
+import { Component, Inject, EventEmitter, ViewChild, Output, Input, OnInit } from "@angular/core";
 import {
   trigger,
   state,
@@ -28,12 +27,19 @@ import {
     ])
   ]
 })
-export class PingComponent {
+export class PingComponent implements OnInit {
+
+  avatarColors = ["#FFB6C1", "#2c3e50", "#95a5a6", "#f39c12", "#1abc9c"];
+
+  ngOnInit(): void {
+    this.compactname = this.name.split(" ").map(s => s[0].toUpperCase()).join("");
+  }
 
   @Input('owner') public owner: boolean;
   @Input('name') public name: string;
   @Input('id') public id: string;
   pinged: boolean = false;
+  compactname: string;
 
   public ping() {
     this.pinged = true;
