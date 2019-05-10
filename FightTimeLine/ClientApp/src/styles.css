@@ -343,3 +343,14 @@ html, body, app, .container-fluid, .row, .body-content, .timeline, .ant-spin-con
 .avatar-container {
   font: 10px/30px Helvetica, Arial, sans-serif !important;
 }
+
+
+.vertical-center-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vertical-center-modal .ant-modal {
+  top: 0;
+}

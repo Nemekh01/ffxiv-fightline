@@ -24,6 +24,7 @@ export class DialogService {
 
   openExportToTable(dataFn: () => any) {
     this.dialogs.create({
+      nzWrapClassName:"vertical-center-modal",
       nzTitle: "Export to table",
       nzWidth: 700,
       nzClosable: false,
@@ -39,6 +40,7 @@ export class DialogService {
 
   openLogin() {
     const dialogRef = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzContent: D.LoginDialog,
       nzTitle: "Login",
       nzWidth: 265,
@@ -62,6 +64,7 @@ export class DialogService {
   openRegister(): Promise<any> {
 
     const dialogRef = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: "Register",
       nzContent: D.RegisterDialog,
       nzWidth: 355,
@@ -77,6 +80,7 @@ export class DialogService {
 
   openBossAttackAddDialog(bossAbility: IBossAbility, callBack: (b: any) => void): void {
     const dialogRef = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: null,
       nzWidth: 700,
       nzClosable: false,
@@ -95,6 +99,7 @@ export class DialogService {
   openAbilityEditDialog(data: { settings: IAbilitySetting[], values: IAbilitySettingData[] },
     callBack: (b: any) => void): void {
     const dialogRef = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: "Properties",
       nzContent: D.AbilityEditDialog,
       nzWidth: 700,
@@ -116,6 +121,7 @@ export class DialogService {
 
   openLoad(): void {
     this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: "Load",
       nzContent: D.FightLoadDialog,
       nzWidth: 700,
@@ -131,6 +137,7 @@ export class DialogService {
   openImportFromFFLogs(code: string = null): Promise<any> {
 
     const dialogRef = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: "Import from FFLogs",
       nzWidth: 700,
       nzClosable: false,
@@ -155,6 +162,7 @@ export class DialogService {
 
   openSaveFight(dataFn: () => any): Promise<IFight> {
     const dialogref = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: "Save",
       nzContent: D.FightSaveDialog,
       nzWidth: 700,
@@ -184,6 +192,7 @@ export class DialogService {
   openHelp(): Promise<void> {
     const promise = new Promise<void>((resolve) => {
       const dialogRef = this.dialogs.create({
+        nzWrapClassName: "vertical-center-modal",
         nzTitle: "Help",
         nzContent: D.HelpDialog,
         nzWidth: "80%",
@@ -202,6 +211,7 @@ export class DialogService {
 
   openSettings(): void {
     this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: null,
       nzContent: D.SettingsDialog,
       nzWidth: "900px",
@@ -213,6 +223,7 @@ export class DialogService {
     let loadingDialogRef: any;
     setTimeout(() => {
       loadingDialogRef = this.dialogs.create({
+        nzWrapClassName: "vertical-center-modal",
         nzContent: D.LoadingDialog,
         nzTitle: null,
         nzWidth: 150,
@@ -232,6 +243,7 @@ export class DialogService {
 
   openSessionUrl(key: string) {
     this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzContent: D.SessionCreateResultDialog,
       nzTitle: null,
       nzWidth: 700,
@@ -247,6 +259,7 @@ export class DialogService {
 
   openTable(dataFn: () => any) {
     this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzContent: D.TableViewDialog,
       nzTitle: null,
       nzWidth: "90%",
@@ -262,6 +275,7 @@ export class DialogService {
 
   openBossTemplates(dataFn: () => any) {
     this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzContent: D.BossTemplatesDialog,
       nzTitle: null,
       nzWidth: "90%",
@@ -275,6 +289,7 @@ export class DialogService {
   openWhatsNew(change?: any, notes?: any): Promise<any> {
     const changes = change || notes;
     const ref = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
       nzContent: D.WhatsNewDialog,
       nzTitle: "What is new",
       nzWidth: "90%",
