@@ -4,7 +4,6 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { VisModule } from "ngx-vis"
-import { SplitPaneModule } from "ng2-split-pane-patch/lib/ng2-split-pane";
 import { ContextMenuModule, ContextMenuService } from "ngx-contextmenu"
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -38,6 +37,7 @@ import { KillsOnlyPipe } from "../heplers/KillsPipe"
 import { AvatarModule } from 'ngx-avatar';
 import { PingComponent } from "../fightline/ping/ping.component";
 import * as Sentry from "@sentry/browser";
+import { AngularSplitModule } from 'angular-split';
 import { environment } from "../environments/environment"
 import { XivapiClientModule } from "@xivapi/angular-client";
 import { en_US, NgZorroAntdModule, NZ_I18N } from 'ng-zorro-antd';
@@ -118,7 +118,6 @@ export function getBaseUrl() {
     ReactiveFormsModule,
     NgProgressModule,
     VisModule,
-    SplitPaneModule,
     ContextMenuModule,
     XivapiClientModule.forRoot(),
     AvatarModule.forRoot({
@@ -126,7 +125,8 @@ export function getBaseUrl() {
     }),
     NgxCaptchaModule,
     ClipboardModule,
-    SocialLoginModule
+    SocialLoginModule,
+    AngularSplitModule
   ],
   providers: [
     ContextMenuService,

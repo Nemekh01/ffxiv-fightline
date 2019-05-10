@@ -33,19 +33,16 @@
 </toolbar>
 <div class="main-content">
 
-  <horizontal-split-pane primary-component-minsize="50"
-                         secondary-component-minsize="300"
-                         separator-thickness="3"
-                         primary-component-initialratio="0.06">
-    <div class="split-pane-content-primary" style="width: 100%; height: 100%">
+  <as-split direction="vertical" unit="percent" gutterSize="5" [ngStyle]="{width:'100%', height:'100%'}" restrictMove="true">
+    <as-split-area size="8" minSize="10" maxSize="50" >
       <div class="boss-timeline-container" style="width: 100%; height: 100%">
         <div class="boss-timeline" [visTimeline]="visTimelineBoss" style="width: 100%; height: 100%"
              [visTimelineItems]="visTimelineItemsBoss"
              [visTimelineGroups]="visTimelineGroupsBoss"
              (initialized)="timelineBossInitialized()"></div>
       </div>
-    </div>
-    <div class="split-pane-content-secondary" style="width: 100%; height: 100%">
+    </as-split-area>
+    <as-split-area size="92" minSize="50" >
       <div class="timeline-container" style="width: 100%; height: 100%">
         <div class="timeline" [visTimeline]="visTimeline" style="width: 100%; height: 100%"
              [visTimelineItems]="visTimelineItems"
@@ -53,8 +50,8 @@
              (initialized)="timelineInitialized()"
              (window:keyup)="keyPressed($event)"></div>
       </div>
-    </div>
-  </horizontal-split-pane>
+    </as-split-area>
+  </as-split>
 
 </div>
 
