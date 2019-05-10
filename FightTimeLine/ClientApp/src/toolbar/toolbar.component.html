@@ -37,10 +37,10 @@
     </nz-button-group>
   </span>
   <span style="margin-left: 10px" *ngIf="showfilter">
-    <button nz-button (click)="openFilter($event)"><i nz-icon type="filter" theme="fill"></i>Filter</button>
+    <abilityFilter #filter (changed)="updateFilter($event)"></abilityFilter>
   </span>
   <span style="margin-left: 10px" *ngIf="showView">
-    <button nz-button (click)="openView($event)"><i nz-icon type="eye" theme="fill"></i>View</button>
+    <viewMenu #view (changed)="updateView($event)"></viewMenu>
   </span>
   <span style="margin-left: 10px" *ngIf="!toolToUse && showTools">
     <nz-dropdown [nzTrigger]="'click'">
@@ -54,7 +54,7 @@
     <button nz-button nzType="danger" (click)="useTool(null)">{{toolToUse}}</button>
   </span>
   <span style="margin-left: 10px; display: flex" *ngIf="showTeamwork">
-    <avatarWithPing *ngFor="let user of connectedUsers" [owner]="user.owner" textSizeRatio="3" [name]="user.name" [id]="user.id"></avatarWithPing>
+    <avatarWithPing *ngFor="let user of connectedUsers" [owner]="user.owner" textSizeRatio="3" [name]="user.name" [id]="user.id" [ngStyle]="{'margin-right':'2px'}"></avatarWithPing>
   </span>
 
   <span class="example-spacer"></span>
@@ -115,5 +115,5 @@
 
   </span>
 </div>
-<abilityFilter #filter (changed)="updateFilter($event)"></abilityFilter>
-<viewMenu #view (changed)="updateView($event)"></viewMenu>
+
+

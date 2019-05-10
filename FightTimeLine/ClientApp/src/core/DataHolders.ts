@@ -845,7 +845,7 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
       return visible;
     };
     let visible: boolean;
-    if (!filter || !value.ability) {
+    if (!filter || !jobFilter || !value.ability) {
       visible = true;
     } else {
       if ((jobMap.pet || jobMap.job.defaultPet) && value.ability.pet && value.ability.pet !== (jobMap.pet || jobMap.job.defaultPet)) {
@@ -853,13 +853,13 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
       } else {
         visible = filterUnit(value.ability.abilityType, M.AbilityType.SelfDefense, filter.selfDefence, jobFilter.selfDefence);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDefense, filter.partyDefence, jobFilter.partyDefence);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.SelfDamageBuff, filter.selfDamageBuff, jobFilter.selfDamageBuff);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.SelfDamageBuff, filter.selfDamageBuff,jobFilter.selfDamageBuff);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDamageBuff, filter.partyDamageBuff, jobFilter.partyDamageBuff);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Damage, filter.damage, jobFilter.damage);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.HealingBuff, filter.healingBuff, jobFilter.healingBuff);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Healing, filter.healing, jobFilter.healing);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Pet, filter.pet, jobFilter.pet);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Utility, filter.utility, jobFilter.utility);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.HealingBuff, filter.healingBuff,  jobFilter.healingBuff);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Healing, filter.healing,  jobFilter.healing);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Pet, filter.pet,  jobFilter.pet);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Utility, filter.utility,  jobFilter.utility);
 
         if (!filter.unused ||
           (jobFilter.unused !== undefined && !jobFilter.unused)) {

@@ -11,7 +11,6 @@ import { IFilter } from "../../core/Models"
 })
 export class FilterComponent {
 
-  @ViewChild("filter") filter: ContextMenuComponent;
   selfDefensive = true;
   partyDefensive = true;
   selfDamageBuff = true;
@@ -54,19 +53,8 @@ export class FilterComponent {
   }
 
 
-  constructor(private contextMenuService: ContextMenuService) {
+  constructor() {
 
-  }
-
-  show($event: any) {
-    setTimeout(() => {
-      this.contextMenuService.show.next({
-        anchorElement: $event.target,
-        contextMenu: this.filter,
-        event: $event,
-        item: null,
-      });
-    });
   }
 
   updateFilter(): void {
@@ -95,7 +83,7 @@ export class FilterComponent {
           isUnaspected: this.isUnaspected,
           keywords: []
         }
-      })
+      });
     });
     ;
   }

@@ -1,23 +1,27 @@
-<context-menu #view>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="showDowntimesInPartyArea">Downtimes in party area</label>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="buffmap">Buffs Heatmap</label>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="ogcdAsPoints">OGCD attacks as points</label>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="verticalBossAttacks">Vertical Boss Attacks</label>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="compactView">Compact View</label>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="highlightLoaded">Highlight Loaded</label>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="abilityAvailablity">Abilities Availability Map</label>
-  </ng-template>
-</context-menu>
+<nz-dropdown [nzTrigger]="'click'" [nzClickHide]="false">
+  <button nz-button nz-dropdown><i nz-icon type="eye" theme="fill"></i>View</button>
+  <ul nz-menu>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="showDowntimesInPartyArea">Downtimes in party area</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="buffmap">Buffs Heatmap</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="ogcdAsPoints">OGCD attacks as points</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="verticalBossAttacks">Vertical Boss Attacks</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="compactView">Compact View</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="highlightLoaded">Highlight Loaded</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateView()" [(ngModel)]="abilityAvailablity">Abilities Availability Map</label>
+    </li>
+  </ul>
+</nz-dropdown>
+
