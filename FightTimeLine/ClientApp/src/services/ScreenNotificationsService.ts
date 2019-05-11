@@ -1,139 +1,106 @@
 import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Injectable } from "@angular/core";
-import { MatSnackBar } from "@angular/material";
-
+import { NzNotificationService, NzMessageService, NzMessageType } from "ng-zorro-antd"
 @Injectable({
   providedIn: "root"
 })
 export class ScreenNotificationsService {
-  constructor(private snackBar: MatSnackBar, ) {
+  constructor(
+    private message: NzMessageService,
+    private notification: NzNotificationService
+  ) {
 
   }
 
   public showSignInRequired(action: () => any) {
-    this.snackBar.open("You must Sign in to proceed",
-      "Sign in",
-      {
-        duration: 2000,
-      }).onAction().subscribe(() => {
-        action();
-      });
+    this.warn("You must Sign in to proceed");
+
   }
 
   public showBossSaved() {
-    this.snackBar.open("Boss Saved",
-      null,
-      {
-        duration: 2000
-      });
+    this.success("Boss Saved");
   }
 
   public showBossNotSaved() {
-    this.snackBar.open("Unable to save Boss",
-      null,
-      {
-        duration: 2000
-      });
+    this.error("Unable to save Boss");
   }
 
   public showFightSaved() {
-    this.snackBar.open("Fight Saved",
-      null,
-      {
-        duration: 2000
-      });
+    this.success("Fight Saved");
   }
 
   public showFightNotSaved() {
-    this.snackBar.open("Unable to save Fight",
-      null,
-      {
-        duration: 2000
-      });
+    this.error("Unable to save Fight");
   }
 
-  public showUnableToLoadFight(action:()=>void) {
-    this.snackBar.open("Unable to load fight",
-      "Home",
-      {
-        duration: 2000
-      }).onAction().subscribe(() => {
-        action();
-    });
+  public showUnableToLoadFight(action: () => void) {
+    this.error("Unable to load fight");
   }
 
   public showUnableToLoadFights() {
-    this.snackBar.open("Unable to load fights",
-      null,
-      {
-        duration: 2000
-      }
-    );
+    this.error("Unable to load fights");
   }
 
   public showUnableToRemoveFights() {
-    this.snackBar.open("Unable to remove fights",
-      null,
-      {
-        duration: 2000
-      }
-    );
+    this.error("Unable to remove fights");
   }
 
   public showConnectedToSession() {
-    this.snackBar.open("Connected",
-      null,
-      {
-        duration: 2000
-      });
+    this.success("Connected");
   }
 
   public showConnectedToSessionError() {
-    this.snackBar.open("Unable to connected",
-      null,
-      {
-        duration: 2000
-      });
+    this.error("Unable to connected");
   }
 
   public showUnableToStartSession() {
-    this.snackBar.open("Unable to start session",
-      null,
-      {
-        duration: 2000
-      });
+    this.error("Unable to start session");
   }
 
 
   public showSessionStarted() {
-    this.snackBar.open("Session successfuly started",
-      null,
-      {
-        duration: 2000
-      });
+    this.success("Session successfuly started");
   }
 
   public showUnableToImport() {
-    this.snackBar.open("Unable to import from FFLogs",
-      null,
-      {
-        duration: 2000
-      });
+    this.error("Unable to import from FFLogs");
   }
 
   public showUserConnected(username: string) {
-    this.snackBar.open(`${username} connected`,
-      null,
-      {
-        duration: 2000
-      });
+    this.info(`${username} connected`);
   }
 
   public showUserDisonnected(username: string) {
-    this.snackBar.open(`${username} disconnected`,
-      null,
-      {
-        duration: 2000
-      });
+    this.info(`${username} disconnected`);
   }
 
+  error(text: string) {
+    this.message.error(text,
+      {
+        nzDuration: 2000
+      }
+    );
+  }
+  success(text: string) {
+    this.message.success(text,
+      {
+        nzDuration: 2000
+      }
+    );
+  }
+
+  warn(text: string) {
+    this.message.warning(text,
+      {
+        nzDuration: 2000
+      }
+    );
+  }
+
+  info(text: string) {
+    this.message.info(text,
+      {
+        nzDuration: 2000
+      }
+    );
+  }
 }

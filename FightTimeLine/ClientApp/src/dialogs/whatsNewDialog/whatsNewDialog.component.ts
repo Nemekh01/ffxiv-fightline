@@ -1,5 +1,5 @@
-import { Component, Inject } from "@angular/core";
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
+import { Component, ViewChild, Inject, Input, OnInit, TemplateRef } from "@angular/core";
+import { NzModalRef } from "ng-zorro-antd";
 
 
 @Component({
@@ -8,15 +8,16 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
     styleUrls: ["./whatsNewDialog.component.css"]
 })
 
-export class WhatsNewDialog {
+export class WhatsNewDialog implements OnInit {
+  
+  @Input("data") data: any;
+  @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
+  constructor(
+    private dialogRef: NzModalRef) { }
 
-   
+  ngOnInit(): void {
+    this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
+  }
 
-    constructor(
-        public dialogRef: MatDialogRef<WhatsNewDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: any) { }
 
-    onNoClick(): void {
-        this.dialogRef.close();
-    }
 }

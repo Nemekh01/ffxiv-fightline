@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject, EventEmitter } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import { SettingsFilterComponent } from "./filter/settingsFilter.component"
 import { SettingsViewComponent } from "./view/settingsView.component"
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
 import { SettingsService, ISettings } from "../../services/SettingsService";
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { NzModalRef } from "ng-zorro-antd";
 
 
 @Component({
@@ -34,12 +34,19 @@ export class SettingsDialog {
   view: SettingsViewComponent;
 
   constructor(
+    private dialogRef: NzModalRef,
     private formBuilder: FormBuilder,
-    public dialogRef: MatDialogRef<SettingsDialog>,
-    private settingsService: SettingsService,
-    @Inject(MAT_DIALOG_DATA) public data: any) { }
+    private settingsService: SettingsService) {
 
+    (this.dialogRef.getInstance().nzOnOk as EventEmitter<any>).subscribe(() => {
+      this.onYesClick();
+    });
 
+    (this.dialogRef.getInstance().nzOnOk as EventEmitter<any>).subscribe(() => {
+      this.onNoClick();
+    });
+
+  }
 
   ngOnInit() {
     const settings = this.settingsService.load();
@@ -71,25 +78,24 @@ export class SettingsDialog {
 
   onYesClick() {
 
-    let settings = this.settingsService.load();
+    const settings = this.settingsService.load();
     this.updateResult(settings);
     this.settingsService.save(settings);
+    this.dialogRef.destroy();
 
-    this.dialogRef.close();
   }
 
   updateResult(settings: ISettings): void {
     settings.fflogsImport.bossAttacksSource = this.ff.bossAttacksSource.value;
     settings.fflogsImport.sortOrderAfterImport = this.container.classes.map(it => it.name);
 
-
     settings.main.defaultView = this.view.get();
     settings.main.defaultFilter = this.filter.get();
-    
+
     settings.teamwork.displayName = this.tf.displayName.value;
   }
 
   onNoClick(): void {
-    this.dialogRef.close();
+    this.dialogRef.destroy();
   }
 }

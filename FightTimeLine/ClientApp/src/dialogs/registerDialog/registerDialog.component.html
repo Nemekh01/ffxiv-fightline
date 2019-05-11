@@ -1,45 +1,31 @@
-<h1 mat-dialog-title>Register</h1>
-<div mat-dialog-content style="height: 275px">
-    <form [formGroup]="form">
-        <div>
-            <mat-form-field>
-                <input matInput type="text" formControlName="username" placeholder="Username" />
-                <mat-error *ngIf="f.username.errors && f.username.errors.required">Username is required</mat-error>
-                <mat-error *ngIf="f.username.value.length > 0 && f.username.errors && !f.username.errors.isUserNameUnique">Username is already in use</mat-error>
-            </mat-form-field>
-            <span *ngIf="f.username.value.length > 0 && !checkingUser && !f.username.errors"><i style="color: green;" class="material-icons">check_circle_outline</i></span>
-            <span *ngIf="f.username.value.length > 0 && !checkingUser && f.username.errors && !f.username.errors.isUserNameUnique"><i style="color: red;" class="material-icons">error_outline</i></span>
-        </div>
-        <div>
-            <mat-form-field>
-                <input matInput type="password" formControlName="password" placeholder="Password" />
-                <mat-error *ngIf="f.password.errors && f.password.errors.required">Password is required</mat-error>
-            </mat-form-field>
-        </div>
-        <div>
-            <mat-form-field>
-                <input matInput type="password" formControlName="repeatPassword" placeholder="Confirm password" />
-                <mat-error *ngIf="f.repeatPassword.errors && f.repeatPassword.errors.required">Password confirmation is required</mat-error>
-                <mat-error *ngIf="f.repeatPassword.errors && f.repeatPassword.errors.matchOther">Passwords are not same</mat-error>
-            </mat-form-field>
-        </div>
-        <div style="margin-top: 15px">
-            <ngx-recaptcha2 #captchaElem
-                            size="Normal"
-                            hl="en"
-                            theme="Light"
-                            type="Image"
-                            (expire)="handleExpire()"
-                            (load)="handleLoad()"
-                            (success)="handleSuccess($event)">
-            </ngx-recaptcha2>
-        </div>
-    </form>
+<div style="height: 275px">
+  <form nz-form [formGroup]="form">
+    <nz-form-item>
+      <nz-form-control nzHasFeedback [nzValidateStatus]="checkingUser?'validating':(f.username.value.length > 0 && !checkingUser && !f.username.errors?'success':'error')">
+        <input nz-input type="text" formControlName="username" placeholder="Username" />
+        <nz-form-explain *ngIf="f.username.errors && f.username.errors.required">Username is required</nz-form-explain>
+        <nz-form-explain *ngIf="f.username.value.length > 0 && f.username.errors && !f.username.errors.isUserNameUnique">Username is already in use</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <input nz-input type="password" formControlName="password" placeholder="Password" />
+        <nz-form-explain *ngIf="f.password.errors && f.password.errors.required">Password is required</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <input nz-input type="password" formControlName="repeatPassword" placeholder="Confirm password" />
+        <nz-form-explain *ngIf="f.repeatPassword.errors && f.repeatPassword.errors.required">Password confirmation is required</nz-form-explain>
+        <nz-form-explain *ngIf="f.repeatPassword.errors && f.repeatPassword.errors.matchOther">Passwords are not same</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
 </div>
-<div mat-dialog-actions>
-    <button mat-button (click)="onNoClick()">No Thanks</button>
-    <button mat-button (click)="onRegisterClick()" [disabled]="loading || !captchaLoaded" cdkFocusInitial>
-        Register
-        <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-    </button>
-</div>
+<!-- <div mat-dialog-actions> -->
+<!--   <button mat-button (click)="onNoClick()">No Thanks</button> -->
+<!--   <button mat-button (click)="onRegisterClick()" [disabled]="loading || !captchaLoaded" cdkFocusInitial> -->
+<!--     Register -->
+<!--     <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" /> -->
+<!--   </button> -->
+<!-- </div> -->

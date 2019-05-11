@@ -2,8 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler, Injectable } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { DragDropModule } from "@angular/cdk/drag-drop";
 import { VisModule } from "ngx-vis"
-import { SplitPaneModule } from "ng2-split-pane-patch/lib/ng2-split-pane";
 import { ContextMenuModule, ContextMenuService } from "ngx-contextmenu"
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -34,12 +34,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OffsetWheelDirective } from "../heplers/OffsetWheelDirective"
 import { FFLogsMatcherDirective } from "../heplers/FFLogsMatchDirective"
 import { KillsOnlyPipe } from "../heplers/KillsPipe"
-import { AvatarModule } from 'ngx-avatar';
 import { PingComponent } from "../fightline/ping/ping.component";
 import * as Sentry from "@sentry/browser";
+import { AngularSplitModule } from 'angular-split';
 import { environment } from "../environments/environment"
-import { MaterialModule } from "./material.module"
-import { XivapiClientModule } from "@xivapi/angular-client"
+import { XivapiClientModule } from "@xivapi/angular-client";
+import { en_US, NgZorroAntdModule, NZ_I18N } from 'ng-zorro-antd';
+import { registerLocaleData } from '@angular/common';
+import en from '@angular/common/locales/en'
+
+registerLocaleData(en);
 
 Sentry.init({
   dsn: "https://aa772d49f3bb4a33851f765d5d5f2d86@sentry.io/1407389",
@@ -54,7 +58,7 @@ export class SentryErrorHandler implements ErrorHandler {
   }
 }
 
-const avatarColors = ["#FFB6C1", "#2c3e50", "#95a5a6", "#f39c12", "#1abc9c"];
+
 
 const googleLoginOptions: SocialLogins.LoginOpt = {
   scope: "https://www.googleapis.com/auth/spreadsheets"
@@ -69,6 +73,10 @@ let config = new AuthServiceConfig([
 
 export function provideConfig() {
   return config;
+}
+
+export function getBaseUrl() {
+  return document.getElementsByTagName("base")[0].href;
 }
 
 
@@ -99,30 +107,25 @@ export function provideConfig() {
     ...DialogsModuleComponents
   ],
   imports: [
+    NgZorroAntdModule,
     HttpClientModule,
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FormsModule,
+    DragDropModule,
     ReactiveFormsModule,
     NgProgressModule,
     VisModule,
-    SplitPaneModule,
     ContextMenuModule,
-    MaterialModule,
     XivapiClientModule.forRoot(),
-    AvatarModule.forRoot({
-      colors: avatarColors
-    }),
-    NgxCaptchaModule.forRoot({
-      reCaptcha2SiteKey: "6LfToGAUAAAAAKcp3joBgzcqJ3sK_s_WCltAL7Tn"
-    }),
+    NgxCaptchaModule,
     ClipboardModule,
-    SocialLoginModule
+    SocialLoginModule,
+    AngularSplitModule
   ],
   providers: [
     ContextMenuService,
-    ...Services.ServicesModuleComponents,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: "BASE_URL", useFactory: getBaseUrl },
     { provide: "FFLogs_URL", useValue: "https://www.fflogs.com:443/" },
@@ -130,7 +133,9 @@ export function provideConfig() {
     { provide: "GOOGLE_API_CLIENT_KEY", useValue: "1081155249988-uqcf81fhlvbbbllakefqbtmjcja9sva8.apps.googleusercontent.com" },
     { provide: "GOOGLE_API_SPREADSHEETS_URL", useValue: "https://sheets.googleapis.com/v4/spreadsheets" },
     { provide: ErrorHandler, useClass: SentryErrorHandler },
-    { provide: AuthServiceConfig, useFactory: provideConfig }
+    { provide: AuthServiceConfig, useFactory: provideConfig },
+    { provide: NZ_I18N, useValue: en_US },
+    ...Services.ServicesModuleComponents
 
   ],
   entryComponents: [
@@ -138,10 +143,6 @@ export function provideConfig() {
   ],
   bootstrap: [AppComponent]
 })
-
 export class AppModule { }
 
 
-export function getBaseUrl() {
-  return document.getElementsByTagName("base")[0].href;
-}

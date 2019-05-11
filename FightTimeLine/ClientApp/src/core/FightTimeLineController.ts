@@ -2,19 +2,19 @@ import { EventEmitter } from "@angular/core"
 import { VisTimelineItem } from "ngx-vis";
 import { JobRegistry } from "./JobRegistry"
 import * as M from "./Models"
-import { ClassNameBuilder } from "./ClassNameBuilder";
 import { UndoRedoController, IUpdateOptions, ICommandData } from "./UndoRedo"
 import * as C from "./Commands"
 import * as H from "./DataHolders"
 import { IdGenerator } from "./Generators"
 import { CommandBag } from "./CommandBag"
 import { Utils } from "./Utils"
-import { ItemBuilder } from "./Builders"
 import { CommandFactory } from "./CommandFactory"
 import { ExportData } from "./BaseExportTemplate"
-import { Events } from "./FFLogs"
+import *  as FF from "./FFLogs"
 import { AbilityUsagesCollector, BossAttacksCollector, JobPetCollector, StancesCollector } from "./FflogsCollectors/FFLogsCollectors"
 import { SettingsService } from "../services/SettingsService"
+import { settings } from "./Jobs/index"
+import * as _ from "lodash";
 
 
 export class FightTimeLineController {
@@ -23,7 +23,6 @@ export class FightTimeLineController {
   private holders: H.Holders;
 
   private bossGroup: string = "boss";
-  private itemBuilder = new ItemBuilder();
 
   private commandStorage: UndoRedoController;
   private commandBag: CommandBag;
@@ -45,8 +44,8 @@ export class FightTimeLineController {
       pet: true,
       unused: true,
       utility: true,
-
-    }, attacks: {
+    },
+    attacks: {
       isAoe: true,
       isShareDamage: true,
       isTankBuster: true,
@@ -71,9 +70,8 @@ export class FightTimeLineController {
       holders: this.holders,
       checkDatesOverlap: this.holders.itemUsages.checkDatesOverlap.bind(this.holders.itemUsages),
       jobRegistry: this.jobRegistry,
-      itemBuilder: this.itemBuilder,
       update: this.update.bind(this),
-      ogcdAttacksAsPoints: (ability: M.IAbility) => ability.abilityType === M.AbilityType.Damage && ability.duration === 0 ? this.view.ogcdAsPoints : false,
+      ogcdAttacksAsPoints: (ability: M.IAbility) => (ability.duration === 0 && ability.cooldown === 1) || (ability.abilityType === M.AbilityType.Damage && (ability.duration === 0 ? this.view.ogcdAsPoints : false)),
       verticalBossAttacks: () => this.view.verticalBossAttacks,
       isCompactView: () => this.view.compactView,
       highlightLoaded: () => this.view.highlightLoaded
@@ -138,8 +136,6 @@ export class FightTimeLineController {
     this.applyFilter();
   }
 
-
-
   public getJobs(): M.IJob[] {
     return this.jobRegistry.getJobs();
   }
@@ -163,78 +159,75 @@ export class FightTimeLineController {
   }
 
   removeJob(id: string): void {
-    console.log("remove job " + id);
     this.commandStorage.execute(new C.RemoveJobCommand(id));
   }
 
   addClassAbility(id: string, map: H.AbilityMap, time: Date, loaded: boolean, settings: string = null): void {
     if (map) {
       if (map.isStance) {
-        const jobMap = this.holders.jobs.get(map.parentId);
-        this.dialogCallBacks.openStanceSelector(jobMap.job.stances.map((it) => <M.IContextMenuData>{
+        this.dialogCallBacks.openStanceSelector(map.job.job.stances.map((it) => <M.IContextMenuData>{
           text: it.ability.name,
           icon: it.ability.icon,
           handler: () => {
             this.commandStorage.execute(new C.AddStanceCommand(id || this.idgen.getNextId(M.EntryType.StanceUsage),
-              map.parentId,
+              map.job.id,
               it.ability.name,
               time,
-              new Date(time.valueOf() + 30000),
+              this.holders.stances.getNext(new Date(time.valueOf() as number - 1000)),
               loaded));
           },
           item: null
         }));
       } else {
-        this.commandStorage.execute(new C.AddAbilityCommand(id || this.idgen.getNextId(M.EntryType.AbilityUsage),
-          map.parentId,
-          map.ability.name,
-          time,
-          loaded,
-          JSON.parse(settings)));
+        if (map.ability.requiresBossTarget && time < this.startDate) return;
+        if (!this.holders.itemUsages.checkDatesOverlap(map.id, time, new Date(time.valueOf() as number + map.ability.cooldown * 1000), id, this.holders.selectionRegistry))
+          this.commandStorage.execute(new C.AddAbilityCommand(id || this.idgen.getNextId(M.EntryType.AbilityUsage),
+            map.job.id,
+            map.ability.name,
+            time,
+            loaded,
+            JSON.parse(settings)));
       }
     }
   }
 
   addBossAttack(id: string, time: Date, bossAbility: M.IBossAbility): void {
-    this.commandStorage.execute(new C.AddBossAttackCommand(id || this.idgen.getNextId(M.EntryType.BossAttack), time, bossAbility));
+    bossAbility.offset = Utils.formatTime(time);
+    this.commandStorage.execute(new C.AddBossAttackCommand(id || this.idgen.getNextId(M.EntryType.BossAttack), bossAbility));
   }
 
   getLatestBossAttackTime(): Date | null {
     const filtered = this.holders.bossAttacks.getAll();
     if (filtered.length === 0) return null;
-    return (filtered.reduce((a, b) => a.item.start < b.item.start ? b : a)).item.start as Date;
+    return (filtered.reduce((a, b) => a.start < b.start ? b : a)).start as Date;
   }
 
   getLatestAbilityUsageTime(): Date | null {
     const filtered = this.holders.itemUsages.getAll();
     if (filtered.length === 0) return this.startDate;
-    return (filtered.reduce((a, b) => a.item.start < b.item.start ? b : a)).item.start as Date;
+    return (filtered.reduce((a, b) => a.start < b.start ? b : a)).start as Date;
   }
 
   updateBossAttack(itemid: string): void {
     const map = this.holders.bossAttacks.get(itemid);
-    console.log("Before dialog " + JSON.stringify(map.attack));
     this.dialogCallBacks.openBossAttackAddDialog(Utils.clone<M.IBossAbility>(map.attack),
       (result: { updateAllWithSameName: boolean, data: M.IBossAbility }) => {
         if (result != null) {
-          const delta = ((Utils.getDateFromOffset(result.data.offset, this.startDate).valueOf() as number) -
-            (map.item.start.valueOf() as number));
-          const command = new C.CombinedCommand([
-            new C.MoveBossAttackCommand(Utils.getDateFromOffset(result.data.offset, this.startDate), map.item.start as Date, itemid),
+          const commands: any[] = [];
+          const delta = ((Utils.getDateFromOffset(result.data.offset, this.startDate).valueOf() as number) - (map.start.valueOf() as number));
+          commands.push(
             new C.ChangeBossAttackCommand(itemid, result.data, result.updateAllWithSameName)
-          ]);
+          );
 
-          this.commandStorage.execute(command);
           if (this.tools.stickyAttacks) {
-            const afterMe = this.holders.bossAttacks.filter(it => it.item.start >= map.item.start && it.id !== itemid);
-            this.commandStorage.execute(new C.CombinedCommand(afterMe.map(it => {
-              return new C.MoveBossAttackCommand(
-                new Date((it.item.start.valueOf() as number) + delta),
-                new Date(it.item.start),
-                it.id);
-            }) as any));
+            const afterMe = this.holders.bossAttacks.filter(it => it.start >= map.start && it.id !== itemid);
+            commands.push(...afterMe.map(it => {
+              return new C.ChangeBossAttackCommand(it.id, { offset: Utils.formatTime(new Date(it.startAsNumber + delta * 1000)) }, false);
+            }));
           }
-          this.holders.bossAttacks.applyFilter(this.filter);
+          this.commandStorage.execute(new C.CombinedCommand(commands));
+
+          this.holders.bossAttacks.applyFilter(this.filter.attacks);
         }
       });
   }
@@ -250,23 +243,18 @@ export class FightTimeLineController {
       return;
     }
 
-    if (time === undefined) return;
+    if (!time) return;
     time.setMilliseconds(0);
-    if (time < Utils.getDateFromOffset(0, this.startDate)) {
-      const map = this.holders.abilities.get(group);
-      if (map) {
-        this.toggleCompactViewAbility(map.id);
-      }
-      return;
-    };
 
     if (group === this.bossGroup || group === undefined) {
-      this.dialogCallBacks.openBossAttackAddDialog({ offset: Utils.formatTime(time) },
-        (result: { updateAllWithSameName: boolean, data: M.IBossAbility }) => {
-          if (result != null) {
-            this.addBossAttack(null, Utils.getDateFromOffset(result.data.offset, this.startDate), result.data);
-          }
-        });
+      if (time >= this.startDate) {
+        this.dialogCallBacks.openBossAttackAddDialog({ offset: Utils.formatTime(time) },
+          (result: { updateAllWithSameName: boolean, data: M.IBossAbility }) => {
+            if (result != null) {
+              this.addBossAttack(null, Utils.getDateFromOffset(result.data.offset, this.startDate), result.data);
+            }
+          });
+      }
     }
     else {
       const map = this.holders.abilities.get(group);
@@ -280,23 +268,22 @@ export class FightTimeLineController {
     }
   }
 
-  private notifyRemove(item: VisTimelineItem, updateAttacks?: boolean): void {
-    console.log("NotifyRemove " + item.id);
-    if (this.idgen.isAbilityUsage(item.id)) {
-      this.commandBag.push(new C.RemoveAbilityCommand(item.id.toString(), updateAttacks));
+  private notifyRemove(id: string, updateAttacks?: boolean): void {
+    console.log("NotifyRemove " + id);
+    if (this.idgen.isAbilityUsage(id)) {
+      this.commandBag.push(new C.RemoveAbilityCommand(id, updateAttacks));
     } else
-      if (this.idgen.isStanceUsage(item.id)) {
-        this.commandBag.push(new C.RemoveStanceCommand(item.id.toString(), updateAttacks));
+      if (this.idgen.isStanceUsage(id)) {
+        this.commandBag.push(new C.RemoveStanceCommand(id, updateAttacks));
       } else
-        if (this.idgen.isBossAttack(item.id)) {
-          this.commandBag.push(new C.RemoveBossAttackCommand(item.id.toString(), item.start as Date, updateAttacks));
+        if (this.idgen.isBossAttack(id)) {
+          this.commandBag.push(new C.RemoveBossAttackCommand(id, updateAttacks));
         }
 
-    this.commandBag.evaluate(this.holders.selectionRegistry.getLength(), () => this.holders.selectionRegistry.clear());
+    this.commandBag.evaluate(this.holders.selectionRegistry.length, () => this.holders.selectionRegistry.clear());
   }
 
   notifyMove(item: VisTimelineItem): void {
-    console.log(`NotifyMove for ${item.id}`);
     const found = this.holders.selectionRegistry.get(item.id.toString());
     if (found) {
       if (this.idgen.isAbilityUsage(item.id)) {
@@ -306,22 +293,21 @@ export class FightTimeLineController {
           this.commandBag.push(new C.MoveStanceCommand(item.id.toString(), item.start as Date, item.end as Date));
         } else
           if (this.idgen.isBossAttack(item.id)) {
-            this.commandBag.push(new C.MoveBossAttackCommand(item.start as Date,
-              found.time,
-              item.id.toString()));
+            this.commandBag.push(new C.ChangeBossAttackCommand(item.id.toString(), { offset: Utils.formatTime(new Date(item.start)) }, false));
             if (this.tools.stickyAttacks) {
-              const afterMe = this.holders.bossAttacks.filter(it => it.item.start >= found.time && it.id !== item.id);
+              const afterMe = this.holders.bossAttacks.filter(it => it.start >= found.time && it.id !== item.id);
               this.commandBag.push(new C.CombinedCommand(afterMe.map(it => {
-                return new C.MoveBossAttackCommand(
-                  new Date((it.item.start.valueOf() as number) + ((item.start.valueOf() as number) - (found.time.valueOf() as number))),
-                  new Date(it.item.start),
-                  it.id);
-              }) as any));
+                return new C.ChangeBossAttackCommand(it.id,
+                  {
+                    offset: Utils.formatTime(new Date((it.start.valueOf() as number) + ((item.start.valueOf() as number) - (found.time.valueOf() as number))))
+                  },
+                  false);
+              })));
             }
           }
     }
 
-    this.commandBag.evaluate(this.holders.selectionRegistry.getLength(), null);
+    this.commandBag.evaluate(this.holders.selectionRegistry.length);
   }
 
   updateTools(tools: M.ITools): void {
@@ -333,14 +319,14 @@ export class FightTimeLineController {
     if (!ids) return;
     if (target === "friend") {
       this.holders.itemUsages.getByIds(ids).forEach((it) => {
-        this.holders.selectionRegistry.add({ id: it.id.toString(), item: it.item, time: it.item.start as Date });
+        this.holders.selectionRegistry.add(new H.AbilitySelectionMap(it.id, it.start));
       });
       this.holders.stances.getByIds(ids).forEach((it) => {
-        this.holders.selectionRegistry.add({ id: it.id.toString(), item: it.item, time: it.item.start as Date });
+        this.holders.selectionRegistry.add(new H.AbilitySelectionMap(it.id, it.start));
       });
     } else {
       this.holders.bossAttacks.getByIds(ids).forEach((it: H.BossAttackMap) => {
-        this.holders.selectionRegistry.add({ id: it.id.toString(), item: it.item, time: it.item.start as Date });
+        this.holders.selectionRegistry.add(new H.AbilitySelectionMap(it.id, it.start));
       });
     }
   }
@@ -348,7 +334,7 @@ export class FightTimeLineController {
   updateAffectedAbilities(ability: M.IAbility): void {
     if (ability.relatedAbilities !== undefined && ability.relatedAbilities.affects !== undefined) {
       const foundItems = this.holders.itemUsages.filter((x) =>
-        ability.relatedAbilities.affects.some((value: string) => this.holders.abilities.get(x.item.group).ability.name === value));
+        ability.relatedAbilities.affects.some((value: string) => x.ability.ability.name === value));
       this.holders.itemUsages.update(foundItems);
     }
   }
@@ -364,52 +350,46 @@ export class FightTimeLineController {
 
 
     const bossTargetChangeAbilities = this.holders.itemUsages
-      .filter(a => this.holders.abilities.isBossTargetForGroup(a.item.group))
-      .sort((a, b) => (a.item.start as number) - (b.item.start as number));
+      .filter(a => this.holders.abilities.isBossTargetForGroup(a.ability.id))
+      .sort((a, b) => a.startAsNumber - b.startAsNumber);
 
     let start = Utils.getDateFromOffset(0, this.startDate);
     let target = this.holders.bossTargets.initialBossTarget;
 
     for (let i = 0; i < bossTargetChangeAbilities.length + 1; i++) {
       if (i < bossTargetChangeAbilities.length) {
-        const setting = this.holders.itemUsages.getSetting(bossTargetChangeAbilities[i].id.toString(), "changesTarget");
+        const setting = bossTargetChangeAbilities[i].getSettingData(settings.changesTarget.name);
         if (setting !== null && setting !== undefined && !setting.value) continue;
       }
 
-      let end = i === bossTargetChangeAbilities.length ? latestBossTime : bossTargetChangeAbilities[i].item.start as Date;
+      let end = i === bossTargetChangeAbilities.length ? latestBossTime : bossTargetChangeAbilities[i].start as Date;
       end = end > latestBossTime ? latestBossTime : end;
 
       if (start >= end || start > latestBossTime) return;
 
       const id = this.idgen.getNextId(M.EntryType.BossTarget);
-      this.holders.bossTargets.add({
-        id: id,
-        ability: null,
-        item: this.itemBuilder.createBossTarget(id, start, end, target)
-      });
+      this.holders.bossTargets.add(new H.BossTargetMap(id, target, { start: start, end: end }));
 
       if (i < bossTargetChangeAbilities.length) {
-        target = this.holders.abilities.getParent(bossTargetChangeAbilities[i].item.group);
+        target = bossTargetChangeAbilities[i].ability.job.id;
         start = end;
       }
     }
   }
 
-  canMove(item: any): boolean {
+  canMove(item: VisTimelineItem): boolean {
     const type = this.idgen.getEntryType(item.id);
 
     switch (type) {
       case M.EntryType.AbilityUsage:
-        const map = this.holders.abilities.get(item.group);
-        const ability = map.ability;
-        return item.end - item.start === ability.cooldown * 1000 &&
-          new Date(item.start) >= this.startDate &&
-          !this.holders.itemUsages.checkDatesOverlap(item.group, item.start, item.end, item.id, this.holders.selectionRegistry);
+        const ability = this.holders.abilities.get(item.group).ability;
+        return (item.end as number) - (item.start as number) === ability.cooldown * 1000 && new Date(item.start) >= new Date(this.startDate.valueOf() as number - ((ability.requiresBossTarget?0:1) * 30 * 1000)) &&
+          !this.holders.itemUsages.checkDatesOverlap(item.group, new Date(item.start), new Date(item.end), item.id.toString(), this.holders.selectionRegistry);
       case M.EntryType.StanceUsage:
-        return item.end - item.start > 0 && new Date(item.start) >= this.startDate &&
-          !this.holders.stances.checkDatesOverlap(item.group, item.start, item.end, item.id, this.holders.selectionRegistry);
+        return (item.end as number) - (item.start as number) > 0 && new Date(item.start) >= new Date(this.startDate.valueOf() as number - 30 * 1000)  &&
+          !this.holders.stances.checkDatesOverlap(item.group, new Date(item.start), new Date(item.end), item.id.toString(), this.holders.selectionRegistry);
       case M.EntryType.BossAttack:
-        return true;
+        return new Date(item.start) >= this.startDate;
     }
     return false;
   }
@@ -422,7 +402,7 @@ export class FightTimeLineController {
     }
 
     if (options.updateIntersectedWithBossAttackAtDate) {
-      const intersected = this.holders.itemUsages.filter((x) => options.updateIntersectedWithBossAttackAtDate >= x.item.start && options.updateIntersectedWithBossAttackAtDate <= x.item.end);
+      const intersected = this.holders.itemUsages.filter((x) => options.updateIntersectedWithBossAttackAtDate >= x.start && options.updateIntersectedWithBossAttackAtDate <= x.end);
       this.holders.itemUsages.update(intersected);
     }
 
@@ -432,7 +412,7 @@ export class FightTimeLineController {
       this.updateAvailability(options.abilityChanged);
     }
 
-    if (options.updateBossTargets || (options.abilityChanged && (options.abilityChanged as M.IChangeBossTargetAbility).changesBossTarget))
+    if (options.updateBossTargets || (options.abilityChanged && options.abilityChanged.settings && options.abilityChanged.settings.some(s => s.name === "changesTarget")))
       this.recalculateBossTargets();
 
     if (options.updateBossAttacks)
@@ -447,24 +427,20 @@ export class FightTimeLineController {
 
     if (active) {
       this.holders.itemUsages.getAll().forEach((it) => {
-        const amap = this.holders.abilities.get(it.item.group);
+        const amap = it.ability;
         if (amap && !amap.hidden && amap.isDamage) {
-          const start = it.item.start as Date;
-          const end = new Date((start.valueOf() as number) + this.calculateDuration(it.item, amap) * 1000);
+          const start = it.start;
+          const end = new Date((start.valueOf() as number) + this.calculateDuration(it.start, amap) * 1000);
           const id = this.idgen.getNextId(M.EntryType.BuffMap) + "_" + it.id;
-          const group = amap.isSelfDamage ? amap.parentId : null;
-          this.holders.heatMaps.add({
-            id: id,
-            item: this.itemBuilder.createHeatMap(start, end, id, group),
-            ability: amap.ability
-          });
+          const group = amap.isSelfDamage ? amap.job.id : null;
+          this.holders.heatMaps.add(new H.HeatmapMap(id, group, { start: start, end: end }));
         }
       });
     }
   }
 
   switchInitialBossTarget(map: H.JobMap, addToUndoRedo: boolean): void {
-    if (map.job.canBeTargetForBoss) {
+    if (map.job.role === M.Role.Tank) {
       if (addToUndoRedo && this.holders.bossTargets.initialBossTarget !== map.id)
         this.commandStorage.execute(new C.SwitchTargetCommand(this.holders.bossTargets.initialBossTarget, map.id));
       else
@@ -472,21 +448,21 @@ export class FightTimeLineController {
     }
   }
 
-  calculateDuration(item: VisTimelineItem, map: H.AbilityMap): number {
+  calculateDuration(start: Date, map: H.AbilityMap): number {
     const ability = map.ability;
     let duration = ability.duration;
 
     if (ability.relatedAbilities && ability.relatedAbilities.affectedBy) {
       const foundItems = this.holders.itemUsages.filter((x) => {
-        const abilityMap = this.holders.abilities.get(x.item.group);
-        return (!ability.relatedAbilities.parentOnly || abilityMap.parentId === map.parentId) &&
+        const abilityMap = x.ability;
+        return (!ability.relatedAbilities.parentOnly || abilityMap.job.id === map.job.id) &&
           ability.relatedAbilities.affectedBy.some((value: string) => value === abilityMap.ability.name);
       }
-      ).sort((a, b) => (a.item.start as number) - (b.item.start as number));
+      ).sort((a, b) => (a.startAsNumber) - (b.startAsNumber));
 
       if (foundItems.length > 0) {
         const difference = foundItems.map((found) => {
-          const diff = Math.round((<number>found.item.start.valueOf() - (<number>item.start.valueOf())) / 1000);
+          const diff = Math.round((found.startAsNumber - start.valueOf()) / 1000);
           if (diff >= 0 && diff < ability.duration) {
             return diff;
           }
@@ -502,11 +478,11 @@ export class FightTimeLineController {
 
     if (ability.extendDurationOnNextAbility !== undefined) {
       const items = this.holders.bossAttacks
-        .filter((x: H.BossAttackMap) => this.holders.bossAttacks.get(x.id.toString()).attack.isTankBuster && x.item.start >= item.start) //todo: check this
-        .sort((a, b) => (a.item.start as number) - (b.item.start as number));
+        .filter((x: H.BossAttackMap) => x.attack.isTankBuster && x.start >= start)
+        .sort((a, b) => (a.startAsNumber) - (b.startAsNumber));
       if (items.length > 0) {
         const found = items[0];
-        const difference = Math.round((<number>found.item.start.valueOf() - (<number>item.start.valueOf())) / 1000);
+        const difference = Math.round((found.startAsNumber - start.valueOf()) / 1000);
         if (difference <= ability.duration) {
           duration = difference + ability.extendDurationOnNextAbility;
         }
@@ -547,7 +523,7 @@ export class FightTimeLineController {
           });
         }
 
-        var hidden = this.holders.abilities.filter(it => it.hidden && it.parentId === event.group);
+        var hidden = this.holders.abilities.filter(it => it.hidden && it.job.id === event.group);
         if (hidden && hidden.length > 0) {
           const hid = hidden.map(it => <any>{
             name: it.isStance ? "Stance" : it.ability.name,
@@ -567,7 +543,7 @@ export class FightTimeLineController {
 
 
         items.push({ text: "Filter", item: event.group, handler: () => { }, filter: jobMap.filter });
-        items.push({ text: "Compact view", isCheckBox: true, checked: jobMap.isCompactView, item: event.group, handler: () => this.toggleCompactView(event.group) });
+        items.push({ text: "Compact view", isCheckBox: true, checked: jobMap.isCompact, item: event.group, handler: () => this.toggleCompactView(event.group) });
         return items;
       } else {
         const map = this.holders.abilities.get(event.group);
@@ -586,10 +562,10 @@ export class FightTimeLineController {
       }
     }
     else if (event.what === "background") {
-      const downTimes = this.holders.bossDownTime.filter((it) => it.item.start <= event.time && it.item.end >= event.time);
+      const downTimes = this.holders.bossDownTime.filter((it) => it.start <= event.time && it.end >= event.time);
       if (downTimes && downTimes.length > 0) {
         items.push(...downTimes.map((it) => <M.IContextMenuData>{
-          text: `Downtime (${Utils.formatTime(it.item.start as Date)} - ${Utils.formatTime(it.item.end as Date)})`,
+          text: `Downtime (${Utils.formatTime(it.start as Date)} - ${Utils.formatTime(it.end as Date)})`,
           item: it,
           handler: () => {
             return {
@@ -601,11 +577,11 @@ export class FightTimeLineController {
         }));
       }
       if (this.view.buffmap) {
-        const heatMaps = this.holders.heatMaps.filter((it) => it.item.start <= event.time && it.item.end >= event.time);
+        const heatMaps = this.holders.heatMaps.filter((it) => it.start <= event.time && it.end >= event.time);
         if (heatMaps && heatMaps.length > 0) {
           items.push(...heatMaps.map((it) => {
             const id = it.id.toString().match("_(.+)")[1];
-            const item = this.holders.abilities.get(this.holders.itemUsages.get(id).item.group);
+            const item = this.holders.itemUsages.get(id).ability;
             if ((item.ability.abilityType & M.AbilityType.PartyDamageBuff) === M.AbilityType.PartyDamageBuff)
               return <M.IContextMenuData>{
                 text: item.ability.name,
@@ -644,6 +620,20 @@ export class FightTimeLineController {
           item: event.item,
           handler: () => this.copy(event.item)
         });
+      } else {
+        const stance = this.holders.stances.get(event.item);
+        if (stance) {
+          items.push({
+            text: "Split here",
+            item: event.item,
+            handler: () => this.splitStance(event.item, event.time)
+          });
+          items.push({
+            text: "Fill",
+            item: event.item,
+            handler: () => this.fillStance(event.item)
+          });
+        }
       }
     }
     else if (!event.what) {
@@ -659,9 +649,37 @@ export class FightTimeLineController {
   }
   private copyContainer: any;
 
+  splitStance(id: string, time: any) {
+    const stance = this.holders.stances.get(id);
+    if (stance) {
+      this.commandStorage.execute(new C.CombinedCommand([
+        new C.MoveStanceCommand(id, stance.start, new Date(time.valueOf() as number - 1000)),
+        new C.AddStanceCommand(this.idgen.getNextId(M.EntryType.StanceUsage),
+          stance.ability.job.id,
+          stance.stanceAbility.name,
+          time,
+          this.holders.stances.getNext(time),
+          false)
+      ]));
+    }
+  }
+  fillStance(id: string) {
+    const stance = this.holders.stances.get(id);
+    if (stance) {
+      const next = this.holders.stances.getNext(stance.end);
+      const prev = this.holders.stances.getPrev(stance.start);
+      if (next !== stance.end || prev !== stance.start) {
+        this.commandStorage.execute(new C.CombinedCommand([
+          new C.MoveStanceCommand(id, prev, next)
+        ]));
+      }
+    }
+  }
+
+
   copy(id: string) {
     const ba = this.holders.bossAttacks.get(id);
-    this.copyContainer = ba.attack;
+    this.copyContainer = Utils.clone(ba.attack);
   }
 
   paste(time: any) {
@@ -672,29 +690,28 @@ export class FightTimeLineController {
         isShareDamage: this.copyContainer.isShareDamage,
         isTankBuster: this.copyContainer.isTankBuster,
         type: this.copyContainer.type,
-        offset: Utils.formatTime(time)
+        offset: Utils.formatTime(time),
+        syncSettings: this.copyContainer.syncSettings
       });
   }
 
   toggleCompactView(group: string, value?: boolean): void {
     const job = this.holders.jobs.get(group);
     if (value == null || value == undefined)
-      job.isCompactView = !job.isCompactView;
+      job.isCompact = !job.isCompact;
     else
-      job.isCompactView = value;
+      job.isCompact = value;
 
     const abilities = this.holders.abilities.getByParentId(group);
     abilities.forEach(it => {
       if (it.isStance) return;
-      it.isCompact = job.isCompactView;
-      const ccb = new ClassNameBuilder(it.item.className);
-      ccb.set([{ value: "compact", flag: it.isCompact }]);
-      it.item.className = ccb.build() || "dummy";
+      it.applyData({
+        isCompact: job.isCompact
+      });
+
       const items = this.holders.itemUsages.getByAbility(it.id);
       items.forEach(a => {
-        const cb = new ClassNameBuilder(a.item.className);
-        cb.set([{ value: "compact", flag: job.isCompactView }]);
-        a.item.className = cb.build() || "dummy";
+        a.applyData();
       });
       this.holders.itemUsages.update(items);
     });
@@ -703,16 +720,16 @@ export class FightTimeLineController {
 
   hideAbility(group: string) {
     const map = this.holders.abilities.get(group);
-    map.hidden = true;
-    map.item.visible = false;
+    map.applyData({
+      hidden: true
+    });
     this.holders.abilities.update([map]);
     this.updateBuffHeatmap(this.view.buffmap, map.ability);
 
   }
   showAbility(group: string) {
     const map = this.holders.abilities.get(group);
-    map.hidden = false;
-    map.item.visible = true;
+    map.applyData({ hidden: false });
     this.holders.abilities.update([map]);
     this.updateBuffHeatmap(this.view.buffmap, map.ability);
   }
@@ -724,8 +741,7 @@ export class FightTimeLineController {
   restoreHidden(group: string) {
     const abilities = this.holders.abilities.getByParentId(group);
     abilities.forEach((it: H.AbilityMap) => {
-      it.hidden = false;
-      it.item.visible = true;
+      it.applyData({ hidden: false });
     });
 
     this.holders.abilities.update(abilities);
@@ -739,11 +755,15 @@ export class FightTimeLineController {
     const map = this.holders.abilities.get(item.group);
     if (!map) return "";
     const ability = map.ability;
-    const duration = this.calculateDuration(item, map);
+    const duration = this.calculateDuration(new Date(item.start), map);
 
     const percentage = (duration / ability.cooldown) * 100;
-    return this.itemBuilder.createItemUsageFrame(percentage);
+    return this.createItemUsageFrame(percentage);
   }
+  createItemUsageFrame(percentage: number): string {
+    return `<div class="progress-wrapper-fl"><div class="progress-fl" style = "width:${percentage}%"> </div></div >`;
+  }
+
 
   tooltipOnItemUpdateTime(item: VisTimelineItem): any {
     if (this.idgen.isStanceUsage(item.id))
@@ -754,9 +774,9 @@ export class FightTimeLineController {
 
   handleDelete(selected: (string | number)[]): any {
     const toRemove = [
-      ...this.holders.itemUsages.getByIds(selected).map(x => x.item),
-      ...this.holders.stances.getByIds(selected).map(x => x.item),
-      ...this.holders.bossAttacks.getByIds(selected).map(x => x.item)
+      ...this.holders.itemUsages.getByIds(selected).map(x => x.id),
+      ...this.holders.stances.getByIds(selected).map(x => x.id),
+      ...this.holders.bossAttacks.getByIds(selected).map(x => x.id)
     ];
     for (let r of toRemove.filter(it => !!it)) {
       this.notifyRemove(r, false);
@@ -788,7 +808,7 @@ export class FightTimeLineController {
           .map((it) => {
             return {
               name: it.ability.name,
-              job: it.parentId,
+              job: it.job.id,
               compact: it.isCompact,
               hidden: it.hidden
             }
@@ -796,13 +816,13 @@ export class FightTimeLineController {
         abilities: this.holders.itemUsages
           .getAll()
           .map((value) => {
-            const a = this.holders.abilities.get(value.item.group);
+            const a = value.ability;
             if (a) {
               return <IAbilityUsageData>{
                 id: value.id,
-                job: a.parentId,
+                job: a.job.id,
                 ability: a.ability.name,
-                start: Utils.formatTime(new Date(value.item.start.valueOf() as number)),
+                start: Utils.formatTime(value.start),
                 settings: JSON.stringify(value.settings),
               };
             }
@@ -811,14 +831,14 @@ export class FightTimeLineController {
         stances: this.holders.stances
           .getAll()
           .map((value) => {
-            const a = this.holders.abilities.get(value.item.group);
+            const a = value.ability;
             if (a) {
               return {
                 id: value.id,
-                job: a.parentId,
-                ability: value.ability.name,
-                start: Utils.formatTime(new Date(value.item.start.valueOf() as number)),
-                end: Utils.formatTime(new Date(value.item.end.valueOf() as number)),
+                job: a.job.id,
+                ability: value.ability.ability.name,
+                start: Utils.formatTime(value.start),
+                end: Utils.formatTime(value.end),
               };
             }
             return null;
@@ -863,7 +883,7 @@ export class FightTimeLineController {
       if (data.boss) {
         this.holders.bossAttacks.clear();
         this.loadBoss(data.boss);
-        this.holders.bossAttacks.applyFilter(data.filter);
+        this.holders.bossAttacks.applyFilter(data.filter.attacks);
       }
 
       if (data.jobs)
@@ -871,7 +891,7 @@ export class FightTimeLineController {
           const rid = this.addJob(j.id, j.name, null, j.pet, j.collapsed, false);
           const jh = this.holders.jobs.get(rid);
           if (j.filter)
-            jh.filter = j.filter;
+            jh.filter = j.filter.abilities;
           if (j.compact !== undefined && j.compact !== null)
             this.toggleCompactView(j.id, j.compact);
         }
@@ -903,7 +923,7 @@ export class FightTimeLineController {
           if (a) {
             const abilityMap = this.holders.abilities.getStancesAbility(a.job);
             this.commandStorage.execute(new C.AddStanceCommand(this.idgen.getNextId(M.EntryType.StanceUsage),
-              abilityMap.parentId,
+              abilityMap.job.id,
               a.ability,
               Utils.getDateFromOffset(a.start, this.startDate), Utils.getDateFromOffset(a.end, this.startDate), true));
           }
@@ -947,13 +967,14 @@ export class FightTimeLineController {
                 isAoe: ab.attack.isAoe,
                 isShareDamage: ab.attack.isShareDamage,
                 isTankBuster: ab.attack.isTankBuster,
-                offset: Utils.formatTime(ab.item.start as Date)
+                offset: Utils.formatTime(ab.start),
+                syncSettings: ab.attack.syncSettings
               }
             }
           }),
         downTimes: this.holders.bossDownTime.getAll().map((it) => <any>{
-          start: Utils.formatTime(it.item.start as Date),
-          end: Utils.formatTime(it.item.end as Date),
+          start: Utils.formatTime(it.start),
+          end: Utils.formatTime(it.end),
           color: it.color
         })
       }),
@@ -979,7 +1000,7 @@ export class FightTimeLineController {
 
   editAbility(itemid: string, group: string): void {
     const ab = this.holders.abilities.get(group).ability;
-    if (ab.settings !== undefined && ab.settings != null && ab.settings.length > 0) {
+    if (ab.settings !== undefined && ab.settings && ab.settings.length > 0) {
       const item = this.holders.itemUsages.get(itemid);
       this.dialogCallBacks.openAbilityEditDialog({ settings: ab.settings, values: item.settings, jobs: this.holders.jobs.getAll() },
         (b: any) => {
@@ -993,8 +1014,8 @@ export class FightTimeLineController {
   notifyTimeChanged(id: string, date: Date): void {
     const map = this.holders.bossDownTime.getById(id);
     if (map) {
-      let start = map.item.start;
-      let end = map.item.end;
+      let start = map.start;
+      let end = map.end;
       if (map.startId === id) {
         start = date;
       } else {
@@ -1007,7 +1028,7 @@ export class FightTimeLineController {
 
   getBossDownTimeMarkers(): { map: H.BossDownTimeMap, start: Date, end: Date }[] {
     return this.holders.bossDownTime.getAll().map((it) => {
-      return { map: it, start: it.item.start as Date, end: it.item.end as Date };
+      return { map: it, start: it.start, end: it.end };
     });
   }
 
@@ -1021,8 +1042,8 @@ export class FightTimeLineController {
     if (input)
       this.filter = input;
 
-    this.holders.abilities.applyFilter(this.filter, (val) => this.holders.jobs.get(val), (val) => this.holders.itemUsages.filter((item) => item.item.group === val).length > 0);
-    this.holders.bossAttacks.applyFilter(this.filter);
+    this.holders.abilities.applyFilter(this.filter.abilities, (val) => this.holders.itemUsages.filter((item) => item.ability.id === val).length > 0);
+    this.holders.bossAttacks.applyFilter(this.filter.attacks);
   }
 
   new() {
@@ -1033,6 +1054,7 @@ export class FightTimeLineController {
     this.holders.bossAttacks.clear();
     this.holders.bossTargets.clear();
     this.holders.bossDownTime.clear();
+    this.holders.stances.clear();
     this.holders.heatMaps.clear();
 
     this.loadedBoss = null;
@@ -1044,7 +1066,7 @@ export class FightTimeLineController {
     this.hasChanges = false;
   }
 
-  importFromFFLogs(events: Events): any {
+  importFromFFLogs(events: FF.Events): any {
 
     try {
 
@@ -1055,7 +1077,10 @@ export class FightTimeLineController {
       const defaultOrder = ["Tank", "Heal", "DD"];
       const sortOrder = settings.fflogsImport.sortOrderAfterImport;
 
-      events.jobs.sort((a, b) => sortOrder.indexOf(defaultOrder[a.role]) - sortOrder.indexOf(defaultOrder[b.role])).forEach(it => this.addJob(null, it.job, it.actorName, null, false, false));
+      events.jobs.sort((a, b) => sortOrder.indexOf(defaultOrder[a.role]) - sortOrder.indexOf(defaultOrder[b.role])).forEach(it => {
+        const rid = this.addJob(null, it.job, it.actorName, null, false, false);
+        it.rid = rid;
+      });
 
       const collectors = [
         new AbilityUsagesCollector(this.holders.jobs, this.holders.abilities, this.commandStorage, this.idgen, this.startDate),
@@ -1065,7 +1090,7 @@ export class FightTimeLineController {
       ];
 
 
-      events.events.forEach((it: any) => {
+      events.events.forEach((it: FF.AbilityEvent) => {
         if (it.ability) {
           collectors.forEach((c) => c.collect(it, events.jobs, events.start_time));
         }
@@ -1094,9 +1119,9 @@ export class FightTimeLineController {
     if (this.view.ogcdAsPoints !== view.ogcdAsPoints || force) {
       const items = this.holders.itemUsages.getAll();
       items.forEach(x => {
-        const map = this.holders.abilities.get(x.item.group);
-        if (map.ability.duration === 0)
-          x.item.type = view.ogcdAsPoints ? "point" : "range";
+        const map = x.ability;
+        if (map.ability.duration === 0 && map.ability.abilityType === M.AbilityType.Damage)
+          x.applyData({ ogcdAsPoints: view.ogcdAsPoints });
       });
       this.holders.itemUsages.update(items);
     }
@@ -1133,41 +1158,28 @@ export class FightTimeLineController {
   }
 
   moveBossAttack(item: VisTimelineItem): void {
-    const map = this.holders.bossAttacks.get(item.id.toString());
-    map.item.start = item.start;
-    this.holders.bossAttacks.update([map]);
+    this.holders.bossAttacks.sync(item.id.toString(), new Date(item.start));
   }
 
   moveSelection(delta: number): void {
     const items = this.holders.selectionRegistry.getAll();
-    if (items) {
-      items.forEach(x => {
-        const copy = Utils.clone(x.item);
-        copy.start = new Date((x.item.start.valueOf() as number) + delta * 1000);
-        if (x.item.end)
-          copy.end = new Date((x.item.end.valueOf() as number) + delta * 1000);
-        if (this.idgen.isAbilityUsage(x.id) &&
-          this.holders.itemUsages.checkDatesOverlap(
-            x.item.group,
-            new Date(copy.start.valueOf() as number),
-            new Date(copy.end.valueOf() as number),
-            x.id,
-            this.holders.selectionRegistry)) {
-          return; //todo: find next free spot
-        }
+    if (items && items.length) {
+      const ids = items.map(it => it.id);
+      const toMove: (H.IMoveable & {id: string, ability?: H.AbilityMap, end?: Date})[] = (_.flatten([
+        this.holders.itemUsages.getByIds(ids),
+        this.holders.stances.getByIds(ids),
+        this.holders.bossAttacks.getByIds(ids)
+      ]).filter(it => !!it)) as any;
 
-        if (this.idgen.isStanceUsage(x.id) &&
-          this.holders.stances.checkDatesOverlap(
-            x.item.group,
-            new Date(copy.start.valueOf() as number),
-            new Date(copy.end.valueOf() as number),
-            x.id,
-            this.holders.selectionRegistry)) {
-          return; //todo: find next free spot
+      for (let r of toMove) {
+        const newDate = new Date(r.start.valueOf() as number + delta * 1000);
+        const newDateEnd = new Date(r.end.valueOf() as number + delta * 1000);
+        const item = { id: r.id, start: newDate, end: newDateEnd, group: r.ability.id, content: null };
+        if (this.canMove(item)) {
+          r.move(delta); //todo: set to exact date
+          this.notifyMove(item);
         }
-
-        this.notifyMove(copy);
-      });
+      }
     }
   }
 
@@ -1193,20 +1205,20 @@ export class FightTimeLineController {
                 isAoe: ab.attack.isAoe,
                 isShareDamage: ab.attack.isShareDamage,
                 isTankBuster: ab.attack.isTankBuster,
-                offset: Utils.formatTime(ab.item.start as Date)
+                offset: Utils.formatTime(ab.start)
               }
             }),
           downTimes: this.holders.bossDownTime.getAll().map((it) => <any>{
-            start: Utils.formatTime(it.item.start as Date),
-            end: Utils.formatTime(it.item.end as Date)
+            start: Utils.formatTime(it.start),
+            end: Utils.formatTime(it.end)
           })
         },
         bossTargets: this.holders.bossTargets.getAll()
           .map((t) => {
             return {
-              target: t.item.group,
-              start: Utils.formatTime(t.item.start as Date),
-              end: Utils.formatTime(t.item.end as Date)
+              target: t.target,
+              start: Utils.formatTime(t.start as Date),
+              end: Utils.formatTime(t.end as Date)
             }
           }),
         initialTarget: this.holders.bossTargets.initialBossTarget,
@@ -1221,15 +1233,15 @@ export class FightTimeLineController {
         abilities: this.holders.itemUsages
           .getAll()
           .map((value) => {
-            const a = this.holders.abilities.get(value.item.group);
+            const a = value.ability;
             return {
-              job: a.parentId,
+              job: a.job.id,
               ability: a.ability.name,
               type: a.ability.abilityType,
-              duration: this.calculateDuration(value.item, a),
-              start: Utils.formatTime(new Date(value.item.start.valueOf() as number)),
+              duration: this.calculateDuration(value.start, a),
+              start: Utils.formatTime(value.start),
               settings: value.settings,
-              icon: value.ability.icon
+              icon: value.ability.ability.icon
             };
           })
       }
@@ -1245,15 +1257,11 @@ export class FightTimeLineController {
   toggleCompactViewAbility(id: string, compact?: boolean): void {
     const it = this.holders.abilities.get(id);
 
-    it.isCompact = compact != undefined ? compact : !it.isCompact;
-    const ccb = new ClassNameBuilder(it.item.className);
-    ccb.set([{ value: "compact", flag: it.isCompact }]);
-    it.item.className = ccb.build() || "dummy";
+    it.applyData({ isCompact: compact != undefined ? compact : !it.isCompact });
+
     const items = this.holders.itemUsages.getByAbility(it.id);
     items.forEach(a => {
-      const cb = new ClassNameBuilder(a.item.className);
-      cb.set([{ value: "compact", flag: it.isCompact }]);
-      a.item.className = cb.build() || "dummy";
+      a.applyData();
     });
     this.holders.itemUsages.update(items);
 
@@ -1270,24 +1278,21 @@ export class FightTimeLineController {
         .getAll()
         .forEach(it => {
           if (it.isStance) return;
-          const usages = this.holders.itemUsages.getByAbility(it.id).sort((a, b) => (a.item.start.valueOf() as number) - (b.item.start.valueOf() as number));
+          const usages = this.holders.itemUsages.getByAbility(it.id).sort((a, b) => (a.startAsNumber) - (b.startAsNumber));
           let prev: H.AbilityUsageMap = null;
           for (let index = 0; index < usages.length; index++) {
             const c = usages[index];
-            const start = prev ? (prev.item.end as Date) : (this.startDate);
-            const diff = ((c.item.start.valueOf() as number) - (start.valueOf() as number)) / 1000;
+            const start = prev ? (prev.end) : (it.ability.requiresBossTarget ? this.startDate : new Date(this.startDate.valueOf() as number - 30 * 1000));
+            const diff = ((c.startAsNumber) - (start.valueOf() as number)) / 1000;
             const av = diff > it.ability.cooldown;
             if (av) {
               const id = this.idgen.getNextId(M.EntryType.AbilityAvailability);
-              this.holders.abilityAvailability.add({
-                ability: it.ability,
-                id: id,
-                item: this.itemBuilder.createAbilityAvailability(id,
-                  it.id,
-                  start,
-                  new Date((c.item.start.valueOf() as number) - it.ability.cooldown * 1000),
-                  true)
-              });
+              this.holders.abilityAvailability.add(new H.AbilityAvailabilityMap(id, it,
+                {
+                  start: start,
+                  end: new Date((c.startAsNumber) - it.ability.cooldown * 1000),
+                  available: true
+                }));
             }
             prev = c;
           }
@@ -1304,24 +1309,21 @@ export class FightTimeLineController {
         .forEach(it => {
           if (it.ability && it.ability.name !== abilityChanged.name) return;
           this.holders.abilityAvailability.removeForAbility(it.id);
-          const usages = this.holders.itemUsages.getByAbility(it.id).sort((a: H.AbilityUsageMap, b: H.AbilityUsageMap) => (a.item.start.valueOf() as number) - (b.item.start.valueOf() as number));
+          const usages = this.holders.itemUsages.getByAbility(it.id).sort((a: H.AbilityUsageMap, b: H.AbilityUsageMap) => (a.startAsNumber) - (b.startAsNumber));
           let prev: H.AbilityUsageMap = null;
           for (let index = 0; index < usages.length; index++) {
             const c = usages[index];
-            const start = prev ? (prev.item.end as Date) : (this.startDate);
-            const diff = ((c.item.start.valueOf() as number) - (start.valueOf() as number)) / 1000;
+            const start = prev ? (prev.end) : (it.ability.requiresBossTarget ? this.startDate : new Date(this.startDate.valueOf() as number - 30 * 1000));
+            const diff = ((c.startAsNumber) - (start.valueOf() as number)) / 1000;
             const av = diff > it.ability.cooldown;
             if (av) {
               const id = this.idgen.getNextId(M.EntryType.AbilityAvailability);
-              this.holders.abilityAvailability.add({
-                ability: it.ability,
-                id: id,
-                item: this.itemBuilder.createAbilityAvailability(id,
-                  it.id,
-                  start,
-                  new Date((c.item.start.valueOf() as number) - it.ability.cooldown * 1000),
-                  true)
-              });
+              this.holders.abilityAvailability.add(new H.AbilityAvailabilityMap(id, it,
+                {
+                  start: start,
+                  end: new Date((c.startAsNumber) - it.ability.cooldown * 1000),
+                  available: true
+                }));
             }
             prev = c;
           }
@@ -1331,7 +1333,7 @@ export class FightTimeLineController {
 
   toggleJobCollapsed(group) {
     const j = this.holders.jobs.get(group);
-    j.collapsed = !j.collapsed;
+    j.applyData({ collapsed: !j.collapsed });
   }
 
   getItems(items: any[]): any[] {

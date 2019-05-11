@@ -5,8 +5,6 @@ import { TableViewComponent } from "../tableview/tableview.component";
 import { HomeComponent } from "../home/home.component";
 import { CanDeactivateUnsaved } from "../heplers/CanDeactivateUnsaved";
 
-
-
 const routes: Routes = [
   { path: ":fightId", component: FightLineComponent, canDeactivate: [CanDeactivateUnsaved] },
   { path: "fflogs/:code/:fight", component: FightLineComponent, canDeactivate: [CanDeactivateUnsaved] },

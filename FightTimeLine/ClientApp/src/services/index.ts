@@ -1,10 +1,10 @@
 import { IAuthenticationService } from "./authentication.service-interface"
-import { AuthenticationService } from "./authentication.service"
 import { authenticationServiceProvider, authenticationServiceToken } from "./authentication.service-provider"
+import { IFightService } from "./fight.service-interface"
+import { fightServiceToken, fightServiceProvider } from "./fight.service-provider"
 import { DialogService } from "./DialogService"
 import { FFLogsService } from "./FFLogsService"
 import { FFLogsStorageService } from "./FFLogsStorageService"
-import { FightsService } from "./FightService"
 import { RecentActivityService } from "./RecentActivitiesService"
 import { SettingsService } from "./SettingsService"
 import { SpreadSheetsService } from "./SpreadSheetsService"
@@ -15,12 +15,11 @@ import { LocalStorageService } from "./LocalStorageService"
 import { DispatcherService } from "./dispatcher.service"
 
 export {
-  AuthenticationService,
   IAuthenticationService,
   DialogService,
   FFLogsService,
   FFLogsStorageService,
-  FightsService,
+  IFightService,
   RecentActivityService,
   SettingsService,
   SpreadSheetsService,
@@ -32,7 +31,9 @@ export {
   IConnectToSessionHandlers,
   IStartSessionHandlers,
   authenticationServiceProvider,
-  authenticationServiceToken
+  authenticationServiceToken,
+  fightServiceProvider,
+  fightServiceToken
 }
 
 export const ServicesModuleComponents =
@@ -40,7 +41,6 @@ export const ServicesModuleComponents =
     DialogService,
     FFLogsService,
     FFLogsStorageService,
-    FightsService,
     RecentActivityService,
     SettingsService,
     SpreadSheetsService,
@@ -49,6 +49,7 @@ export const ServicesModuleComponents =
     ScreenNotificationsService,
     LocalStorageService,
     DispatcherService,
-    authenticationServiceProvider
+    authenticationServiceProvider,
+    fightServiceProvider
   ];
 

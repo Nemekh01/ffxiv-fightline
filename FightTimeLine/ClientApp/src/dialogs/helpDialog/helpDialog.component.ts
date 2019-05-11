@@ -1,6 +1,5 @@
-import { Component, Inject } from "@angular/core";
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
-
+import { Component, Inject,OnInit, ViewChild, TemplateRef } from "@angular/core";
+import {NzModalRef} from "ng-zorro-antd";
 
 @Component({
   selector: "helpDialog",
@@ -8,14 +7,18 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
   styleUrls: ["./helpDialog.component.css"]
 })
 
-export class HelpDialog {
+export class HelpDialog implements  OnInit {
+  ngOnInit(): void {
+    this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
+  }
 
+  @ViewChild("buttonsTemplate") buttonsTemplate : TemplateRef<any>;
   constructor(
-    public dialogRef: MatDialogRef<HelpDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any) { }
+    private dialogRef: NzModalRef
+    ) { }
 
   onNoClick(): void {
-    this.dialogRef.close();
+    
   }
 
   showSection(section: string) {

@@ -1,17 +1,16 @@
-<h1 mat-dialog-title>Session URL</h1>
-<form>
-    <div mat-dialog-content style="height: 65px;">
-        <mat-form-field style="width: 100%">
-            <input name="sessionUrl" readonly="readonly" matInput placeholder="URL" #inputTarget [(value)]="data" />
-            <button matSuffix mat-button class="btn btn-default" type="button" (cbOnSuccess)="onCopied()" style="width: 60px;" [ngxClipboard]="inputTarget">
-                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                    <path fill="#000000" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
-                </svg>
-            </button>
-        </mat-form-field>
-        
-    </div>
-    <div mat-dialog-actions>
-        <button mat-button (click)="onNoClick()">Close</button>
-    </div>
-</form>
+<div mat-dialog-content style="height: 65px;">
+  <form nz-form>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group [nzSuffix]="suffixTemplate">
+          <input name="sessionUrl" readonly="readonly" nz-input placeholder="URL" #inputTarget [(value)]="data" />
+        </nz-input-group>
+        <ng-template #suffixTemplate>
+          <i nz-icon nzType="copy" nzTheme="outline" (cbOnSuccess)="onCopied()" [ngxClipboard]="inputTarget" style="cursor: pointer"></i>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</div>
+
+

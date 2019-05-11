@@ -43,18 +43,18 @@ export class SingleAttackComponent implements OnInit, OnDestroy, ISidePanelCompo
     const bossAttackItems = this.holders.bossAttacks.get(this.it.id);
 
     const defAbilities = this.holders.itemUsages.filter((it) => {
-      const ab = this.holders.abilities.get(it.item.group);
+      const ab = it.ability;
       return ab.isDef;
     });
 
     const intersected = defAbilities.filter((it) => {
-      const end = new Date(new Date(it.item.start as number).valueOf() + it.calculatedDuration * 1000);
-      return it.item.start <= bossAttackItems.item.start && end >= bossAttackItems.item.start;
+      const end = new Date(it.startAsNumber + it.calculatedDuration * 1000);
+      return it.start <= bossAttackItems.start && end >= bossAttackItems.start;
     });
 
     const values = intersected.map((it) => {
-      const jobMap = this.holders.jobs.get(this.holders.abilities.get(it.item.group).parentId);
-      return { jobId: jobMap.id, jobName: jobMap.job.name, ability: it.ability, id: it.id };
+      const jobMap = it.ability.job;
+      return { jobId: jobMap.id, jobName: jobMap.job.name, ability: it.ability.ability, id: it.id };
     });
 
     const grouped = Utils.groupBy(values, x => x.jobId);
@@ -84,7 +84,7 @@ export class SingleAttackComponent implements OnInit, OnDestroy, ISidePanelCompo
 
   defenseClick(val: any) {
     this.dispatcher.dispatch({
-      name: "SidePanel Defense Click",
+      name: "SidePanel Ability Click",
       payload: val.id
     });
   }

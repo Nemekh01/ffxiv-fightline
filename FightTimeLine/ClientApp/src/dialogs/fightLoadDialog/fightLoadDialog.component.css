@@ -1,9 +1,21 @@
 .importDialogList {
-    height: 290px;
-    overflow: auto;
-    scroll-behavior: auto;
+  height: 290px;
+  overflow: auto;
+  scroll-behavior: auto;
 }
 
 .mat-list .mat-list-item, .mat-list .mat-list-option, .mat-nav-list .mat-list-item, .mat-nav-list .mat-list-option, .mat-selection-list .mat-list-item, .mat-selection-list .mat-list-option {
-    height: 24px !important;
+  height: 24px !important;
+}
+
+.loadList .ant-list-item:hover {
+  background-color: lightgray;
+}
+
+.loadList .ant-list-item {
+  cursor: pointer;
+}
+
+i:hover {
+  color: red;
 }

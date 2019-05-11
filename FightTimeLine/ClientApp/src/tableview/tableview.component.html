@@ -4,24 +4,23 @@
   </div>
   <div class="content">
     <div class="main-content">
-      <mat-table [dataSource]="set.rows" class="mat-elevation-z8" *ngIf="set">
-        <ng-container [matColumnDef]="column.text" *ngFor="let column of set.columns">
-          <mat-header-cell *matHeaderCellDef> <img class="abilityIcon" *ngIf="column.icon" [src]="column.icon" style="margin-right: 4px;" />{{column.text}} </mat-header-cell>
-          <mat-cell *matCellDef="let element" [ngStyle]="{'flex-wrap': 'wrap'}">
-            <div *ngFor="let d of element[columnNames.indexOf(column.text)]" style="margin-right: 2px;">
-              <div *ngIf="d.lineColor" [ngStyle]="{'background-color': d.lineColor}" class='marker'></div>
-              <p>
-                <img class="abilityIcon" *ngIf="d.icon" [src]="d.icon" />
-                {{d.text}}
-              </p>
-            </div>
-          </mat-cell>
-        </ng-container>
-        <mat-header-row *matHeaderRowDef="columnNames;sticky: true"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: columnNames;"></mat-row>
-      </mat-table>
+      <!-- <mat-table [dataSource]="set.rows" class="mat-elevation-z8" *ngIf="set"> -->
+      <!--   <ng-container [matColumnDef]="column.text" *ngFor="let column of set.columns"> -->
+      <!--     <mat-header-cell *matHeaderCellDef> <img class="abilityIcon" *ngIf="column.icon" [src]="column.icon" style="margin-right: 4px;"/>{{column.text}} </mat-header-cell> -->
+      <!--     <mat-cell *matCellDef="let element" [ngStyle]="{'flex-wrap': 'wrap'}"> -->
+      <!--       <div *ngFor="let d of element[columnNames.indexOf(column.text)]" style="margin-right: 2px;"> -->
+      <!--         <div *ngIf="d.lineColor" [ngStyle]="{'background-color': d.lineColor}" class='marker'></div> -->
+      <!--         <p> -->
+      <!--           <img class="abilityIcon" *ngIf="d.icon" [src]="d.icon"/> -->
+      <!--           {{d.text}} -->
+      <!--         </p> -->
+      <!--       </div> -->
+      <!--     </mat-cell> -->
+      <!--   </ng-container> -->
+      <!--   <mat-header-row *matHeaderRowDef="columnNames;sticky: true"></mat-header-row> -->
+      <!--   <mat-row *matRowDef="let row; columns: columnNames;"></mat-row> -->
+      <!-- </mat-table> -->
     </div>
-
   </div>
 </div>
 

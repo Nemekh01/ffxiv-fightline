@@ -1,20 +1,13 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener,Input, Output, EventEmitter,Inject } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Input, Output, EventEmitter, Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MatSnackBar, MatDialog, MatDialogConfig, MatDialogRef } from "@angular/material";
-
-import {IJob, IFilter, IView} from "../core/Models";
-
+import { IJob, IFilter, IView } from "../core/Models";
 import { DialogService } from "../services/index"
 import { ChangeNotes } from "../changeNotes"
-
 import { FilterComponent } from "../fightline/filter/filter.component"
 import { ViewComponent } from "../fightline/view/view.component"
 import { PingComponent } from "../fightline/ping/ping.component"
 import { ScreenNotificationsService } from "../services/ScreenNotificationsService"
 import { LocalStorageService } from "../services/LocalStorageService"
-
-
-
 import { IAuthenticationService, authenticationServiceToken } from "../services/index"
 
 @Component({
@@ -47,10 +40,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   @Input("connected") connected: boolean;
   @Input("availableTools") availableTools: string[];
 
-  @Output("startNew") startNew:EventEmitter<void> = new EventEmitter<void>();
-  @Output("bossTemplates") bossTemplates:EventEmitter<void> = new EventEmitter<void>();
-  @Output("saveFight") saveFight:EventEmitter<void> = new EventEmitter<void>();
-  @Output("sessionStart") sessionStart:EventEmitter<void> = new EventEmitter<void>();
+  @Output("startNew") startNew: EventEmitter<void> = new EventEmitter<void>();
+  @Output("bossTemplates") bossTemplates: EventEmitter<void> = new EventEmitter<void>();
+  @Output("saveFight") saveFight: EventEmitter<void> = new EventEmitter<void>();
+  @Output("sessionStart") sessionStart: EventEmitter<void> = new EventEmitter<void>();
   @Output("sessionStop") sessionStop: EventEmitter<void> = new EventEmitter<void>();
   @Output("exportToTable") exportToTable: EventEmitter<void> = new EventEmitter<void>();
   @Output("showTable") showTable: EventEmitter<void> = new EventEmitter<void>();
@@ -74,16 +67,16 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   view: ViewComponent;
   @ViewChildren(PingComponent)
   pings: QueryList<PingComponent>;
-  
+
 
   container = { data: [] };
 
-  toolToUse:string = null;
+  toolToUse: string = null;
 
 
   public constructor(
     private dialogService: DialogService,
-    @Inject(authenticationServiceToken)private authenticationService: IAuthenticationService,
+    @Inject(authenticationServiceToken) private authenticationService: IAuthenticationService,
     private notification: ScreenNotificationsService,
     private router: Router,
     private storage: LocalStorageService
@@ -182,18 +175,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   }
 
-  openFilter($event: any): void {
-    this.filter.show($event);
-  }
-
   ping(id: string, owner: boolean): void {
     const pingComponent = this.pings.find(it => it.id === id || (owner && it.owner === owner));
     if (pingComponent)
       pingComponent.ping();
-  }
-
-  openView($event: any): void {
-    this.view.show($event);
   }
 
   openSettings(): void {
@@ -213,6 +198,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   gotoDiscord() {
     window.open("https://discord.gg/xRppKj4", "_blank");
+  }
+
+  gotoGithub() {
+    window.open("https://github.com/Airex/ffxiv-fightline/issues", "_blank");
   }
 
 

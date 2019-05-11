@@ -3,9 +3,10 @@ import { HttpClient } from "@angular/common/http"
 import { Observable } from "rxjs"
 import "rxjs/add/observable/from";
 import { IBoss, IFight } from "../core/Models"
+import { IFightService } from "./fight.service-interface"
 
 @Injectable()
-export class FightsService {
+export class FightsService implements IFightService {
   constructor(private httpClient: HttpClient, @Inject("BASE_URL") private basePath: string) { }
 
   headers = {

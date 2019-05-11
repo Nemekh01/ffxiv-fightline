@@ -1,38 +1,53 @@
-import { Component, Inject } from "@angular/core";
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
+import { Component, Inject, Input, TemplateRef, ViewChild, OnInit } from "@angular/core";
 import { IExportResultSet } from "../../core/BaseExportTemplate"
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import { FirstTemplate } from "../../core/ExportTemplates/FirstTemplate"
 import { EachRowOneSecondTemplate } from "../../core/ExportTemplates/EachRowOneSecondTemplate"
 import { BossAttackDefensiveTemplate } from "../../core/ExportTemplates/BossAttackDefensiveTemplate"
-import { ExportTemplate, ExportData,IExportResultItem } from "../../core/BaseExportTemplate"
+import { ExportTemplate, ExportData } from "../../core/BaseExportTemplate"
+import { NzModalRef } from "ng-zorro-antd"
 
 
 @Component({
-    selector: "tableViewDialog",
-    templateUrl: "./tableViewDialog.component.html",
-    styleUrls: ["./tableViewDialog.component.css"]
+  selector: "tableViewDialog",
+  templateUrl: "./tableViewDialog.component.html",
+  styleUrls: ["./tableViewDialog.component.css"]
 })
 
-export class TableViewDialog {
+export class TableViewDialog implements OnInit {
 
-    public exportTemplatesControl = new FormControl();
-    public set: IExportResultSet;
-    public columnNames: string[];
-    templates: ExportTemplate[] = [new FirstTemplate(), new EachRowOneSecondTemplate(), new BossAttackDefensiveTemplate()];
+  ngOnInit() {
+  }
 
-    constructor(
-        public dialogRef: MatDialogRef<TableViewDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: ExportData) { }
+  @Input("data") data: ExportData;
 
-    show() {
-        if (!this.exportTemplatesControl.value) return;
-        let d = this.templates.find(it => it.name === this.exportTemplatesControl.value).build(this.data);
-        this.columnNames = d.columns.map(it => it.text);
-        this.set = d;
+  public exportTemplatesControl = new FormControl();
+  public set: IExportResultSet;
+  templates: ExportTemplate[] = [new FirstTemplate(), new EachRowOneSecondTemplate(), new BossAttackDefensiveTemplate()];
+
+  constructor(
+    public dialogRef: NzModalRef
+  ) { }
+
+  show() {
+    if (!this.exportTemplatesControl.value) return;
+    const d = this.templates.find(it => it.name === this.exportTemplatesControl.value).build(this.data);
+    this.set = d;
+  }
+
+  getWidth(text: string, hasIcon) {
+    if (hasIcon)
+      return "170px";
+    switch (text) {
+      case "time":
+        return "48px";
+      case "target":
+        return "90px";
     }
+    return "";
+  }
 
-    onNoClick(): void {
-        this.dialogRef.close();
-    }
+  onNoClick(): void {
+    this.dialogRef.destroy();
+  }
 }

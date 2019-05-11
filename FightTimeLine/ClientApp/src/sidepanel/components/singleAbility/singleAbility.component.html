@@ -1,9 +1,16 @@
 <div>
-  <img [src]="it.ability.icon" class="icon" />
-  <span class="abilityName">{{it.ability.name}}</span>
+  <img [src]="ability.icon" class="icon" />
+  <span class="abilityName">{{ability.name}}</span>
 </div>
 <div>
   <span class="abilityDescription" [innerHtml]="description"></span>
+</div>
+<div>
+  <sidepanel-area header="Used on" *ngIf="!!ptyMemUsages">
+    <div *ngFor="let it of ptyMemUsages">
+      @<a class="similarLink" (click)="similarClick(it)"><span class="usedTime">{{it.offset}}</span></a><img class="abilityIcon" [src]="it.icon" /> <span class="usedTarget">{{it.target}}</span>
+    </div>
+    </sidepanel-area>
 </div>
 
 

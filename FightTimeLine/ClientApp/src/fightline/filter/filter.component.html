@@ -1,59 +1,62 @@
-<context-menu #filter>
-  <ng-template contextMenuItem [visible]="true" [enabled]="false" passive="true">
-    Ability types:
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="selfDefensive">Self Defense</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="partyDefensive">Party Defense</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="selfDamageBuff">Self Damage Buff</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="partyDamageBuff">Party Damage Buff</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="damage">OGCD Damage</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="healing">Healing</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="healingBuff">Healing Buff</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="utility">Utility</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="pet">Pets</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="unused">Show unused</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="false" passive="true">
-    Boss attack types:
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="isTankBuster">Tank buster</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="isAoe">AOE</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="isShare">Share damage</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="isOther">Other</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="isMagical">Magical damage</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="isPhysical">Physical damage</mat-checkbox>
-  </ng-template>
-  <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
-    <mat-checkbox (change)="updateFilter()" [(ngModel)]="isUnaspected">Unaspected damage</mat-checkbox>
-  </ng-template>
-</context-menu>
+<nz-dropdown [nzTrigger]="'click'" [nzClickHide]="false">
+  <button nz-button nz-dropdown><i nz-icon type="filter" theme="fill"></i>Filter</button>
+  <ul nz-menu>
+    <li nz-menu-item>
+      Ability types:
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="selfDefensive">Self Defense</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="partyDefensive">Party Defense</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="selfDamageBuff">Self Damage Buff</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="partyDamageBuff">Party Damage Buff</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="damage">OGCD Damage</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="healing">Healing</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="healingBuff">Healing Buff</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="utility">Utility</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="pet">Pets</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="unused">Show unused</label>
+    </li>
+    <li nz-menu-item>
+      Boss attack types:
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="isTankBuster">Tank buster</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="isAoe">AOE</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="isShare">Share damage</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="isOther">Other</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="isMagical">Magical damage</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="isPhysical">Physical damage</label>
+    </li>
+    <li nz-menu-item>
+      <label nz-checkbox (ngModelChange)="updateFilter()" [(ngModel)]="isUnaspected">Unaspected damage</label>
+    </li>
+  </ul>
+</nz-dropdown>

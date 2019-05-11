@@ -4,54 +4,62 @@
          [username]="authenticationService.username">
 </toolbar>
 <div class="main-content" style="text-align: center">
-  <div style="width: 50%;  margin-top: 15px; display: inline-block">
-    <mat-card class="home-card">
-      <mat-card-header>
-        <mat-card-title class="home-title">What would you like to do?</mat-card-title>
-      </mat-card-header>
-      <mat-divider></mat-divider>
-      <mat-card-content class="card-content">
-        <mat-grid-list cols="3" rowHeight="600px">
-          <mat-grid-tile [colspan]="2">
-            <div class="home-column">
-              <div class="card-subtitle">
-                Open recent
-              </div>
-              <div>
-                <mat-nav-list dense #recent [ngStyle]="{'height':'500px'}">
-                  <mat-list-item *ngFor="let f of container.data" [matTooltip]="f.description">
-                    <img matListAvatar src="https://dmszsuqyoe6y6.cloudfront.net/img/ff/favicon.png" alt="" *ngIf="f.name.indexOf('FFLogs')>=0">
-                    <img matListAvatar src="https://xivapi.com/c/BNpcName.png" alt="" *ngIf="f.name.indexOf('FFLogs')<0">
-                    <a matLine [href]="f.url">{{ f.name }}</a>
-                    <a matLine>{{ f.timestamp | date:'short' }}</a>
-                  </mat-list-item>
-                </mat-nav-list>
-              </div>
+  <div style="width: 90%; min-width: 800px; max-width: 1400px;  margin-top: 15px; display: inline-block">
+    <nz-card [nzTitle]="header">
+      <ng-template #header>
+        <div class="home-card">
+          What would you like to do?
+        </div>
+      </ng-template>
+      <div nz-row rowHeight="90%">
+        <div nz-col nzSpan="16">
+          <div class="home-column">
+            <div class="card-subtitle">
+              Open recent
             </div>
-          </mat-grid-tile>
-          <mat-grid-tile class="home-actions">
-            <div class="home-column">
-              <div class="card-subtitle">
-                Get started
-              </div>
-              <div>
-                <button mat-raised-button color="accent" class="action-button" (click)="showHelp()">Open help</button>
-              </div>
-              <div>
-                <button mat-raised-button color="primary" class="action-button" (click)="importFromFFLogs()">Import from FFLogs</button>
-              </div>
-              <div>
-                <button mat-raised-button [color]="authenticationService.authenticated?'primary':'warn'" class="action-button" (click)="load()">Load</button>
-              </div>
-              <div>
-                <button mat-raised-button color="primary" class="action-button" (click)="new()">Start new</button>
-              </div>
+            <div>
+              <nz-list [nzDataSource]="container.data" [nzRenderItem]="item" [nzItemLayout]="'horizontal'" #recent [ngClass]="{recentList:true}">
+                <ng-template #item let-item>
+                  <nz-list-item (click)="onClick(item.url)">
+                    <nz-list-item-meta [nzTitle]="nzTitle" [nzAvatar]="nzAvatar" [nzDescription]="nzDescription">
+                      <ng-template #nzTitle>
+                        {{item.name}}
+                      </ng-template>
+                      <ng-template #nzAvatar>
+                        <img width="48px" height="48px" src="https://dmszsuqyoe6y6.cloudfront.net/img/ff/favicon.png" alt="" *ngIf="item.name.indexOf('FFLogs')>=0">
+                        <img width="48px" height="48px" src="https://xivapi.com/c/BNpcName.png" alt="" *ngIf="item.name.indexOf('FFLogs')<0">
+                      </ng-template>
+                      <ng-template #nzDescription>
+                        {{ item.timestamp | date:'short' }}
+                      </ng-template>
+                    </nz-list-item-meta>
+                  </nz-list-item>
+                </ng-template>
+              </nz-list>
             </div>
-          </mat-grid-tile>
-        </mat-grid-list>
-      </mat-card-content>
-    </mat-card>
-
+          </div>
+        </div>
+        <div nz-col nzSpan="8" class="home-actions">
+          <div class="home-column">
+            <div class="card-subtitle">
+              Get started
+            </div>
+            <div>
+              <button nz-button class="action-button" (click)="showHelp()">Open help</button>
+            </div>
+            <div>
+              <button nz-button color="primary" class="action-button" (click)="importFromFFLogs()">Import from FFLogs</button>
+            </div>
+            <div>
+              <button nz-button [nzType]="authenticationService.authenticated?'primary':'danger'" class="action-button" (click)="load()">Load</button>
+            </div>
+            <div>
+              <button nz-button color="primary" class="action-button" (click)="new()">Start new</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nz-card>
   </div>
 </div>
 

@@ -1,6 +1,6 @@
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
+import { NzModalRef } from "ng-zorro-antd";
 
 @Component({
     selector: "loadingDialog",
@@ -9,9 +9,8 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material";
 })
 export class LoadingDialog {
     constructor(
-        public dialogRef: MatDialogRef<LoadingDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: any) {
-
+        public dialogRef: NzModalRef
+        ) {
     }
 }
 

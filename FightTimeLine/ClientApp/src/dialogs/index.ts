@@ -1,8 +1,6 @@
 import { AbilityEditDialog } from "./abilityEditDialog/abilityEditDialog.component"
 import { BossAttackDialog } from "./bossAttackDialog/bossAttackDialog.component"
-import { BossSaveDialog } from "./bossSaveDialog/bossSaveDialog.component"
 import { BossTemplatesDialog } from "./bossTemplatesDialog/bossTemplatesDialog.component"
-import { ConfirmDialog } from "./confirmDialog/confirmDialog.component"
 import { ExportToTableDialog } from "./exportToTableDialog/exportToTableDialog.component"
 import { FFLogsImportDialog } from "./ffLogsImportDialog/ffLogsImportDialog.component"
 import { FightLoadDialog } from "./fightLoadDialog/fightLoadDialog.component"
@@ -15,14 +13,11 @@ import { SessionCreateResultDialog } from "./sessionCreateResultDialog/sessionCr
 import { SettingsDialog } from "./settingsDialog/settingsDialog.component"
 import { TableViewDialog } from "./tableViewDialog/tableViewDialog.component"
 import { WhatsNewDialog } from "./whatsNewDialog/whatsNewDialog.component"
-import { NgModule } from "@angular/core"
 
 export {
   AbilityEditDialog,
   BossAttackDialog,
-  BossSaveDialog,
   BossTemplatesDialog,
-  ConfirmDialog,
   ExportToTableDialog,
   FFLogsImportDialog,
   FightLoadDialog,
@@ -42,7 +37,7 @@ export const DialogsModuleComponents =
       BossAttackDialog,
       HelpDialog,
       FightLoadDialog,
-      BossSaveDialog,
+//      BossSaveDialog,
       FightSaveDialog,
       SettingsDialog,
       AbilityEditDialog,
@@ -55,6 +50,5 @@ export const DialogsModuleComponents =
       TableViewDialog,
       BossTemplatesDialog,
       WhatsNewDialog,
-      ConfirmDialog
     ];  
 
