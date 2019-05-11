@@ -5,7 +5,12 @@
         <h3 style="color: black;margin: 0 0 0">Boss Attack</h3>
       </ng-template>
     </nz-tab>
-    <nz-tab nzTitle="Main">
+    <nz-tab [nzTitle]="mainHeader">
+      <ng-template #mainHeader>
+        <nz-badge [nzDot]="submitted && editForm.invalid">
+          Main
+        </nz-badge>
+      </ng-template>
       <form nz-form [formGroup]="editForm">
         <nz-form-item [nzGutter]="24">
           <nz-form-control nzSpan="10" [nzHasFeedback]="submitted" [nzValidateStatus]="submitted && f.bossAttackName.errors?'error':'success'">
@@ -43,7 +48,6 @@
       <nz-layout [ngStyle]="{width:'100%', height:'100%'}">
         <nz-sider nzTheme="light" [ngStyle]="{ height:'384px', overflow: 'auto'}">
           <nz-tree #tree [nzData]="settings" [ngStyle]="{width:'100%', height:'100%'}" nzDraggable [nzMultiple]="false" [nzBlockNode]="true" [nzShowLine]="true" (nzOnDrop)="nzDrop($event)" [nzBeforeDrop]="beforeDrop">
-
           </nz-tree>
         </nz-sider>
         <nz-sider nzTheme="light" [nzWidth]="45" [ngStyle]="{'text-align':'center'}">
@@ -62,17 +66,30 @@
           </div>
         </nz-sider>
         <nz-layout>
-          <nz-content>
+          <nz-content style="padding: 4px;">
             <form nz-form>
-              <div style="padding: 2px">
+
+              <div style="padding: 2px; margin-bottom: 5px;">
                 {{expression}}
               </div>
-              <div *ngIf="selected && !selected.isLeaf">
-                <nz-radio-group name="operation" [(ngModel)]="selected.origin.data.operation" (ngModelChange)="typeChange()" [nzSize]="'small'" [nzButtonStyle]="'solid'">
-                  <label nz-radio-button nzValue="and">AND</label>
-                  <label nz-radio-button nzValue="or">OR</label>
-                </nz-radio-group>
-              </div>
+
+              <nz-form-item *ngIf="selected && !selected.isLeaf">
+                <nz-form-control>
+                  <nz-radio-group name="operation" [(ngModel)]="selected.origin.data.operation" (ngModelChange)="typeChange()" [nzSize]="'small'" [nzButtonStyle]="'solid'">
+                    <label nz-radio-button nzValue="and">AND</label>
+                    <label nz-radio-button nzValue="or">OR</label>
+                  </nz-radio-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <nz-form-item *ngIf="selected && selected.isLeaf">
+                <nz-form-control>
+                  <nz-select name="type" style="width: 160px;" [(ngModel)]="selected.origin.data.type" nzPlaceHolder="Choose">
+                    <nz-option  nzValue="name" nzLabel="Name"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+
             </form>
           </nz-content>
         </nz-layout>

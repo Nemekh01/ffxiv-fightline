@@ -1,5 +1,6 @@
 import { Component, Input, Inject, OnInit, ViewChild, EventEmitter } from "@angular/core";
-import { Observable , of} from "rxjs";
+import { Observable, of } from "rxjs";
+import { Utils } from "../../core/Utils";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import * as M from "../../core/Models";
 import { Time } from "../../heplers/TimeValidator";
@@ -30,7 +31,25 @@ export class BossAttackDialog implements OnInit {
 
   }
 
+  get selected(): NzTreeNodeOptions {
+    const s = this.tree.getSelectedNodeList();
+    if (s)
+      return s[0];
+    else
+      return null;
+  }
+
   convertToNodes(data: M.Combined): NzTreeNodeOptions {
+    if (!data) return <NzTreeNodeOptions>{
+      title: "AND",
+      key: (this.uniqueIndex++).toString(),
+      children: [],
+      isLeaf: false,
+      data: <M.ISyncSettingGroup>{
+        operation: M.SyncOperation.And
+      },
+      expanded: true
+    };
     if (M.isSettingGroup(data)) {
       return <NzTreeNodeOptions>{
         title: data.operation.toString().toUpperCase(),
@@ -50,7 +69,6 @@ export class BossAttackDialog implements OnInit {
         expanded: true
       };
     }
-
     return null;
   }
 
@@ -78,76 +96,9 @@ export class BossAttackDialog implements OnInit {
   }
 
   ngOnInit() {
-    this.settings = [this.convertToNodes(<M.Combined>{
-      operation: M.SyncOperation.And,
-      operands: [
-        {
-          type: "name",
-          description: "D1",
-          payload: {}
-        },
-        {
-          operation: M.SyncOperation.Or,
-          operands: [
-            {
-              type: "name",
-              description: "D3",
-              payload: {}
-            },
-            {
-              type: "name",
-              description: "D4",
-              payload: {}
-            }
-          ]
-        },
-        {
-          type: "name",
-          description: "D2",
-          payload: {}
-        },
-        {
-          operation: M.SyncOperation.Or,
-          operands: [
-            {
-              type: "name",
-              description: "D5",
-              payload: {}
-            },
-            {
-              operation: M.SyncOperation.And,
-              operands: [
-                {
-                  type: "name",
-                  description: "D6",
-                  payload: {}
-                },
-                {
-                  operation: M.SyncOperation.Or,
-                  operands: [
-                    {
-                      type: "name",
-                      description: "D8",
-                      payload: {}
-                    },
-                    {
-                      type: "name",
-                      description: "D9",
-                      payload: {}
-                    }
-                  ]
-                },
-                {
-                  type: "name",
-                  description: "D7",
-                  payload: {}
-                }
-              ]
-            }
-          ]
-        }]
-    })];
-    setTimeout(()=>this.updateExpression());
+    console.log("OnLoad "+this.data.syncSettings);
+    this.settings = [this.convertToNodes(this.data.syncSettings && JSON.parse(this.data.syncSettings))];
+    setTimeout(() => this.updateExpression());
     this.newAttack = !this.data.name;
     this.dialogRef.getInstance().nzFooter = [
       {
@@ -180,7 +131,7 @@ export class BossAttackDialog implements OnInit {
   get f() { return this.editForm.controls; }
 
   onNoClick(): void {
-    this.dialogRef.close();
+    this.dialogRef.destroy();
   }
 
   updateResult(): void {
@@ -191,6 +142,9 @@ export class BossAttackDialog implements OnInit {
     this.data.isTankBuster = this.f.tankBuster.value;
     this.data.isAoe = this.f.aoe.value;
     this.data.isShareDamage = this.f.share.value;
+
+    this.data.syncSettings = JSON.stringify(this.buildSyncSettings());
+    console.log(this.data.syncSettings);
   }
 
   onSaveClick(): void {
@@ -230,19 +184,14 @@ export class BossAttackDialog implements OnInit {
         title: "AND",
         key: (index).toString(),
         isLeaf: false,
-        data: {},
+        data: <M.ISyncSettingGroup>{
+          operation: M.SyncOperation.And,
+          operands: []
+        },
         expanded: true
       }]);
       this.updateExpression();
     }
-  }
-
-  get selected(): NzTreeNodeOptions {
-    const s = this.tree.getSelectedNodeList();
-    if (s)
-      return s[0];
-    else
-      return null;
   }
 
   addOr() {
@@ -253,7 +202,10 @@ export class BossAttackDialog implements OnInit {
         title: "OR",
         key: (index).toString(),
         isLeaf: false,
-        data: {},
+        data: <M.ISyncSettingGroup>{
+          operation: M.SyncOperation.Or,
+          operands: []
+        },
         expanded: true
       }]);
       this.updateExpression();
@@ -268,7 +220,13 @@ export class BossAttackDialog implements OnInit {
         title: "Condition " + index,
         key: (index).toString(),
         isLeaf: true,
-        data: {},
+        data: <M.ISyncSetting>{
+          description: "Condition " + index,
+          type: "name",
+          payload: {
+
+          }
+        },
         expanded: true
       }]);
       this.updateExpression();
@@ -276,7 +234,7 @@ export class BossAttackDialog implements OnInit {
   }
 
   remove() {
-    const selected =  this.selected;
+    const selected = this.selected;
     if (selected && selected.getParentNode()) {
       selected.remove();
       this.updateExpression();
@@ -288,8 +246,6 @@ export class BossAttackDialog implements OnInit {
   }
 
   beforeDrop(arg: NzFormatBeforeDropEvent): Observable<boolean> {
-    // if insert node into another node, wait 1s
-
     if (!arg.node.getParentNode() && (arg.pos === -1 || arg.pos === 1))
       return of(false);
     return of(true);
@@ -300,7 +256,24 @@ export class BossAttackDialog implements OnInit {
     if (selected) {
       selected.title = selected.origin.data.operation.toString().toUpperCase();
       selected.origin.title = selected.origin.data.operation.toString().toUpperCase();
-      this.expression = this.formatExpression(this.settings[0]);
+      this.updateExpression();
+    }
+  }
+
+  buildSyncSettings(): M.Combined {
+    const root = this.tree.getTreeNodes()[0];
+    if (root.children.length === 0)
+      return null;
+    return this.build(root);
+  }
+
+  build(node: NzTreeNodeOptions): M.Combined {
+    if (node.isLeaf)
+      return node.origin.data as M.ISyncSetting;
+    else {
+      const r = node.origin.data as M.ISyncSettingGroup;
+      r.operands = node.children.map(c => this.build(c));
+      return r;
     }
   }
 }

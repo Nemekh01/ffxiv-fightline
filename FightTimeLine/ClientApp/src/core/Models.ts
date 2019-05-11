@@ -232,7 +232,7 @@ export interface IBossAbility {
   isTankBuster?: boolean;
   isAoe?: boolean;
   isShareDamage?: boolean;
-  syncSettings?: Combined;
+  syncSettings?: string;
 }
 
 export interface ISyncSettingGroup {
@@ -243,11 +243,11 @@ export interface ISyncSettingGroup {
 export type Combined = ISyncSetting | ISyncSettingGroup;
 
 export const isSetting = (c: Combined): c is ISyncSetting => {
-  return !!((<ISyncSetting>c).type);
+  return !!(<ISyncSetting>c).type;
 }
 
 export const isSettingGroup = (c: Combined): c is ISyncSettingGroup => {
-  return !!((<ISyncSettingGroup>c).operation);
+  return !!(<ISyncSettingGroup>c).operation;
 }
 
 export interface ISyncSetting {

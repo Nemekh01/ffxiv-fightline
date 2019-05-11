@@ -966,7 +966,8 @@ export class FightTimeLineController {
                 isAoe: ab.attack.isAoe,
                 isShareDamage: ab.attack.isShareDamage,
                 isTankBuster: ab.attack.isTankBuster,
-                offset: Utils.formatTime(ab.start)
+                offset: Utils.formatTime(ab.start),
+                syncSettings: ab.attack.syncSettings
               }
             }
           }),
