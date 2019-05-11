@@ -39,6 +39,38 @@
         </nz-form-item>
       </form>
     </nz-tab>
-    <nz-tab nzTitle="FFLogs Sync"> New features here</nz-tab>
+    <nz-tab nzTitle="FFLogs Sync">
+      <nz-layout [ngStyle]="{width:'100%', height:'100%'}">
+        <nz-sider nzTheme="light" [ngStyle]="{ height:'384px', overflow: 'auto'}">
+          <nz-tree #tree [nzData]="settings" [ngStyle]="{width:'100%', height:'100%'}" [nzMultiple]="false" [nzBlockNode]="true" [nzShowLine]="true" (nzSelect)="selected($event)">
+
+          </nz-tree>
+        </nz-sider>
+        <nz-sider nzTheme="light" [nzWidth]="45" [ngStyle]="{'text-align':'center'}">
+          <div class="plus-button">
+            <nz-dropdown [nzTrigger]="'click'">
+              <button nz-button nz-dropdown nzSize="small" [disabled]="tree.getSelectedNodeList().length==0 || tree.getSelectedNodeList()[0].isLeaf"><i nz-icon nzType="plus" nzTheme="outline"></i></button>
+              <ul nz-menu>
+                <li nz-menu-item (click)="addAnd()">AND</li>
+                <li nz-menu-item (click)="addOr()">OR</li>
+                <li nz-menu-item (click)="addCondition()">Condition</li>
+              </ul>
+            </nz-dropdown>
+          </div>
+          <div class="minus-button">
+            <button nz-button nzSize="small" [disabled]="tree.getSelectedNodeList().length==0 || !tree.getSelectedNodeList()[0].getParentNode()" (click)="remove()"><i nz-icon nzType="minus" nzTheme="outline"></i></button>
+          </div>
+        </nz-sider>
+        <nz-layout>
+          <nz-content>
+            <form nz-form>
+              <div style="padding: 2px">
+                {{expression}}
+              </div>
+            </form>
+          </nz-content>
+        </nz-layout>
+      </nz-layout>
+    </nz-tab>
   </nz-tabset>
 </div>

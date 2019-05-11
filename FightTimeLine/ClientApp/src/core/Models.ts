@@ -154,7 +154,7 @@ class ByBuffApplyDetector implements IDetectionStrategy {
 
 
 class ByBuffRemoveDetector implements IDetectionStrategy {
-  constructor(private id: number, private abilityName?: string,  private offsetCorrection?: number) {
+  constructor(private id: number, private abilityName?: string, private offsetCorrection?: number) {
   }
 
   process(ev: FF.Event): { offset: number; name: string } {
@@ -232,6 +232,33 @@ export interface IBossAbility {
   isTankBuster?: boolean;
   isAoe?: boolean;
   isShareDamage?: boolean;
+  syncSettings?: Combined;
+}
+
+export interface ISyncSettingGroup {
+  operation: SyncOperation,
+  operands: Combined[];
+}
+
+export type Combined = ISyncSetting | ISyncSettingGroup;
+
+export const isSetting = (c: Combined): c is ISyncSetting => {
+  return !!((<ISyncSetting>c).type);
+}
+
+export const isSettingGroup = (c: Combined): c is ISyncSettingGroup => {
+  return !!((<ISyncSettingGroup>c).operation);
+}
+
+export interface ISyncSetting {
+  type: string;
+  description: string;
+  payload: any;
+}
+
+export enum SyncOperation {
+  And = "and",
+  Or = "or"
 }
 
 export enum DamageType {
