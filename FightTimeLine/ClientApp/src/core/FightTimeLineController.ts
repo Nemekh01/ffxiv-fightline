@@ -679,7 +679,7 @@ export class FightTimeLineController {
 
   copy(id: string) {
     const ba = this.holders.bossAttacks.get(id);
-    this.copyContainer = ba.attack;
+    this.copyContainer = Utils.clone(ba.attack);
   }
 
   paste(time: any) {
@@ -690,7 +690,8 @@ export class FightTimeLineController {
         isShareDamage: this.copyContainer.isShareDamage,
         isTankBuster: this.copyContainer.isTankBuster,
         type: this.copyContainer.type,
-        offset: Utils.formatTime(time)
+        offset: Utils.formatTime(time),
+        syncSettings: this.copyContainer.syncSettings
       });
   }
 

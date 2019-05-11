@@ -34,13 +34,13 @@
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <label nz-checkbox formControlName="tankBuster" class="margin-right:10px">Tank Buster</label>
+          <label nz-checkbox formControlName="tankBuster" style="margin-right:10px">Tank Buster</label>
         </nz-form-item>
         <nz-form-item>
-          <label nz-checkbox formControlName="aoe" class="margin-right:10px">AoE</label>
+          <label nz-checkbox formControlName="aoe" style="margin-right:10px">AoE</label>
         </nz-form-item>
         <nz-form-item>
-          <label nz-checkbox formControlName="share" class="margin-right:10px">Share Damage</label>
+          <label nz-checkbox formControlName="share" style="margin-right:10px">Share Damage</label>
         </nz-form-item>
       </form>
     </nz-tab>
@@ -85,7 +85,9 @@
               <nz-form-item *ngIf="selected && selected.isLeaf">
                 <nz-form-control>
                   <nz-select name="type" style="width: 160px;" [(ngModel)]="selected.origin.data.type" nzPlaceHolder="Choose">
-                    <nz-option  nzValue="name" nzLabel="Name"></nz-option>
+                    <nz-option nzValue="name" nzLabel="Name"></nz-option>
+                    <nz-option nzValue="time" nzLabel="Time"></nz-option>
+                    <nz-option nzValue="hp" nzLabel="HP"></nz-option>
                   </nz-select>
                 </nz-form-control>
               </nz-form-item>
