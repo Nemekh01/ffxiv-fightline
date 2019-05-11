@@ -1,8 +1,9 @@
 import { Component, Input, Inject, OnInit, ViewChild, EventEmitter } from "@angular/core";
+import { Observable , of} from "rxjs";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import * as M from "../../core/Models";
 import { Time } from "../../heplers/TimeValidator";
-import { NzModalRef, NzTreeNodeOptions, NzTreeComponent } from "ng-zorro-antd";
+import { NzModalRef, NzTreeNodeOptions, NzTreeComponent, NzFormatEmitEvent, NzFormatBeforeDropEvent } from "ng-zorro-antd";
 
 @Component({
   selector: "bossAttackDialog",
@@ -54,24 +55,26 @@ export class BossAttackDialog implements OnInit {
   }
 
   formatExpression(input: NzTreeNodeOptions): string {
-    let result: string;
-    if (!input.isLeaf) {
-      if (!input.children || input.children.length === 0)
-        result = "";
-      else {
-        result = input.children.map(c => this.formatExpression(c)).filter(a=>!!a).join(" " + input.title + " ");
-        if (input.children.length > 1) {
-          result = "(" + result + ")";
+    let result: string = "";
+    if (input) {
+      if (!input.isLeaf) {
+        if (!input.children || input.children.length === 0)
+          result = "";
+        else {
+          result = input.children.map(c => this.formatExpression(c)).filter(a => !!a).join(" " + input.title + " ");
+          if (input.children.length > 1) {
+            result = "(" + result + ")";
+          }
         }
+      } else {
+        result = input.title;
       }
-    } else {
-      result = input.title;
     }
     return result;
   }
 
   updateExpression() {
-    this.expression = this.formatExpression(this.settings[0]);
+    this.expression = this.formatExpression(this.tree.getTreeNodes()[0]);
   }
 
   ngOnInit() {
@@ -144,7 +147,7 @@ export class BossAttackDialog implements OnInit {
           ]
         }]
     })];
-    this.updateExpression();
+    setTimeout(()=>this.updateExpression());
     this.newAttack = !this.data.name;
     this.dialogRef.getInstance().nzFooter = [
       {
@@ -220,54 +223,83 @@ export class BossAttackDialog implements OnInit {
   };
 
   addAnd() {
-    const selected = this.tree.getSelectedNodeList();
-    if (selected && selected.length === 1) {
+    const selected = this.selected;
+    if (selected) {
       const index = this.uniqueIndex++;
-      selected[0].addChildren([<NzTreeNodeOptions>{
+      selected.addChildren([<NzTreeNodeOptions>{
         title: "AND",
         key: (index).toString(),
         isLeaf: false,
         data: {},
         expanded: true
       }]);
-      this.expression = this.formatExpression(this.settings[0]);
+      this.updateExpression();
     }
   }
 
+  get selected(): NzTreeNodeOptions {
+    const s = this.tree.getSelectedNodeList();
+    if (s)
+      return s[0];
+    else
+      return null;
+  }
+
   addOr() {
-    const selected = this.tree.getSelectedNodeList();
-    if (selected && selected.length === 1) {
+    const selected = this.selected;
+    if (selected) {
       const index = this.uniqueIndex++;
-      selected[0].addChildren([<NzTreeNodeOptions>{
+      selected.addChildren([<NzTreeNodeOptions>{
         title: "OR",
         key: (index).toString(),
         isLeaf: false,
         data: {},
         expanded: true
       }]);
-      this.expression = this.formatExpression(this.settings[0]);
+      this.updateExpression();
     }
   }
 
   addCondition() {
-    const selected = this.tree.getSelectedNodeList();
-    if (selected && selected.length === 1) {
+    const selected = this.selected;
+    if (selected) {
       const index = this.uniqueIndex++;
-      selected[0].addChildren([<NzTreeNodeOptions>{
-        title: "Condition "+index,
+      selected.addChildren([<NzTreeNodeOptions>{
+        title: "Condition " + index,
         key: (index).toString(),
         isLeaf: true,
         data: {},
         expanded: true
       }]);
-      this.expression = this.formatExpression(this.settings[0]);
+      this.updateExpression();
     }
   }
 
   remove() {
-    const selected = this.tree.getSelectedNodeList();
-    if (selected && selected.length === 1 && selected[0].getParentNode()) {
-      selected[0].remove();
+    const selected =  this.selected;
+    if (selected && selected.getParentNode()) {
+      selected.remove();
+      this.updateExpression();
+    }
+  }
+
+  nzDrop(event: NzFormatEmitEvent) {
+    this.updateExpression();
+  }
+
+  beforeDrop(arg: NzFormatBeforeDropEvent): Observable<boolean> {
+    // if insert node into another node, wait 1s
+
+    if (!arg.node.getParentNode() && (arg.pos === -1 || arg.pos === 1))
+      return of(false);
+    return of(true);
+  }
+
+  typeChange() {
+    const selected = this.selected;
+    if (selected) {
+      selected.title = selected.origin.data.operation.toString().toUpperCase();
+      selected.origin.title = selected.origin.data.operation.toString().toUpperCase();
       this.expression = this.formatExpression(this.settings[0]);
     }
   }

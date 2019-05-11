@@ -42,7 +42,7 @@
     <nz-tab nzTitle="FFLogs Sync">
       <nz-layout [ngStyle]="{width:'100%', height:'100%'}">
         <nz-sider nzTheme="light" [ngStyle]="{ height:'384px', overflow: 'auto'}">
-          <nz-tree #tree [nzData]="settings" [ngStyle]="{width:'100%', height:'100%'}" [nzMultiple]="false" [nzBlockNode]="true" [nzShowLine]="true">
+          <nz-tree #tree [nzData]="settings" [ngStyle]="{width:'100%', height:'100%'}" nzDraggable [nzMultiple]="false" [nzBlockNode]="true" [nzShowLine]="true" (nzOnDrop)="nzDrop($event)" [nzBeforeDrop]="beforeDrop">
 
           </nz-tree>
         </nz-sider>
@@ -66,6 +66,12 @@
             <form nz-form>
               <div style="padding: 2px">
                 {{expression}}
+              </div>
+              <div *ngIf="selected && !selected.isLeaf">
+                <nz-radio-group name="operation" [(ngModel)]="selected.origin.data.operation" (ngModelChange)="typeChange()" [nzSize]="'small'" [nzButtonStyle]="'solid'">
+                  <label nz-radio-button nzValue="and">AND</label>
+                  <label nz-radio-button nzValue="or">OR</label>
+                </nz-radio-group>
               </div>
             </form>
           </nz-content>
