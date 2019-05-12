@@ -1,7 +1,7 @@
 <nz-spin nzTip="Loading..." [nzSpinning]="loading">
   <div style="height: 360px;">
     <div *ngIf="!loading && container.fights && container.fights.length>0">
-      <div style="height: 360px;overflow: auto">
+      <div style="height: 360px;overflow: auto" customScroll>
         <nz-list #fights
                  [nzDataSource]="container.fights"
                  [nzRenderItem]="item"

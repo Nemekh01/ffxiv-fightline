@@ -35,7 +35,8 @@ export enum AbilityType {
   HealingBuff = 32,
   PartyDamageBuff = 64,
   Pet = 128,
-  PartyDefense = 256
+  PartyDefense = 256,
+  Enmity = 512
 }
 
 export interface IBoss {
@@ -279,6 +280,7 @@ export interface IAbilityFilter {
   utility?: boolean;
   pet?: boolean;
   unused?: boolean;
+  enmity?: boolean;
 };
 
 export interface IBossAttackFilter {

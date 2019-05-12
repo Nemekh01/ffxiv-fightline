@@ -1,5 +1,5 @@
 import { Injectable, Inject } from "@angular/core"
-import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight } from "../core/Models";
+import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight,IAbility } from "../core/Models";
 import { LocalStorageService } from "./LocalStorageService";
 import { NzModalRef, NzModalService } from 'ng-zorro-antd';
 import { Observable } from "rxjs";
@@ -96,7 +96,7 @@ export class DialogService {
     });
   }
 
-  openAbilityEditDialog(data: { settings: IAbilitySetting[], values: IAbilitySettingData[] },
+  openAbilityEditDialog(data: { ability: IAbility, settings: IAbilitySetting[], values: IAbilitySettingData[] },
     callBack: (b: any) => void): void {
     const dialogRef = this.dialogs.create({
       nzWrapClassName: "vertical-center-modal",
@@ -213,6 +213,7 @@ export class DialogService {
     this.dialogs.create({
       nzWrapClassName: "vertical-center-modal",
       nzTitle: null,
+      nzClassName: "settingsWindow",
       nzContent: D.SettingsDialog,
       nzWidth: "900px",
       nzClosable: false

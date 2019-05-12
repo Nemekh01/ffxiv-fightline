@@ -859,7 +859,8 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.HealingBuff, filter.healingBuff,  jobFilter.healingBuff);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Healing, filter.healing,  jobFilter.healing);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Pet, filter.pet,  jobFilter.pet);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Utility, filter.utility,  jobFilter.utility);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Utility, filter.utility, jobFilter.utility);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Enmity, filter.enmity, jobFilter.enmity);
 
         if (!filter.unused ||
           (jobFilter.unused !== undefined && !jobFilter.unused)) {

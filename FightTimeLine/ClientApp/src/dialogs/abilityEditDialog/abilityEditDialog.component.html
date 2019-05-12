@@ -1,5 +1,14 @@
 <div style="height: 360px;">
   <form nz-form [formGroup]="form">
+    <nz-form-item>
+      <nz-form-control>
+        <div>
+          <img [src]="data.ability.icon" class="icon" />
+          <span class="abilityName">{{data.ability.name}}</span>
+        </div>
+      </nz-form-control>
+    </nz-form-item>
+
     <nz-form-item *ngFor="let setting of data.settings">
       <nz-form-label [nzSpan]="4" [nzFor]="setting.name">{{setting.displayName}}</nz-form-label>
       <nz-form-control [nzSpan]="8">

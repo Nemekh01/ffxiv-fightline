@@ -1,6 +1,6 @@
 <div style="min-height: 560px; height: 560px;overflow: hidden">
   <nz-layout>
-    <nz-sider nzTheme="light" style="overflow: auto; height: 100vh;">
+    <nz-sider nzTheme="light" style="overflow: auto; height: 100vh;" customScroll>
       <ul nz-menu [nzMode]="'inline'">
         <li nz-menu-item [nzSelected]="true" (click)="showSection('Basics')"> Basics </li>
         <li nz-menu-item (click)="showSection('Main menu')"> Main menu </li>
@@ -11,7 +11,7 @@
       </ul>
     </nz-sider>
     <nz-layout style="height: 560px">
-      <nz-content style="margin:24px 2px 2px 10px;overflow: auto">
+      <nz-content style="margin:24px 2px 2px 10px;overflow: auto" customScroll>
         <div class="help-content">
           <h3>Scroll and zoom</h3>
           <ul>

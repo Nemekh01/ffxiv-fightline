@@ -67,15 +67,16 @@ export class FightLineComponent implements OnInit, OnDestroy {
   format() {
     return {
       minorLabels: (date: Date, scale: string, step: Number) => {
-        var cd = new Date(Math.abs((date.valueOf() as number) - (this.startDate.valueOf() as number)) +
+        const diff = (date.valueOf() as number) - (this.startDate.valueOf() as number);
+        var cd = new Date(Math.abs(diff) +
           (this.startDate.valueOf() as number));
         var result;
         switch (scale) {
           case 'second':
-            result = cd.getSeconds();
+            result = (diff < 0 ? -1 : 1) * cd.getSeconds();
             break;
           case 'minute':
-            result = cd.getMinutes();
+            result = (diff < 0 ? -1 : 1) * cd.getMinutes();
             break;
           default:
             return new Date(date);
@@ -83,21 +84,15 @@ export class FightLineComponent implements OnInit, OnDestroy {
         return result;
       },
       majorLabels: (date: Date, scale: string, step: Number) => {
-        var cd = new Date(Math.abs((date.valueOf() as number) - (this.startDate.valueOf() as number)) +
-          (this.startDate.valueOf() as number));
+        const diff = (date.valueOf() as number) - (this.startDate.valueOf() as number);
+        var cd = new Date(Math.abs(diff) + (this.startDate.valueOf() as number));
         var result;
         switch (scale) {
           case 'second':
-            result = cd.getMinutes();
+            result = (diff < 0 ? -1 : 1) * cd.getMinutes();
             break;
           case 'minute':
-            result = cd.getMinutes();
-            break;
-          case 'hour':
-            result = cd.getMinutes();
-            break;
-          case 'day':
-            result = cd.getMinutes();
+            result = 0;
             break;
           default:
             return new Date(date);
@@ -487,7 +482,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     }
   }
 
-  openAbilityEditDialog(data: { settings: M.IAbilitySetting[], values: M.IAbilitySettingData[] }, callBack: (b: any) => void): void {
+  openAbilityEditDialog(data: { ability: M.IAbility, settings: M.IAbilitySetting[], values: M.IAbilitySettingData[] }, callBack: (b: any) => void): void {
     this.dialogService.openAbilityEditDialog(data, callBack);
   }
 
@@ -548,16 +543,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   private setInitialWindow(mins: number): void {
     setTimeout(() => {
-      this.visTimelineService.setWindow(this.visTimeline,
-        this.startDate,
-        new Date(new Date(this.startDate).setMinutes(Math.max(mins, 3))),
-        { animation: false });
-      this.visTimelineService.setWindow(this.visTimelineBoss,
-        this.startDate,
-        new Date(new Date(this.startDate).setMinutes(Math.max(mins, 3))),
-        { animation: false });
-    },
-      100);
+      const endDate = new Date(this.startDate.valueOf() as number + Math.max(mins, 3) * 60 * 1000);
+      this.visTimelineService.setWindow(this.visTimeline, this.startDate, endDate, { animation: false });
+      this.visTimelineService.setWindow(this.visTimelineBoss, this.startDate, endDate, { animation: false });
+    });
   }
 
   saveBoss(): void {

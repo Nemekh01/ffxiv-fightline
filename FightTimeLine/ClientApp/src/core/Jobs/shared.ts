@@ -11,6 +11,7 @@ export const abilitySortFn = (a1: IAbility, a2: IAbility): number => {
     AbilityType.PartyDamageBuff,
     AbilityType.SelfDamageBuff,
     AbilityType.Utility,
+    AbilityType.Enmity,
     AbilityType.Damage,
     AbilityType.Healing,
     AbilityType.HealingBuff,
@@ -53,9 +54,9 @@ export const tankSharedAbilities: IAbilities = {
   Convalescence: { name: "Convalescence", duration: 20, cooldown: 120, xivDbId: "7532", icon: "10_TankRole/7532_Convalescence", abilityType: AbilityType.HealingBuff },
   Awareness: { name: "Awareness", duration: 25, cooldown: 120, xivDbId: "7534", icon: "10_TankRole/7534_Awareness", abilityType: AbilityType.SelfDefense },
   Anticipation: { name: "Anticipation", duration: 20, cooldown: 60, xivDbId: "7536", icon: "10_TankRole/7536_Anticipation", abilityType: AbilityType.SelfDefense },
-  Provoke: { name: "Provoke", duration: 0, cooldown: 40, xivDbId: "7533", icon: "10_TankRole/7533_Provoke", abilityType: AbilityType.Utility, settings: [settings.changesTarget], requiresBossTarget: true, },
-  Ultimatum: { name: "Ultimatum", duration: 0, cooldown: 90, xivDbId: "7539", icon: "10_TankRole/7539_Ultimatum", abilityType: AbilityType.Utility, settings: [settings.changesTarget] },
-  Shirk: { name: "Shirk", duration: 0, cooldown: 120, xivDbId: "7537", icon: "10_TankRole/7537_Shirk", abilityType: AbilityType.Utility }
+  Provoke: { name: "Provoke", duration: 0, cooldown: 40, xivDbId: "7533", icon: "10_TankRole/7533_Provoke", abilityType: AbilityType.Utility | AbilityType.Enmity, settings: [settings.changesTarget], requiresBossTarget: true, },
+  Ultimatum: { name: "Ultimatum", duration: 0, cooldown: 90, xivDbId: "7539", icon: "10_TankRole/7539_Ultimatum", abilityType: AbilityType.Utility | AbilityType.Enmity, settings: [settings.changesTarget] },
+  Shirk: { name: "Shirk", duration: 0, cooldown: 120, xivDbId: "7537", icon: "10_TankRole/7537_Shirk", abilityType: AbilityType.Utility | AbilityType.Enmity }
 };
 
 const magicSharedAbilities: IAbilities = {

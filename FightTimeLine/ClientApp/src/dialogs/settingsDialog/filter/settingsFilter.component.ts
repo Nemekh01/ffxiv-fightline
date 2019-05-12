@@ -1,5 +1,4 @@
 import { Component, Inject, EventEmitter, ViewChild, Output } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import { IFilter } from "../../../core/Models"
 
 @Component({
@@ -17,6 +16,7 @@ export class SettingsFilterComponent {
   healing = true;
   healingBuff = true;
   utility = true;
+  enmity = true;
   pet = true;
   unused = true;
   isTankBuster = true;
@@ -36,6 +36,7 @@ export class SettingsFilterComponent {
     this.healing = filter.abilities.healing;
     this.healingBuff = filter.abilities.healing;
     this.utility = filter.abilities.utility;
+    this.enmity = filter.abilities.enmity;
     this.pet = filter.abilities.pet;
     this.unused = filter.abilities.unused;
     this.isTankBuster = filter.attacks.isTankBuster;
@@ -61,6 +62,7 @@ export class SettingsFilterComponent {
         healing: this.healing,
         healingBuff: this.healingBuff,
         utility: this.utility,
+        enmity: this.enmity,
         pet: this.pet,
         unused: this.unused
       },

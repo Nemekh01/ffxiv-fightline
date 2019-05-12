@@ -126,6 +126,16 @@ export class ChangeNotes {
           "Internal improvements.",
           "New boss attacks filters by damage type."
         ]
+      },
+      {
+        revision: 21,
+        date: "5/12/2019",
+        items: [
+          "We moved to ng-zorro UI framework.",
+          "Added additional filters: Enmity.",
+          "Some improvements for tablest. I am testing on my IPad pro.",
+          "Bug fixes"
+        ]
       }
     ].sort((a, b) => b.revision - a.revision);
   }
