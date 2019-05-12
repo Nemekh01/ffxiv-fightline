@@ -65,6 +65,9 @@
     <ng-template contextMenuItem let-item [visible]="" [enabled]="true" passive="true">
       <label nz-checkbox (ngModelChange)="updateFilter()" [nzIndeterminate]="jobFilter.utility == undefined" [(ngModel)]="jobFilter.utility">Utility</label>
     </ng-template>
+    <ng-template contextMenuItem let-item [visible]="" [enabled]="true" passive="true">
+      <label nz-checkbox (ngModelChange)="updateFilter()" [nzIndeterminate]="jobFilter.enmity == undefined" [(ngModel)]="jobFilter.enmity">Enmity</label>
+    </ng-template>
     <ng-template contextMenuItem [visible]="true" [enabled]="true" passive="true">
       <label nz-checkbox (ngModelChange)="updateFilter()" [nzIndeterminate]="jobFilter.pet == undefined" [(ngModel)]="jobFilter.pet">Pet</label>
     </ng-template>

@@ -54,6 +54,7 @@
   min-height: 500px;
   height: 90%;
   cursor: pointer;
+  max-height: 600px;
 }
 
 .recentList .ant-list-item:hover {

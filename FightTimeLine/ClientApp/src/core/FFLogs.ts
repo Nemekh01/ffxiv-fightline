@@ -3,29 +3,29 @@
 // -----
 
 export interface Fight {
-	id: number;
+  id: number;
 
-	boss: number;
-	name: string;
-	zoneID: number;
-	zoneName: string;
-	lastPhaseForPercentageDisplay?: number;
+  boss: number;
+  name: string;
+  zoneID: number;
+  zoneName: string;
+  lastPhaseForPercentageDisplay?: number;
 
-	difficulty?: number;
-	bossPercentage?: number;
-	fightPercentage?: number;
-	kill?: boolean;
-	partial?: number;
-	size?: number;
-	standardComposition?: boolean;
+  difficulty?: number;
+  bossPercentage?: number;
+  fightPercentage?: number;
+  kill?: boolean;
+  partial?: number;
+  size?: number;
+  standardComposition?: boolean;
 
-	start_time: number;
-	end_time: number;
+  start_time: number;
+  end_time: number;
 }
 
 export interface Phase {
-	boss: Fight['boss'];
-	phases: string[];
+  boss: Fight['boss'];
+  phases: string[];
 }
 
 // -----
@@ -33,62 +33,62 @@ export interface Phase {
 // -----
 
 export enum ActorType {
-	// Enemy
-	BOSS = 'Boss',
-	NPC = 'NPC',
+  // Enemy
+  BOSS = 'Boss',
+  NPC = 'NPC',
 
-	// Friendly
-	PALADIN = 'Paladin',
-	WARRIOR = 'Warrior',
-	DARK_KNIGHT = 'DarkKnight',
-	WHITE_MAGE = 'WhiteMage',
-	SCHOLAR = 'Scholar',
-	ASTROLOGIAN = 'Astrologian',
-	MONK = 'Monk',
-	DRAGOON = 'Dragoon',
-	NINJA = 'Ninja',
-	SAMURAI = 'Samurai',
-	BARD = 'Bard',
-	MACHINIST = 'Machinist',
-	BLACK_MAGE = 'BlackMage',
-	SUMMONER = 'Summoner',
-	RED_MAGE = 'RedMage',
-	LIMIT_BREAK = 'LimitBreak',
+  // Friendly
+  PALADIN = 'Paladin',
+  WARRIOR = 'Warrior',
+  DARK_KNIGHT = 'DarkKnight',
+  WHITE_MAGE = 'WhiteMage',
+  SCHOLAR = 'Scholar',
+  ASTROLOGIAN = 'Astrologian',
+  MONK = 'Monk',
+  DRAGOON = 'Dragoon',
+  NINJA = 'Ninja',
+  SAMURAI = 'Samurai',
+  BARD = 'Bard',
+  MACHINIST = 'Machinist',
+  BLACK_MAGE = 'BlackMage',
+  SUMMONER = 'Summoner',
+  RED_MAGE = 'RedMage',
+  LIMIT_BREAK = 'LimitBreak',
 
-	// Pet
-	PET = 'Pet',
+  // Pet
+  PET = 'Pet',
 }
 
 export interface ActorFightInstance {
-	id: Fight['id'];
-	groups?: number;
-	instances?: number;
+  id: Fight['id'];
+  groups?: number;
+  instances?: number;
 }
 
 interface BaseActor {
-	guid: number;
-	id: number;
-	name: string;
-	type: ActorType;
+  guid: number;
+  id: number;
+  name: string;
+  type: ActorType;
 }
 
 export interface Actor extends BaseActor {
-	fights: ActorFightInstance[];
+  fights: ActorFightInstance[];
 }
 
 export interface Pet extends Actor {
-	petOwner: Actor['id'];
+  petOwner: Actor['id'];
 }
 
 export interface ActorResources {
-	hitPoints: number;
-	maxHitPoints: number;
-	mp: number;
-	maxMP: number;
-	tp: number;
-	maxTp: number;
-	x: number;
-	y: number;
+  hitPoints: number;
+  maxHitPoints: number;
+  mp: number;
+  maxMP: number;
+  tp: number;
+  maxTp: number;
+  x: number;
+  y: number;
 }
 
 // -----
@@ -96,39 +96,39 @@ export interface ActorResources {
 // -----
 
 export enum AbilityType {
-	PHYSICAL_DOT = 1,
-	HEAL = 8,
-	SPECIAL = 32,
-	MAGICAL_DOT = 64,
-	PHYSICAL_DIRECT = 128,
-	LIMIT_BREAK = 256,
-	MAGICAL_DIRECT = 1024,
+  PHYSICAL_DOT = 1,
+  HEAL = 8,
+  SPECIAL = 32,
+  MAGICAL_DOT = 64,
+  PHYSICAL_DIRECT = 128,
+  LIMIT_BREAK = 256,
+  MAGICAL_DIRECT = 1024,
 }
 
 export interface Ability {
-	abilityIcon: string;
-	guid: number;
-	name: string;
-	type: AbilityType;
+  abilityIcon: string;
+  guid: number;
+  name: string;
+  type: AbilityType;
 }
 
 // Hell if I know. Seems to be used for 'Environment', and that's about it.
 interface EventActor extends BaseActor {
-	icon: string;
+  icon: string;
 }
 
 export interface Event {
-	timestamp: number;
-	type: string | symbol;
+  timestamp: number;
+  type: string | symbol;
 
-	source?: EventActor;
-	sourceID?: number;
-	sourceInstance?: number;
-	sourceIsFriendly: boolean;
-	target?: EventActor;
-	targetID?: number;
-	targetInstance?: number;
-	targetIsFriendly: boolean;
+  source?: EventActor;
+  sourceID?: number;
+  sourceInstance?: number;
+  sourceIsFriendly: boolean;
+  target?: EventActor;
+  targetID?: number;
+  targetInstance?: number;
+  targetIsFriendly: boolean;
 }
 
 export interface Events {
@@ -139,75 +139,75 @@ export interface Events {
 }
 
 export interface AbilityEvent extends Event {
-	ability: Ability;
+  ability: Ability;
 }
 
 interface EffectEvent extends AbilityEvent {
-	hitType: number;
-	tick?: boolean;
+  hitType: number;
+  tick?: boolean;
 
-	guessAmount?: number;
-	expectedAmount?: number;
-	finalizedAmount?: number;
-	amount: number;
+  guessAmount?: number;
+  expectedAmount?: number;
+  finalizedAmount?: number;
+  amount: number;
 
-	sourceResources?: ActorResources;
-	targetResources: ActorResources;
+  sourceResources?: ActorResources;
+  targetResources: ActorResources;
 
-	simulated?: boolean;
-	actorPotencyRatio?: number;
-	expectedCritRate?: number;
-	directHitPercentage?: number;
-	debugMultiplier?: number;
-	multiplier?: number;
+  simulated?: boolean;
+  actorPotencyRatio?: number;
+  expectedCritRate?: number;
+  directHitPercentage?: number;
+  debugMultiplier?: number;
+  multiplier?: number;
 }
 
 export interface DeathEvent extends Event { type: 'death' }
 export interface CastEvent extends AbilityEvent { type: 'begincast' | 'cast' }
 export interface DamageEvent extends EffectEvent {
-	type: 'damage';
-	absorbed: number;
-	multistrike?: boolean;
-	blocked?: number;
+  type: 'damage';
+  absorbed: number;
+  multistrike?: boolean;
+  blocked?: number;
 }
 export interface HealEvent extends EffectEvent {
-	type: 'heal';
-	overheal: number;
+  type: 'heal';
+  overheal: number;
 }
 export interface BuffEvent extends AbilityEvent {
-	type: (
-		'applybuff' |
-		'applydebuff' |
-		'refreshbuff' |
-		'refreshdebuff' |
-		'removebuff' |
-		'removedebuff'
-	)
+  type: (
+    'applybuff' |
+    'applydebuff' |
+    'refreshbuff' |
+    'refreshdebuff' |
+    'removebuff' |
+    'removedebuff'
+  )
 }
 export interface BuffStackEvent extends AbilityEvent {
-	type: (
-		'applybuffstack' |
-		'applydebuffstack' |
-		'removebuffstack' |
-		'removedebuffstack'
-	)
-	stack: number;
+  type: (
+    'applybuffstack' |
+    'applydebuffstack' |
+    'removebuffstack' |
+    'removedebuffstack'
+  )
+  stack: number;
 }
 
 
 export interface ReportFightsResponse {
-	end: number;
-	enemies: Actor[];
-	enemyPets: Pet[];
-	fights: Fight[];
-	friendlies: Actor[];
-	friendlyPets: Pet[];
-	lang: string;
-	owner: string;
-	phases: Phase[];
-	start: number;
-	title: string;
-	zone: number;
+  end: number;
+  enemies: Actor[];
+  enemyPets: Pet[];
+  fights: Fight[];
+  friendlies: Actor[];
+  friendlyPets: Pet[];
+  lang: string;
+  owner: string;
+  phases: Phase[];
+  start: number;
+  title: string;
+  zone: number;
 }
 
 export interface IJobInfo {
@@ -220,6 +220,33 @@ export interface IJobInfo {
 
 
 export interface ReportEventsResponse {
-	events: Event[];
-	nextPageTimestamp?: number;
+  events: Event[];
+  nextPageTimestamp?: number;
+}
+
+export interface Zone {
+  id: number;
+  name: string;
+  frozen: boolean;
+  encounters: Encounter[];
+  brackets: Brackets;
+  partitions: Partition[];
+}
+export interface Partition {
+  name: string;
+  compact: string;
+  area?: number;
+  default?: boolean;
+}
+
+export interface Encounter {
+  id: number;
+  name: string;
+}
+
+export interface Brackets {
+  min: number;
+  max: number;
+  bucket: number;
+  type: string;
 }

@@ -26,11 +26,7 @@ export class FightLineContextMenuComponent {
   private lastDoubleClickEvent: any;
 
   setLastDoubleClick(e: any): void {
-//    const data = JSON.stringify(this.serializeEvent(event));
-//
-//    alert(data);
-   
-    if (event && e.clientX)
+    if (e && e.clientX)
       this.lastDoubleClickEvent = e;
   }
 
@@ -166,7 +162,8 @@ export class FightLineContextMenuComponent {
       healing: undefined,
       healingBuff: undefined,
       partyDamageBuff: undefined,
-      selfDamageBuff: undefined
+      selfDamageBuff: undefined,
+      enmity: undefined,
     };
     this.filterUpdated.emit(this.jobFilter);
   }

@@ -1,13 +1,13 @@
 import { Injectable, Inject } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
-import { tap, debounceTime } from "rxjs/operators";
+import { tap, debounceTime, map } from "rxjs/operators";
 import { Observable } from "rxjs"
 import { JobRegistry } from "../core/JobRegistry"
 import { SettingsService } from "./SettingsService"
 import { LocalStorageService } from "./LocalStorageService"
 import "rxjs/add/observable/from";
 import "rxjs/add/observable/of";
-import { Event, ReportEventsResponse, ReportFightsResponse, IJobInfo, Events } from "../core/FFLogs"
+import { Event, ReportEventsResponse, ReportFightsResponse, IJobInfo, Events, Zone } from "../core/FFLogs"
 import { FFLogsImportBossAttacksSource } from "./SettingsService"
 import * as _ from "lodash"
 
@@ -139,6 +139,7 @@ export class FFLogsService {
 
     return filter;
   }
+
   mapJob(input: string): { jobName: string, order: number } {
     switch (input) {
       case "Bard":
@@ -173,6 +174,10 @@ export class FFLogsService {
         return { jobName: "RDM", order: 2 };
     }
     return null;
+  }
+
+  getZones(): Observable<any> {
+    return this.httpClient.get(`${this.fflogsUrl}v1/zones?api_key=${this.apiKey}`);
   }
 
 }

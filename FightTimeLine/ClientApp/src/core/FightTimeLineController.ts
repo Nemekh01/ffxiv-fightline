@@ -1002,7 +1002,7 @@ export class FightTimeLineController {
     const ab = this.holders.abilities.get(group).ability;
     if (ab.settings !== undefined && ab.settings && ab.settings.length > 0) {
       const item = this.holders.itemUsages.get(itemid);
-      this.dialogCallBacks.openAbilityEditDialog({ settings: ab.settings, values: item.settings, jobs: this.holders.jobs.getAll() },
+      this.dialogCallBacks.openAbilityEditDialog({ ability:ab , settings: ab.settings, values: item.settings, jobs: this.holders.jobs.getAll() },
         (b: any) => {
           if (b) {
             this.commandStorage.execute(new C.ChangeAbilitySettingsCommand(itemid, b));
@@ -1375,7 +1375,7 @@ export interface IBossAbilityUsageData {
 
 export interface IDialogs {
   openBossAttackAddDialog: (bossAbility: M.IBossAbility | {}, callBack: (b: any) => void) => void;
-  openAbilityEditDialog: (data: { settings: M.IAbilitySetting[], values: M.IAbilitySettingData[], jobs: H.JobMap[] }, callBack: (b: any) => void) => void;
+  openAbilityEditDialog: (data: {ability: M.IAbility, settings: M.IAbilitySetting[], values: M.IAbilitySettingData[], jobs: H.JobMap[] }, callBack: (b: any) => void) => void;
   openStanceSelector: (data: M.IContextMenuData[]) => void;
 }
 

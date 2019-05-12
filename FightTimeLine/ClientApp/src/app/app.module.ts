@@ -17,6 +17,7 @@ import { ViewComponent } from "../fightline/view/view.component";
 import { SettingsFilterComponent } from "../dialogs/settingsDialog/filter/settingsFilter.component";
 import { SettingsViewComponent } from "../dialogs/settingsDialog/view/settingsView.component";
 import { ToolbarComponent } from "../toolbar/toolbar.component";
+import { SyncSettingsComponent } from "../dialogs/bossAttackDialog/syncSettings/syncSettings.component";
 import * as Services from "../services/index"
 import { JwtInterceptor } from "../interceptors/jwtInterceptor"
 import { ClipboardModule } from "ngx-clipboard";
@@ -33,6 +34,7 @@ import * as SocialLogins from "angularx-social-login";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OffsetWheelDirective } from "../heplers/OffsetWheelDirective"
 import { FFLogsMatcherDirective } from "../heplers/FFLogsMatchDirective"
+import { CustomScrollDirective } from "../heplers/customScroll.directive"
 import { KillsOnlyPipe } from "../heplers/KillsPipe"
 import { PingComponent } from "../fightline/ping/ping.component";
 import * as Sentry from "@sentry/browser";
@@ -98,12 +100,14 @@ export function getBaseUrl() {
     ViewComponent,
     OffsetWheelDirective,
     FFLogsMatcherDirective,
+    CustomScrollDirective,
     KillsOnlyPipe,
     SidepanelComponent,
     SingleAbilityComponent,
     SingleAttackComponent,
     MultipleAbilityComponent,
     MultipleAttackComponent,
+    SyncSettingsComponent,
     ...DialogsModuleComponents
   ],
   imports: [
@@ -139,7 +143,7 @@ export function getBaseUrl() {
 
   ],
   entryComponents: [
-    ViewComponent, FilterComponent, SettingsFilterComponent, SettingsViewComponent, PingComponent, SingleAbilityComponent, SingleAttackComponent, MultipleAbilityComponent, MultipleAttackComponent, ...DialogsModuleComponents
+    ViewComponent, FilterComponent, SettingsFilterComponent, SettingsViewComponent, PingComponent, SingleAbilityComponent, SingleAttackComponent, MultipleAbilityComponent, MultipleAttackComponent, SyncSettingsComponent, ...DialogsModuleComponents
   ],
   bootstrap: [AppComponent]
 })

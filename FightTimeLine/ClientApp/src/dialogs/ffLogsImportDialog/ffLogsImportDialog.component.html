@@ -22,7 +22,7 @@
     </div>
     <div [style.display]="searchAreaDisplay">
       <hr style="margin-top: 5px; margin-bottom: 5px;" />
-      <div class="importDialogList">
+      <div class="importDialogList" customScroll>
         <nz-list #fights [nzDataSource]="container.zones | keyvalue" [nzRenderItem]="item" nzSize="small">
           <ng-template #item let-item>
             <nz-list-item>

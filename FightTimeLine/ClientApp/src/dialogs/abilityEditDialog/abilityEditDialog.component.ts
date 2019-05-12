@@ -1,6 +1,6 @@
 import { Component, Inject, Input, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
-import { IAbilitySetting, IAbilitySettingData } from "../../core/Models";
+import { IAbilitySetting, IAbilitySettingData,IAbility } from "../../core/Models";
 import { NzModalRef } from "ng-zorro-antd";
 
 @Component({
@@ -20,7 +20,7 @@ export class AbilityEditDialog implements OnInit {
     this.form = new FormGroup(group);
   }
 
-  @Input("data") data: { settings: IAbilitySetting[], values: IAbilitySettingData[] }
+  @Input("data") data: { ability: IAbility, settings: IAbilitySetting[], values: IAbilitySettingData[] }
   form: FormGroup;
 
   constructor(

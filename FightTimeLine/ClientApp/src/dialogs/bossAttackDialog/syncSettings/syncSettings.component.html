@@ -1,0 +1,70 @@
+<nz-layout [ngStyle]="{width:'100%', height:'100%'}">
+  <nz-sider nzTheme="light" [ngStyle]="{ height:'384px', overflow: 'auto'}">
+    <nz-tree #tree [nzData]="settings" [ngStyle]="{width:'100%', height:'100%'}" nzDraggable [nzMultiple]="false" [nzBlockNode]="true" [nzShowLine]="true" (nzOnDrop)="nzDrop($event)" [nzBeforeDrop]="beforeDrop">
+    </nz-tree>
+  </nz-sider>
+  <nz-sider nzTheme="light" [nzWidth]="45" [ngStyle]="{'text-align':'center'}">
+    <div class="plus-button">
+      <nz-dropdown [nzTrigger]="'click'">
+        <button nz-button nz-dropdown nzSize="small" [disabled]="tree.getSelectedNodeList().length==0 || tree.getSelectedNodeList()[0].isLeaf"><i nz-icon nzType="plus" nzTheme="outline"></i></button>
+        <ul nz-menu>
+          <li nz-menu-item (click)="addAnd()">AND</li>
+          <li nz-menu-item (click)="addOr()">OR</li>
+          <li nz-menu-item (click)="addCondition()">Condition</li>
+        </ul>
+      </nz-dropdown>
+    </div>
+    <div class="minus-button">
+      <button nz-button nzSize="small" [disabled]="tree.getSelectedNodeList().length==0 || !tree.getSelectedNodeList()[0].getParentNode()" (click)="remove()"><i nz-icon nzType="minus" nzTheme="outline"></i></button>
+    </div>
+  </nz-sider>
+  <nz-layout>
+    <nz-content style="padding: 4px;">
+      <form nz-form>
+
+        <div style="padding: 2px; margin-bottom: 5px;">
+          {{expression}}
+        </div>
+
+        <nz-form-item *ngIf="selected && !selected.isLeaf">
+          <nz-form-control>
+            <nz-radio-group name="operation" [(ngModel)]="selected.origin.data.operation" (ngModelChange)="typeChange()" [nzSize]="'small'" [nzButtonStyle]="'solid'">
+              <label nz-radio-button nzValue="and">AND</label>
+              <label nz-radio-button nzValue="or">OR</label>
+            </nz-radio-group>
+          </nz-form-control>
+        </nz-form-item>
+        <div *ngIf="selected && selected.isLeaf">
+          <nz-form-item>
+            <nz-form-control>
+              <input nz-input name="description" [(ngModel)]="selected.title" (ngModelChange)="nzDrop()" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-control>
+              <nz-select name="type" #typeControl style="width: 160px;" [(ngModel)]="selected.origin.data.type" nzPlaceHolder="Choose" >
+                <nz-option nzValue="name" nzLabel="Name"></nz-option>
+                <nz-option nzValue="time" nzLabel="Time"></nz-option>
+                <nz-option nzValue="hp" nzLabel="HP"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <div [ngSwitch]="selected && selected.origin.data.type">
+            <div *ngSwitchCase="'name'">
+              <nz-form-item>
+                <nz-form-control>
+                  <input nz-input name="nameName" [(ngModel)]="selected.origin.data.payload.name"/>
+                </nz-form-control>
+              </nz-form-item>
+
+            </div>
+            <div *ngSwitchCase="'time'">time</div>
+            <div *ngSwitchCase="'hp'">hp</div>
+            <div *ngSwitchDefault></div>
+
+          </div>
+        </div>
+      </form>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

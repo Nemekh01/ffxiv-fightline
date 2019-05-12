@@ -19,6 +19,7 @@ export class FilterComponent {
   healing = true;
   healingBuff = true;
   utility = true;
+  enmity = true;
   pet = true;
   unused = true;
   isTankBuster = true;
@@ -41,6 +42,7 @@ export class FilterComponent {
     this.healing = filter.abilities.healing;
     this.healingBuff = filter.abilities.healing;
     this.utility = filter.abilities.utility;
+    this.enmity = filter.abilities.utility;
     this.pet = filter.abilities.pet;
     this.unused = filter.abilities.unused;
     this.isTankBuster = filter.attacks.isTankBuster;
@@ -70,6 +72,7 @@ export class FilterComponent {
           healing: this.healing,
           healingBuff: this.healingBuff,
           utility: this.utility,
+          enmity: this.enmity,
           pet: this.pet,
           unused: this.unused
         },

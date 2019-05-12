@@ -18,7 +18,7 @@
               Open recent
             </div>
             <div>
-              <nz-list [nzDataSource]="container.data" [nzRenderItem]="item" [nzItemLayout]="'horizontal'" #recent [ngClass]="{recentList:true}">
+              <nz-list [nzDataSource]="container.data" [nzRenderItem]="item" [nzItemLayout]="'horizontal'" #recent [ngClass]="{recentList:true}" customScroll>
                 <ng-template #item let-item>
                   <nz-list-item (click)="onClick(item.url)">
                     <nz-list-item-meta [nzTitle]="nzTitle" [nzAvatar]="nzAvatar" [nzDescription]="nzDescription">
