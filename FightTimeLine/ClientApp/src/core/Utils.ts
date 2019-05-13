@@ -19,8 +19,10 @@ export class Utils {
       const parts = offset.split(":");
       const mins = Math.abs(parseInt(parts[0]));
       const secs = parseInt(parts[1]);
-      d = new Date(d.valueOf() as number + Math.sign(parseInt(parts[0])) * (mins * 60 * 1000 + secs * 1000));
+      let number = (Math.sign(parseInt(parts[0])) < 0 ? -1 : 1) * (mins * 60 * 1000 + secs * 1000);
+      d = new Date(d.valueOf() as number + number);
     }
+
     return d;
   }
 
@@ -28,7 +30,9 @@ export class Utils {
     const d = 946677600000;
     const dc = date.valueOf() as number;
     const padLeft = (nr: number, n: number, str?: string): string => new Array(n - String(nr).length + 1).join(str || "0") + nr;
-    return (Math.sign(dc - d) + 1 ? "" : "-") + (date => `${padLeft((date).getMinutes(), 2)}:${padLeft((date as Date).getSeconds(), 2)}`).apply(null, [new Date(Math.abs(dc - d) + d)])
+    return (Math.sign(dc - d) + 1 ? "" : "-") +
+      (date => `${padLeft((date).getMinutes(), 2)}:${padLeft((date as Date).getSeconds(), 2)}`).apply(null,
+        [new Date(Math.abs(dc - d) + d)]);
   }
 
   static clone<T>(obj: T): T {
