@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   bossTemplates() {
-    this.dialogService.openBossTemplates(null);
+    this.dialogService.openBossTemplates(false);
   }
 
   showWhatsNew() {

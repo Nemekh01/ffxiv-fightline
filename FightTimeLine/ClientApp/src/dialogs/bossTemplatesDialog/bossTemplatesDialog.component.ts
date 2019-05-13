@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy, TemplateRef } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy, TemplateRef , Input } from "@angular/core";
 import { finalize, filter, map } from "rxjs/operators"
 import { Observable, BehaviorSubject } from "rxjs"
 import { NzModalRef } from "ng-zorro-antd"
@@ -9,6 +9,8 @@ import { FFLogsService } from "../../services/FFLogsService"
 import { DispatcherService } from "../../services/dispatcher.service"
 import { fightServiceToken } from "../../services/fight.service-provider"
 import { IFightService } from "../../services/fight.service-interface"
+import { IAuthenticationService } from "../../services/authentication.service-interface"
+import { authenticationServiceToken } from "../../services/authentication.service-provider"
 import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineItem, VisTimelineOptions } from "ngx-vis";
 
 @Component({
@@ -26,6 +28,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   @ViewChild("timeline") timeline: ElementRef;
   @ViewChild("listContainer") listContainer: ElementRef;
   @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
+  @Input("data") data: {needSave: boolean};
 
   optionsBoss = <VisTimelineOptions>{
     width: "100%",
@@ -54,8 +57,8 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   };
   isSpinning: boolean = true;
   isListLoading: boolean = false;
-  searchString: string;
-  searchFightString: string;
+  searchString: string = "";
+  searchFightString: string = "";
   zones: Zone[];
   filteredZones: Zone[];
   selectedZone: string;
@@ -108,7 +111,8 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     private ffLogsService: FFLogsService,
     @Inject(fightServiceToken) private fightService: IFightService,
     private visTimelineService: VisTimelineService,
-    private dispatcher: DispatcherService
+    private dispatcher: DispatcherService,
+    @Inject(authenticationServiceToken) private authService: IAuthenticationService,
   ) {
 
   }
@@ -135,7 +139,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       this.zones.
         filter(
           (zone: Zone) => {
-            return !this.searchString || zone.encounters.some(x => x.name.toLowerCase().indexOf(this.searchString) >= 0);
+            return !this.searchString || zone.encounters.some(x => x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0);
           }
         );
   }

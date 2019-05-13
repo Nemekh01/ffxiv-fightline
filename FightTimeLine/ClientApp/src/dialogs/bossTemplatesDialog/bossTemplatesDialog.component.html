@@ -4,11 +4,11 @@
       <nz-sider nzTheme="light" style="overflow: auto; height: 600px;" [nzWidth]="400">
         <nz-layout style="height: 600px;min-width:400px">
           <nz-header style="background: #fff; padding: 3px;">
-            <nz-input-group [nzPrefix]="prefixTemplate" [nzSuffix]="suffixTemplate">
+            <nz-input-group [nzPrefix]="prefixTemplate1" [nzSuffix]="suffixTemplate1">
               <input nz-input placeholder="Search boss" [(ngModel)]="searchString" (ngModelChange)="onSearchChange($event)" />
             </nz-input-group>
-            <ng-template #prefixTemplate><i nz-icon type="search"></i></ng-template>
-            <ng-template #suffixTemplate><i nz-icon type="close-circle" (click)="clear()" *ngIf="searchString"></i></ng-template>
+            <ng-template #prefixTemplate1><i nz-icon type="search"></i></ng-template>
+            <ng-template #suffixTemplate1><i nz-icon type="close-circle" (click)="clear()" *ngIf="searchString"></i></ng-template>
           </nz-header>
           <nz-content customScroll style="overflow: auto">
             <ul nz-menu [nzMode]="'inline'" style="min-height: 100%">
@@ -24,11 +24,11 @@
     </nz-spin>
     <nz-layout style="height: 600px">
       <nz-header style="background: #fff; padding: 3px;">
-        <nz-input-group nzSpan="8" [nzPrefix]="prefixTemplate" [nzSuffix]="suffixTemplate">
+        <nz-input-group nzSpan="8" [nzPrefix]="prefixTemplate2" [nzSuffix]="suffixTemplate2">
           <input nz-input placeholder="Search template" [(ngModel)]="searchFightString" (ngModelChange)="onSearchChange($event)" />
         </nz-input-group>
-        <ng-template #prefixTemplate><i nz-icon type="search"></i></ng-template>
-        <ng-template #suffixTemplate><i nz-icon type="close-circle" (click)="clearTemplates()" *ngIf="searchString"></i></ng-template>
+        <ng-template #prefixTemplate2><i nz-icon type="search"></i></ng-template>
+        <ng-template #suffixTemplate2><i nz-icon type="close-circle" (click)="clearTemplates()" *ngIf="searchFightString"></i></ng-template>
       </nz-header>
       <nz-content style="margin: 4px 2px 2px 4px; overflow: auto" customScroll>
         <as-split direction="vertical" unit="percent" gutterSize="5" [ngStyle]="{width:'100%', height:'100%'}" restrictMove="true">
@@ -66,7 +66,7 @@
 </div>
 <ng-template #buttonsTemplate>
   <button nz-button *ngIf="!!selectedTemplate" (click)="load()">Load</button>
-  <button nz-button (click)="save()">Save</button>
+  <button nz-button *ngIf="data && data.needSave && selectedEncounter" [nzType]="authService.authenticated?'':'danger'" (click)="save()">Save</button>
   <button nz-button (click)="dialogRef.destroy()">Cancel</button>
 
 </ng-template>

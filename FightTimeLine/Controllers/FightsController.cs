@@ -40,7 +40,8 @@ namespace FightTimeLine.Controllers
                     .Select(s => new BossSearchResult()
                     {
                          Id = s.Identifier.ToString(),
-                         Name = s.Name
+                         Name = s.Name,
+                         Owner = s.UserName
                     }).ToArrayAsync();
           }
 
@@ -246,6 +247,7 @@ namespace FightTimeLine.Controllers
           {
                public string Id { get; set; }
                public string Name { get; set; }
+               public string Owner { get; set; }
           }
 
           public class FightSearchResult
