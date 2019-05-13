@@ -20,7 +20,7 @@ export class FightsMockService implements IFightService {
         <IBoss>{
           id: (reference*1000 + Number(x)).toString(),
           name: reference + " name " + x,
-          reference: reference,
+          ref: reference,
           isPrivate: false,
           data: '{"attacks":[{"id":"b56b029a6-d8ba-52eb-c034-d89d022d4c6d|1","ability":{"name":"test1","type":1,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"09: 24","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 2","ability":{"name":"test2","type":2,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"13: 50","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 3","ability":{"name":"test3","type":0,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"18: 50","syncSettings":null}}],"downTimes":[]}',
           userName: ""
@@ -35,7 +35,7 @@ export class FightsMockService implements IFightService {
     return Observable.of(<IBoss>{
       id: id,
       name: "test boss",
-      reference: 1,
+      ref: 1,
       isPrivate: false,
       data: '{"attacks":[{"id":"b56b029a6-d8ba-52eb-c034-d89d022d4c6d|1","ability":{"name":"test1","type":1,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"09: 24","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 2","ability":{"name":"test2","type":2,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"13: 50","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 3","ability":{"name":"test3","type":0,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"18: 50","syncSettings":null}}],"downTimes":[]}',
       userName: ""

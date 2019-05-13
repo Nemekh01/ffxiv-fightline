@@ -45,7 +45,7 @@ export interface IBoss {
   userName: string;
   data: string;
   isPrivate: boolean;
-  reference: number;
+  ref: number;
 }
 
 export interface IFight {

@@ -865,7 +865,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
         const bossData = this.fightLineController.serializeBoss();
         bossData.name = value.name;
         bossData.userName = bossData.userName || this.authenticationService.username;
-        bossData.reference = bossData.reference || value.reference;
+        bossData.ref = bossData.ref || value.reference;
         bossData.isPrivate = value.isPrivate;
 
         this.fightService.saveBoss(bossData);
