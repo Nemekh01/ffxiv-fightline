@@ -52,6 +52,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     margin: { item: { horizontal: 0, vertical: 5 } }
   };
   isSpinning: boolean = true;
+  isListLoading: boolean = false;
   searchString: string;
   searchFightString: string;
   zones: Zone[];
@@ -60,6 +61,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   selectedEncounter: Encounter;
   selectedTemplate: M.IBossSearchEntry;
   templates: M.IBossSearchEntry[] = [];
+  isTimelineLoading: boolean = false;
 
   constructor(
     private dialogRef: NzModalRef,
@@ -76,12 +78,13 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.ffLogsService.getZones()
       .pipe(
         map((v, i) => {
-          return v.filter(x => x.brackets && x.brackets.min >= 4);
-        }),
-        finalize(() => this.isSpinning = false))
+          return v.filter(x => x.brackets && x.brackets.min >= 4 && x.name.indexOf("Dungeons") !== 0 && x.name.indexOf("(Story)") < 0 ) ;
+        }))
       .subscribe(val => {
         this.zones = (val as any);
         this.filteredZones = val as any;
+      }, null, () => {
+        this.isSpinning = false;
       });
     this.visTimelineService.createWithItems(this.visTimelineBoss, this.timeline.nativeElement, this.visItems, this.optionsBoss);
 
@@ -110,10 +113,15 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
 
   onEncounterSelected(zone, enc: any) {
     console.log(enc.name);
+    this.selectedTemplate = null;
+    this.visItems.clear();
     this.selectedZone = zone;
     this.selectedEncounter = enc;
+    this.isListLoading = true;
     this.fightService.getBosses(enc.id, "", false).subscribe((data) => {
       this.templates = data;
+    }, null, () => {
+      this.isListLoading = false;
     });
     this.listContainer.nativeElement.scrollTop = 0;
   }
@@ -123,10 +131,16 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   }
 
   select(item: any) {
+    this.isTimelineLoading = true;
     this.selectedTemplate = item;
-    const data = JSON.parse(item.data);
-    this.visItems.clear();
-    this.visItems.add(data.attacks.map(a => this.createBossAttack(a.id, a.ability as M.IBossAbility, false)));
+    this.fightService.getBoss(this.selectedTemplate.id).subscribe((boss) => {
+      const data = JSON.parse(boss.data);
+      this.visItems.clear();
+      this.visItems.add(data.attacks.map(a => this.createBossAttack(a.id, a.ability as M.IBossAbility, false)));
+    }, null, () => {
+      this.isTimelineLoading = false;
+    });
+
   }
 
 
@@ -177,6 +191,6 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       });
       this.dialogRef.destroy();
     });
-    
+
   }
 }
