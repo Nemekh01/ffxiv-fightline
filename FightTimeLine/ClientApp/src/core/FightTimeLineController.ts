@@ -937,7 +937,7 @@ export class FightTimeLineController {
       name: this.loadedBoss && this.loadedBoss.name || "",
       userName: this.loadedBoss && this.loadedBoss.userName || "",
       isPrivate: this.loadedBoss && this.loadedBoss.isPrivate || false,
-      reference: this.loadedBoss && this.loadedBoss.reference || "",
+      ref: this.loadedBoss && this.loadedBoss.ref || "",
       data: JSON.stringify(<IBossSerializeData>{
         attacks: this.holders.bossAttacks.getAll()
           .map(ab => {
