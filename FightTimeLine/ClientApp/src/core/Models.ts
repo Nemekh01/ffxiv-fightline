@@ -48,6 +48,11 @@ export interface IBoss {
   ref: number;
 }
 
+export interface IBossSearchEntry {
+  id: string;
+  name: string;
+}
+
 export interface IFight {
   id: string;
   name: string;

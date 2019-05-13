@@ -2,7 +2,7 @@ import { Injectable, Inject } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { Observable } from "rxjs"
 import "rxjs/add/observable/from";
-import { IBoss, IFight } from "../core/Models"
+import { IBoss, IFight, IBossSearchEntry } from "../core/Models"
 import { IFightService } from "./fight.service-interface"
 
 @Injectable()
@@ -13,8 +13,8 @@ export class FightsService implements IFightService {
     "fightService": "true"
   };
 
-  getBosses(reference: number, searchString: string, privateOnly: boolean): Observable<IBoss[]> {
-    return this.httpClient.get<IBoss[]>(this.basePath + `api/data/bosses/${reference}/${searchString}?privateOnly=${privateOnly}`,
+  getBosses(reference: number, searchString: string, privateOnly: boolean): Observable<IBossSearchEntry[]> {
+    return this.httpClient.get<IBossSearchEntry[]>(this.basePath + `api/data/bosses/${reference}/${searchString}?privateOnly=${privateOnly}`,
       {
         headers: this.headers
       });

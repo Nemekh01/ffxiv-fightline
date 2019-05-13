@@ -33,12 +33,10 @@ namespace FightTimeLine.Controllers
           [HttpGet("[action]/{reference}/{value?}")]
           public async Task<IEnumerable<BossSearchResult>> Bosses(long reference, string value, [FromQuery]bool privateOnly)
           {
-               if (string.IsNullOrWhiteSpace(value) && !privateOnly) return Enumerable.Empty<BossSearchResult>();
-
                var name = CurrentUserName;
 
                return await _dataContext.Bosses
-                    .Where(s => s.Name.Contains(value) && s.Reference == reference && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
+                    .Where(s => (string.IsNullOrEmpty(value) || s.Name.IndexOf(value, StringComparison.OrdinalIgnoreCase)>=0) && s.Reference == reference && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
                     .Select(s => new BossSearchResult()
                     {
                          Id = s.Identifier.ToString(),

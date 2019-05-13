@@ -2,7 +2,7 @@ import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy, TemplateRe
 import { finalize, filter, map } from "rxjs/operators"
 import { Observable, BehaviorSubject } from "rxjs"
 import { NzModalRef } from "ng-zorro-antd"
-import { Zone } from "../../core/FFLogs"
+import { Zone, Encounter } from "../../core/FFLogs"
 import * as M from "../../core/Models"
 import { Utils } from "../../core/Utils"
 import { FFLogsService } from "../../services/FFLogsService"
@@ -54,12 +54,12 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   isSpinning: boolean = true;
   searchString: string;
   searchFightString: string;
-  zones: any;
-  filteredZones: any;
+  zones: Zone[];
+  filteredZones: Zone[];
   selectedZone: string;
-  selectedEncounter: any;
-  selectedTemplate: any;
-  templates: any = [];
+  selectedEncounter: Encounter;
+  selectedTemplate: M.IBossSearchEntry;
+  templates: M.IBossSearchEntry[] = [];
 
   constructor(
     private dialogRef: NzModalRef,
@@ -80,8 +80,8 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
         }),
         finalize(() => this.isSpinning = false))
       .subscribe(val => {
-        this.zones = val;
-        this.filteredZones = val;
+        this.zones = (val as any);
+        this.filteredZones = val as any;
       });
     this.visTimelineService.createWithItems(this.visTimelineBoss, this.timeline.nativeElement, this.visItems, this.optionsBoss);
 
@@ -167,13 +167,16 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   }
 
   load() {
-    this.dispatcher.dispatch({
-      name: "BossTemplates Load",
-      payload: {
-        boss: this.selectedTemplate,
-        encounter: this.selectedEncounter.id
-      }
+    this.fightService.getBoss(this.selectedTemplate.id).subscribe((data) => {
+      this.dispatcher.dispatch({
+        name: "BossTemplates Load",
+        payload: {
+          boss: data,
+          encounter: this.selectedEncounter.id
+        }
+      });
+      this.dialogRef.destroy();
     });
-    this.dialogRef.destroy();
+    
   }
 }

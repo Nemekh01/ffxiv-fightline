@@ -1,12 +1,12 @@
 import { Injectable, Inject } from "@angular/core"
 import { Observable } from "rxjs"
 import { expand, take, concatMap, concat, toArray, map } from "rxjs/operators"
-import { IBoss, IFight } from "../core/Models"
+import { IBoss, IFight, IBossSearchEntry } from "../core/Models"
 import { IFightService } from "./fight.service-interface"
 
 @Injectable()
 export class FightsMockService implements IFightService {
-  getBosses(reference: number, searchString: string, privateOnly: boolean): Observable<IBoss[]> {
+  getBosses(reference: number, searchString: string, privateOnly: boolean): Observable<IBossSearchEntry[]> {
 
     const source = Observable.of(1);
     const example = source.pipe(
@@ -19,11 +19,7 @@ export class FightsMockService implements IFightService {
       map(x =>
         <IBoss>{
           id: (reference*1000 + Number(x)).toString(),
-          name: reference + " name " + x,
-          ref: reference,
-          isPrivate: false,
-          data: '{"attacks":[{"id":"b56b029a6-d8ba-52eb-c034-d89d022d4c6d|1","ability":{"name":"test1","type":1,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"09: 24","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 2","ability":{"name":"test2","type":2,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"13: 50","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 3","ability":{"name":"test3","type":0,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"18: 50","syncSettings":null}}],"downTimes":[]}',
-          userName: ""
+          name: reference + " name " + x
         }),
       concat(),
       toArray()
