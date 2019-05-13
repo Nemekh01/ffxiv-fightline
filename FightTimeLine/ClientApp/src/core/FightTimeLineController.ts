@@ -92,37 +92,22 @@ export class FightTimeLineController {
 
   public loadBoss(boss: M.IBoss): void {
     this.loadedBoss = boss;
-    let attacks: IBossAbilityUsageData[];
-    let downTimes: any[] = [];
 
-    const loadData: any = JSON.parse(boss.data);
-    if (loadData.length === undefined) {
-      attacks = loadData.attacks;
-      downTimes = loadData.downTimes;
-    } else {
-      attacks = loadData;
-    }
-
-    this.holders.itemUsages.clear();
-    this.holders.heatMaps.clear();
+    const loadData: IBossSerializeData = JSON.parse(boss.data);
+    
     this.holders.bossAttacks.clear();
     this.holders.bossDownTime.clear();
-    this.holders.bossTargets.clear();
     this.holders.selectionRegistry.clear();
     this.commandStorage.clear();
     this.commandBag.clear();
+    this.commandStorage.turnOffFireExecuted();
 
-    for (let d of attacks) {
-      if (d.id)
+    for (let d of loadData.attacks) {
         this.addBossAttack(d.id, Utils.getDateFromOffset(d.ability.offset, this.startDate), d.ability);
-      else {
-        const oldd = <M.IBossAbility><any>d;
-        this.addBossAttack(null, Utils.getDateFromOffset(oldd.offset, this.startDate), oldd);
-      }
     }
 
     let index = 1;
-    for (let d of downTimes) {
+    for (let d of loadData.downTimes) {
       this.addDownTime({
         start: Utils.getDateFromOffset(d.start, this.startDate),
         end: Utils.getDateFromOffset(d.end, this.startDate),
@@ -133,6 +118,7 @@ export class FightTimeLineController {
     this.recalculateBossTargets();
     this.updateBossAttacks();
     this.commandStorage.clear();
+    this.commandStorage.turnOnFireExecuted();
     this.applyFilter();
   }
 
@@ -794,7 +780,7 @@ export class FightTimeLineController {
       name: this.loadedFight && this.loadedFight.name || "",
       userName: this.loadedFight && this.loadedFight.userName || "",
       isPrivate: false,
-      data: JSON.stringify(<ISerializeData>{
+      data: JSON.stringify(<IFightSerializeData>{
         boss: this.serializeBoss(),
         initialTarget: this.holders.bossTargets.initialBossTarget,
         filter: this.filter,
@@ -857,7 +843,7 @@ export class FightTimeLineController {
 
   loadFight(input: M.IFight): void {
     if (input === null || input === undefined) return;
-    const data = JSON.parse(input.data) as ISerializeData;
+    const data = JSON.parse(input.data) as IFightSerializeData;
     try {
 
       this.loading = true;
@@ -952,7 +938,7 @@ export class FightTimeLineController {
       userName: this.loadedBoss && this.loadedBoss.userName || "",
       isPrivate: this.loadedBoss && this.loadedBoss.isPrivate || false,
       reference: this.loadedBoss && this.loadedBoss.reference || "",
-      data: JSON.stringify({
+      data: JSON.stringify(<IBossSerializeData>{
         attacks: this.holders.bossAttacks.getAll()
           .map(ab => {
             return <IBossAbilityUsageData>{
@@ -968,13 +954,12 @@ export class FightTimeLineController {
               }
             }
           }),
-        downTimes: this.holders.bossDownTime.getAll().map((it) => <any>{
+        downTimes: this.holders.bossDownTime.getAll().map((it) => <IDowntimeSerializeData>{
           start: Utils.formatTime(it.start),
           end: Utils.formatTime(it.end),
           color: it.color
         })
-      }),
-
+      })
     };
   }
 
@@ -1342,11 +1327,10 @@ export class FightTimeLineController {
 }
 
 
-export interface ISerializeData {
-
-  name: string;
+export interface IFightSerializeData {
   initialTarget: string;
-  jobs: { id: string, name: string, order: number, pet: string, filter: M.IFilter, compact: boolean, collapsed: boolean }[];
+  encounter: string;
+  jobs: IJobSerializeData[];
   abilities: IAbilityUsageData[];
   stances: any[];
   downTimes: { start: Date, end: Date }[];
@@ -1355,6 +1339,29 @@ export interface ISerializeData {
   filter: M.IFilter;
   view: M.IView;
 }
+
+export interface IBossSerializeData {
+  attacks: IBossAbilityUsageData[],
+  downTimes: IDowntimeSerializeData[];
+}
+
+export interface IDowntimeSerializeData {
+  start: string;
+  end: string;
+  color: string;
+}
+
+
+export interface IJobSerializeData {
+  id: string;
+  name: string;
+  order: number;
+  pet: string;
+  filter: M.IFilter;
+  compact: boolean;
+  collapsed: boolean;
+}
+
 
 export interface IAbilityUsageData {
   id: string;

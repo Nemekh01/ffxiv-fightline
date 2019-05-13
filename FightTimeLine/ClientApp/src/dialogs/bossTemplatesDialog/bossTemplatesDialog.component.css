@@ -6,6 +6,9 @@ mat-sidenav-container {
     height: 100%;
 }
 
+.loadList {
+  min-height: 100%;
+}
 
 .loadList .ant-list-item:hover {
   background-color: #e6f7ff;

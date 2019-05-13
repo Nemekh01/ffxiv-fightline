@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 
 import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineOptions } from "ngx-vis";
-import { FightTimeLineController, ISerializeData } from "../core/FightTimeLineController"
+import { FightTimeLineController, IFightSerializeData } from "../core/FightTimeLineController"
 import * as M from "../core/Models";
 import { NgProgress } from "ngx-progressbar"
 import { ChangeNotes } from "../changeNotes"
@@ -99,7 +99,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
         }
         return result;
       }
-    }
+    };
   }
 
   options = <VisTimelineOptions>{
@@ -639,7 +639,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
               .subscribe((fight: M.IFight) => {
                 if (fight) {
                   this.recent.register(fight.name, "/" + id.toLowerCase());
-                  const data = JSON.parse(fight.data) as ISerializeData;
+                  const data = JSON.parse(fight.data) as IFightSerializeData;
                   if (data.view)
                     this.toolbar.view.set(data.view);
                   if (data.filter)
@@ -858,6 +858,22 @@ export class FightLineComponent implements OnInit, OnDestroy {
       const w = this.visTimelineService.getWindow(this.visTimeline);
       this.visTimelineService.setWindow(this.visTimelineBoss, w.start, w.end, { animation: false });
       this.sidepanel.setItems(this.fightLineController.getItems([value]), this.fightLineController.getHolders());
+    });
+
+    dispatcher.on("BossTemplates Save").subscribe(value => {
+      if (value) {
+        const bossData = this.fightLineController.serializeBoss();
+        bossData.name = value.name;
+        bossData.userName = bossData.userName || this.authenticationService.username;
+        bossData.reference = bossData.reference || value.reference;
+        bossData.isPrivate = value.isPrivate;
+
+        this.fightService.saveBoss(bossData);
+      }
+    });
+
+    dispatcher.on("BossTemplates Load").subscribe(value => {
+      this.fightLineController.loadBoss(value.boss);
     });
   }
 }

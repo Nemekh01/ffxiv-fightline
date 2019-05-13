@@ -13,10 +13,10 @@
           <nz-content customScroll style="overflow: auto">
             <ul nz-menu [nzMode]="'inline'" style="min-height: 100%">
               <li nz-submenu *ngFor="let zone of filteredZones" [nzOpen]="!!searchString || zone.id == selectedZone">
-                <span title>{{zone.name}}</span>
-                <ul>
-                  <li nz-menu-item *ngFor="let encounter of filterEncounters(zone.encounters)" [nzSelected]="selectedEncounter == encounter.id" (click)="onEncounterSelected(zone.id, encounter)">{{encounter.name}}</li>
-                </ul>
+              <span title>{{zone.name}}</span>
+              <ul>
+                <li nz-menu-item *ngFor="let encounter of filterEncounters(zone.encounters)" [nzSelected]="selectedEncounter && selectedEncounter.id == encounter.id" (click)="onEncounterSelected(zone.id, encounter)">{{encounter.name}}</li>
+              </ul>
             </ul>
           </nz-content>
         </nz-layout>
@@ -28,7 +28,7 @@
           <input nz-input placeholder="Search template" [(ngModel)]="searchFightString" (ngModelChange)="onSearchChange($event)" />
         </nz-input-group>
         <ng-template #prefixTemplate><i nz-icon type="search"></i></ng-template>
-        <ng-template #suffixTemplate><i nz-icon type="close-circle" (click)="clear()" *ngIf="searchString"></i></ng-template>
+        <ng-template #suffixTemplate><i nz-icon type="close-circle" (click)="clearTemplates()" *ngIf="searchString"></i></ng-template>
       </nz-header>
       <nz-content style="margin: 4px 2px 2px 4px; overflow: auto" customScroll>
         <as-split direction="vertical" unit="percent" gutterSize="5" [ngStyle]="{width:'100%', height:'100%'}" restrictMove="true">
@@ -39,7 +39,7 @@
                   <nz-empty></nz-empty>
                 </ng-template>
                 <ng-template #item let-item>
-                  <nz-list-item (click)="select(item)" [class.selected]="selectedTemplate == item.id">
+                  <nz-list-item (click)="select(item)" [class.selected]="selectedTemplate && selectedTemplate.id == item.id">
                     {{item.name}}
                   </nz-list-item>
                 </ng-template>
@@ -58,3 +58,9 @@
     </nz-layout>
   </nz-layout>
 </div>
+<ng-template #buttonsTemplate>
+  <button nz-button *ngIf="!!selectedTemplate" (click)="load()">Load</button>
+  <button nz-button (click)="save()">Save</button>
+  <button nz-button (click)="dialogRef.destroy()">Cancel</button>
+
+</ng-template>

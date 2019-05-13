@@ -3,9 +3,9 @@
   margin-bottom: 4px;
 }
 
-.plus-button button:disabled {
-  color: #fafafa;
-}
+  .plus-button button:disabled {
+    color: lightgray;
+  }
 
 .minus-button button {
   color: red;

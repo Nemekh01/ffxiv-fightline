@@ -73,4 +73,5 @@ export class FightSaveDialog implements OnInit {
   onNoClick(): void {
     this.dialogRef.destroy();
   }
+
 }

@@ -235,7 +235,6 @@ export class JobMap extends BaseMap<string, VisTimelineGroup, IJobMapData> {
       showNested: !collapsed,
       value: JobMap.jobIndex++,
       title: actorName,
-
     }
   }
 

@@ -13,7 +13,7 @@ import { EachRowOneSecondTemplate } from "../core/ExportTemplates/EachRowOneSeco
 import { BossAttackDefensiveTemplate } from "../core/ExportTemplates/BossAttackDefensiveTemplate"
 import { ExportTemplate, ExportData, IExportResultItem } from "../core/BaseExportTemplate"
 import { IExportResultSet } from "../core/BaseExportTemplate"
-import { ISerializeData, IBossAbilityUsageData } from "../core/FightTimeLineController";
+import { IFightSerializeData, IBossAbilityUsageData } from "../core/FightTimeLineController";
 
 
 @Component({
@@ -60,7 +60,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
   }
 
   getExportData(fight: IFight): ExportData {
-    const data = JSON.parse(fight.data) as ISerializeData;
+    const data = JSON.parse(fight.data) as IFightSerializeData;
     const bossData = JSON.parse(data.boss.data);
     const bossAttacks = bossData.attacks as IBossAbilityUsageData[];
     return {

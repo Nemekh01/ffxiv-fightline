@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy, TemplateRef } from "@angular/core";
 import { finalize, filter, map } from "rxjs/operators"
 import { Observable, BehaviorSubject } from "rxjs"
 import { NzModalRef } from "ng-zorro-antd"
@@ -6,6 +6,7 @@ import { Zone } from "../../core/FFLogs"
 import * as M from "../../core/Models"
 import { Utils } from "../../core/Utils"
 import { FFLogsService } from "../../services/FFLogsService"
+import { DispatcherService } from "../../services/dispatcher.service"
 import { fightServiceToken } from "../../services/fight.service-provider"
 import { IFightService } from "../../services/fight.service-interface"
 import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineItem, VisTimelineOptions } from "ngx-vis";
@@ -24,6 +25,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   startDate = new Date(946677600000);
   @ViewChild("timeline") timeline: ElementRef;
   @ViewChild("listContainer") listContainer: ElementRef;
+  @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
 
   optionsBoss = <VisTimelineOptions>{
     width: "100%",
@@ -55,8 +57,8 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   zones: any;
   filteredZones: any;
   selectedZone: string;
-  selectedEncounter: string;
-  selectedTemplate: string;
+  selectedEncounter: any;
+  selectedTemplate: any;
   templates: any = [];
 
   constructor(
@@ -64,11 +66,13 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     private ffLogsService: FFLogsService,
     @Inject(fightServiceToken) private fightService: IFightService,
     private visTimelineService: VisTimelineService,
+    private dispatcher: DispatcherService
   ) {
 
   }
 
   ngOnInit(): void {
+    this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
     this.ffLogsService.getZones()
       .pipe(
         map((v, i) => {
@@ -107,7 +111,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   onEncounterSelected(zone, enc: any) {
     console.log(enc.name);
     this.selectedZone = zone;
-    this.selectedEncounter = enc.id;
+    this.selectedEncounter = enc;
     this.fightService.getBosses(enc.id, "", false).subscribe((data) => {
       this.templates = data;
     });
@@ -119,7 +123,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   }
 
   select(item: any) {
-    this.selectedTemplate = item.id;
+    this.selectedTemplate = item;
     const data = JSON.parse(item.data);
     this.visItems.clear();
     this.visItems.add(data.attacks.map(a => this.createBossAttack(a.id, a.ability as M.IBossAbility, false)));
@@ -140,12 +144,36 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   }
 
   private createBossAttackElement(ability: M.IBossAbility): string {
-    return "<div><div class='marker'></div><div class='name'>" +
-      Utils.escapeHtml(ability.name) +
-      "</div></div>";
+    return `<div><div class='marker'></div><div class='name'>${Utils.escapeHtml(ability.name)}</div></div>`;
+  }
+
+  clearTemplates() {
+    this.searchFightString = "";
   }
 
   ngOnDestroy(): void {
     this.visTimelineService.destroy(this.visTimelineBoss);
+  }
+
+  save() {
+    this.dispatcher.dispatch({
+      name: "BossTemplates Save",
+      payload: {
+        name: "Test name",
+        reference: this.selectedEncounter && this.selectedEncounter || 0,
+        isPrivate: false
+      }
+    });
+  }
+
+  load() {
+    this.dispatcher.dispatch({
+      name: "BossTemplates Load",
+      payload: {
+        boss: this.selectedTemplate,
+        encounter: this.selectedEncounter.id
+      }
+    });
+    this.dialogRef.destroy();
   }
 }
