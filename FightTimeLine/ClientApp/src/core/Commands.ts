@@ -374,47 +374,6 @@ export class MoveCommand implements Command {
   }
 }
 
-//export class MoveBossAttackCommand implements Command {
-//
-//  constructor(private moveTo: Date, private moveFrom: Date, private id: string) {
-//  }
-//
-//  serialize(): ICommandData {
-//    return {
-//      name: "moveBossAttack",
-//      params: {
-//        id: this.id,
-//        moveTo: Utils.formatTime(this.moveTo),
-//        moveFrom: Utils.formatTime(this.moveFrom)
-//      }
-//    };
-//  }
-//
-//  reverse(context: ICommandExecutionContext): void {
-//    const item = context.holders.bossAttacks.get(this.id);
-//    if (item.start !== this.moveFrom) {
-//      item.applyData({
-//        start: this.moveFrom
-//      });
-//
-//      context.holders.bossAttacks.update([item]);
-//    }
-//    context.update({ updateBossTargets: true, updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: item.start as Date });
-//  }
-//
-//  execute(context: ICommandExecutionContext): void {
-//    const item = context.holders.bossAttacks.get(this.id);
-//    if (item.start !== this.moveTo) {
-//      item.applyData({
-//        start: this.moveTo
-//      });
-//      context.holders.bossAttacks.update([item]);
-//    }
-//    context.holders.selectionRegistry.updateDate(this.id, this.moveTo);
-//    context.update({ updateBossTargets: true, updateBossAttacks: [this.id], updateIntersectedWithBossAttackAtDate: item.start as Date });
-//  }
-//}
-
 export class AddAbilityCommand implements Command {
 
   constructor(private id: string, private jobGroup: string, private abilityName: string, private time: Date, private loaded: boolean, private settings: IAbilitySettingData[]) {
@@ -588,7 +547,8 @@ export class AddDowntimeCommand implements Command {
       params: {
         id: this.id,
         start: Utils.formatTime(this.data.start),
-        end: Utils.formatTime(this.data.end)
+        end: Utils.formatTime(this.data.end),
+        color: this.color
       }
     };
   }

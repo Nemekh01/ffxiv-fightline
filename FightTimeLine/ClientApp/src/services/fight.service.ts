@@ -13,8 +13,8 @@ export class FightsService implements IFightService {
     "fightService": "true"
   };
 
-  getBosses(searchString: string, privateOnly: boolean): Observable<IBoss[]> {
-    return this.httpClient.get<IBoss[]>(this.basePath + `api/data/search/${searchString}?privateOnly=${privateOnly}`,
+  getBosses(reference: number, searchString: string, privateOnly: boolean): Observable<IBoss[]> {
+    return this.httpClient.get<IBoss[]>(this.basePath + `api/data/bosses/${reference}/${searchString}?privateOnly=${privateOnly}`,
       {
         headers: this.headers
       });
@@ -27,8 +27,9 @@ export class FightsService implements IFightService {
       });
   }
 
-  getFight(id: string): Observable<IFight> {
-    return this.httpClient.get<IFight>(this.basePath + `api/data/fight/${id}`,
+  removeBosses(ids: string[]): Observable<any> {
+    return this.httpClient.post<any[]>(this.basePath + "api/data/removeBosses",
+      ids,
       {
         headers: this.headers
       });
@@ -40,6 +41,15 @@ export class FightsService implements IFightService {
         headers: this.headers
       });
   }
+
+  getFight(id: string): Observable<IFight> {
+    return this.httpClient.get<IFight>(this.basePath + `api/data/fight/${id}`,
+      {
+        headers: this.headers
+      });
+  }
+
+  
 
   saveFight(fight: IFight): Observable<IFight> {
     return this.httpClient.post<IFight>(this.basePath + "api/data/saveFight", fight,

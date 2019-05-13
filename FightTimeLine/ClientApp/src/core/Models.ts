@@ -42,23 +42,17 @@ export enum AbilityType {
 export interface IBoss {
   id: string;
   name: string;
-  author: string;
   userName: string;
-  secret: string;
   data: string;
   isPrivate: boolean;
+  reference: number;
 }
 
 export interface IFight {
   id: string;
   name: string;
-  author: string;
   userName: string;
-  secret: string;
   data: string;
-  isPrivate: boolean;
-  bossRef: string;
-
 }
 
 export interface IContextMenuData {

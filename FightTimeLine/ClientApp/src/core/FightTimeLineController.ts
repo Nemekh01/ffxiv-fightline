@@ -792,11 +792,8 @@ export class FightTimeLineController {
     return <M.IFight>{
       id: this.loadedFight && this.loadedFight.id || "",
       name: this.loadedFight && this.loadedFight.name || "",
-      author: this.loadedFight && this.loadedFight.author || "",
       userName: this.loadedFight && this.loadedFight.userName || "",
-      secret: this.loadedFight && this.loadedFight.secret || "",
       isPrivate: false,
-      bossRef: this.loadedFight && this.loadedFight.bossRef || "",
       data: JSON.stringify(<ISerializeData>{
         boss: this.serializeBoss(),
         initialTarget: this.holders.bossTargets.initialBossTarget,
@@ -952,10 +949,9 @@ export class FightTimeLineController {
     return <M.IBoss>{
       id: this.loadedBoss && this.loadedBoss.id || "",
       name: this.loadedBoss && this.loadedBoss.name || "",
-      author: this.loadedBoss && this.loadedBoss.author || "",
       userName: this.loadedBoss && this.loadedBoss.userName || "",
-      secret: this.loadedBoss && this.loadedBoss.secret || "",
       isPrivate: this.loadedBoss && this.loadedBoss.isPrivate || false,
+      reference: this.loadedBoss && this.loadedBoss.reference || "",
       data: JSON.stringify({
         attacks: this.holders.bossAttacks.getAll()
           .map(ab => {

@@ -4,7 +4,7 @@
 }
 
 .plus-button button:disabled {
-  color: lightgray;
+  color: #fafafa;
 }
 
 .minus-button button {

@@ -2,30 +2,58 @@
   <nz-layout>
     <nz-spin nzTip='Loading...' [nzSpinning]="isSpinning" [nzDelay]="500">
       <nz-sider nzTheme="light" style="overflow: auto; height: 600px;" [nzWidth]="400">
-        <nz-layout style="height: 600px">
-          <nz-header style="background: #fff; padding:3px;">
-            <input nz-input placeholder="Search" [formControl]="searchControl" (ngModelChange)="onSearchChange($event)" />
+        <nz-layout style="height: 600px;min-width:400px">
+          <nz-header style="background: #fff; padding: 3px;">
+            <nz-input-group [nzPrefix]="prefixTemplate" [nzSuffix]="suffixTemplate">
+              <input nz-input placeholder="Search boss" [(ngModel)]="searchString" (ngModelChange)="onSearchChange($event)" />
+            </nz-input-group>
+            <ng-template #prefixTemplate><i nz-icon type="search"></i></ng-template>
+            <ng-template #suffixTemplate><i nz-icon type="close-circle" (click)="clear()" *ngIf="searchString"></i></ng-template>
           </nz-header>
           <nz-content customScroll style="overflow: auto">
-            <ul nz-menu [nzMode]="'inline'">
-              <li nz-submenu *ngFor="let zone of zones | async">
+            <ul nz-menu [nzMode]="'inline'" style="min-height: 100%">
+              <li nz-submenu *ngFor="let zone of filteredZones" [nzOpen]="!!searchString || zone.id == selectedZone">
                 <span title>{{zone.name}}</span>
                 <ul>
-                  <li nz-menu-item *ngFor="let encounter of zone.encounters" (click)="onEncounterSelected(encounter)">{{encounter.name}}</li>
+                  <li nz-menu-item *ngFor="let encounter of filterEncounters(zone.encounters)" [nzSelected]="selectedEncounter == encounter.id" (click)="onEncounterSelected(zone.id, encounter)">{{encounter.name}}</li>
                 </ul>
             </ul>
           </nz-content>
         </nz-layout>
-
       </nz-sider>
     </nz-spin>
     <nz-layout style="height: 600px">
-      <nz-content style="margin:24px 2px 2px 10px;overflow: auto">
-        <nz-list>
-          <nz-list-item *ngFor="let template of templates">
-            {{template.name}}
-          </nz-list-item>
-        </nz-list>
+      <nz-header style="background: #fff; padding: 3px;">
+        <nz-input-group nzSpan="8" [nzPrefix]="prefixTemplate" [nzSuffix]="suffixTemplate">
+          <input nz-input placeholder="Search template" [(ngModel)]="searchFightString" (ngModelChange)="onSearchChange($event)" />
+        </nz-input-group>
+        <ng-template #prefixTemplate><i nz-icon type="search"></i></ng-template>
+        <ng-template #suffixTemplate><i nz-icon type="close-circle" (click)="clear()" *ngIf="searchString"></i></ng-template>
+      </nz-header>
+      <nz-content style="margin: 4px 2px 2px 4px; overflow: auto" customScroll>
+        <as-split direction="vertical" unit="percent" gutterSize="5" [ngStyle]="{width:'100%', height:'100%'}" restrictMove="true">
+          <as-split-area size="50" minSize="10" maxSize="50">
+            <div #listContainer style="width: 100%; height: 100%; overflow: auto; background: #fff" customScroll>
+              <nz-list [nzDataSource]="templates" nzSize="small" [ngClass]="{loadList:true}" [nzBordered]="true" [nzNoResult]="nothing" [nzRenderItem]="item">
+                <ng-template #nothing>
+                  <nz-empty></nz-empty>
+                </ng-template>
+                <ng-template #item let-item>
+                  <nz-list-item (click)="select(item)" [class.selected]="selectedTemplate == item.id">
+                    {{item.name}}
+                  </nz-list-item>
+                </ng-template>
+
+              </nz-list>
+            </div>
+          </as-split-area>
+          <as-split-area size="50" minSize="50">
+            <div style="width: 100%; height: 100%; background-color: white; display: block;">
+              <div #timeline class="boss-timeline" style="width: 100%; height: 100%"></div>
+            </div>
+          </as-split-area>
+        </as-split>
+
       </nz-content>
     </nz-layout>
   </nz-layout>

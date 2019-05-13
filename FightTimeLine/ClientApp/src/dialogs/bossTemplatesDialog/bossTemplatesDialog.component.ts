@@ -1,8 +1,14 @@
-import { Component, Inject, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
-import {finalize} from "rxjs/operators"
+import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy } from "@angular/core";
+import { finalize, filter, map } from "rxjs/operators"
+import { Observable, BehaviorSubject } from "rxjs"
 import { NzModalRef } from "ng-zorro-antd"
-import {FFLogsService} from "../../services/FFLogsService"
+import { Zone } from "../../core/FFLogs"
+import * as M from "../../core/Models"
+import { Utils } from "../../core/Utils"
+import { FFLogsService } from "../../services/FFLogsService"
+import { fightServiceToken } from "../../services/fight.service-provider"
+import { IFightService } from "../../services/fight.service-interface"
+import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineItem, VisTimelineOptions } from "ngx-vis";
 
 @Component({
   selector: "bossTemplatesDialog",
@@ -10,40 +16,136 @@ import {FFLogsService} from "../../services/FFLogsService"
   styleUrls: ["./bossTemplatesDialog.component.css"]
 })
 
-export class BossTemplatesDialog implements OnInit {
-  ngOnInit(): void {
-    this.zones = this.ffLogsService.getZones().pipe(finalize(()=> this.isSpinning = false));
-  }
+export class BossTemplatesDialog implements OnInit, OnDestroy {
 
+  visItems: VisTimelineItems = new VisTimelineItems();
+  visGroups: VisTimelineGroups = new VisTimelineGroups();
+  visTimelineBoss: string = "visTimelinebooooosss";
+  startDate = new Date(946677600000);
+  @ViewChild("timeline") timeline: ElementRef;
+  @ViewChild("listContainer") listContainer: ElementRef;
+
+  optionsBoss = <VisTimelineOptions>{
+    width: "100%",
+    height: "100%",
+    minHeight: "50px",
+    autoResize: true,
+    start: this.startDate,
+    end: new Date(new Date(this.startDate).setMinutes(30)),
+    max: new Date(new Date(this.startDate).setMinutes(30)),
+    min: new Date(this.startDate),
+    zoomable: true,
+    zoomMin: 3 * 60 * 1000,
+    zoomMax: 30 * 60 * 1000,
+    zoomKey: "ctrlKey",
+    moveable: true,
+    type: "box",
+    multiselect: false,
+    showCurrentTime: false,
+    stack: true,
+    orientation: "bottom",
+    stackSubgroups: true,
+    editable: { remove: false, updateTime: false, add: false },
+    horizontalScroll: true,
+    margin: { item: { horizontal: 0, vertical: 5 } }
+  };
   isSpinning: boolean = true;
-
-  public zones: any;
-  public templates: any[] = Array.apply(null, { length: 50 }).map(Number.call, Number).map((value: any, index: number) => {
-    return {
-      name: `template${index}`
-    }
-  });
-
-  public searchControl: FormControl = new FormControl();
+  searchString: string;
+  searchFightString: string;
+  zones: any;
+  filteredZones: any;
+  selectedZone: string;
+  selectedEncounter: string;
+  selectedTemplate: string;
+  templates: any = [];
 
   constructor(
-    public dialogRef: NzModalRef,
-    public ffLogsService: FFLogsService
+    private dialogRef: NzModalRef,
+    private ffLogsService: FFLogsService,
+    @Inject(fightServiceToken) private fightService: IFightService,
+    private visTimelineService: VisTimelineService,
   ) {
-//    this.searchControl.valueChanges.subscribe(value => {
-//      this.zones = this.ZONES.filter((it: any) => !value || it.name.indexOf(value) >= 0);
-//    });
+
+  }
+
+  ngOnInit(): void {
+    this.ffLogsService.getZones()
+      .pipe(
+        map((v, i) => {
+          return v.filter(x => x.brackets && x.brackets.min >= 4);
+        }),
+        finalize(() => this.isSpinning = false))
+      .subscribe(val => {
+        this.zones = val;
+        this.filteredZones = val;
+      });
+    this.visTimelineService.createWithItems(this.visTimelineBoss, this.timeline.nativeElement, this.visItems, this.optionsBoss);
+
   }
 
   onSearchChange(event: any) {
+    this.filteredZones =
+      this.zones.
+        filter(
+          (zone: Zone) => {
+            return !this.searchString || zone.encounters.some(x => x.name.toLowerCase().indexOf(this.searchString) >= 0);
+          }
+        );
+  }
+
+  clear() {
+    this.searchString = "";
+    this.onSearchChange("");
+  }
+
+  filterEncounters(items: any[]) {
+
+    return items.filter(x => !this.searchString || x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0);
 
   }
 
-  onEncounterSelected(enc: any) {
+  onEncounterSelected(zone, enc: any) {
     console.log(enc.name);
+    this.selectedZone = zone;
+    this.selectedEncounter = enc.id;
+    this.fightService.getBosses(enc.id, "", false).subscribe((data) => {
+      this.templates = data;
+    });
+    this.listContainer.nativeElement.scrollTop = 0;
   }
 
   onNoClick(): void {
     this.dialogRef.destroy();
+  }
+
+  select(item: any) {
+    this.selectedTemplate = item.id;
+    const data = JSON.parse(item.data);
+    this.visItems.clear();
+    this.visItems.add(data.attacks.map(a => this.createBossAttack(a.id, a.ability as M.IBossAbility, false)));
+  }
+
+
+  createBossAttack(id: string, attack: M.IBossAbility, vertical: boolean): VisTimelineItem {
+    const cls = { bossAttack: true, vertical: vertical };
+    cls[M.DamageType[attack.type]] = true;
+    const data = {
+      id: id,
+      content: this.createBossAttackElement(attack),
+      start: Utils.getDateFromOffset(attack.offset),
+      type: "box",
+      className: "bossAttack " + M.DamageType[attack.type]
+    }
+    return data;
+  }
+
+  private createBossAttackElement(ability: M.IBossAbility): string {
+    return "<div><div class='marker'></div><div class='name'>" +
+      Utils.escapeHtml(ability.name) +
+      "</div></div>";
+  }
+
+  ngOnDestroy(): void {
+    this.visTimelineService.destroy(this.visTimelineBoss);
   }
 }

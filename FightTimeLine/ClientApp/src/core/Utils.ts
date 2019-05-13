@@ -12,13 +12,14 @@ export class Utils {
   }
 
   static getDateFromOffset(offset: number | string = 0, startDate?: Date): Date {
-    const d = new Date(startDate || 946677600000);
+    let d = new Date(startDate || 946677600000);
     if (typeof offset === "number")
       d.setSeconds(offset);
     else {
       const parts = offset.split(":");
-      d.setMinutes(parseInt(parts[0]));
-      d.setSeconds(parseInt(parts[1]));
+      const mins = Math.abs(parseInt(parts[0]));
+      const secs = parseInt(parts[1]);
+      d = new Date(d.valueOf() as number + Math.sign(parseInt(parts[0])) * (mins * 60 * 1000 + secs * 1000));
     }
     return d;
   }

@@ -59,8 +59,7 @@ export class JobPetCollector implements IFFLogsCollector {
         const jobMap = this.jobsMapHolder.getByName(foundJob.job, foundJob.actorName);
         if (!jobMap.pet && jobMap.job.pets && jobMap.job.pets.length > 0) {
           const peta = jobMap.job.abilities.find(
-            am => (am.abilityType & AbilityType.Pet) === AbilityType.Pet &&
-              am.name === data.ability.name);
+            am => (am.abilityType & AbilityType.Pet) === AbilityType.Pet && am.name === data.ability.name);
           if (peta) {
             jobMap.pet = peta.pet;
           }

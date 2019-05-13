@@ -64,7 +64,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
     const bossData = JSON.parse(data.boss.data);
     const bossAttacks = bossData.attacks as IBossAbilityUsageData[];
     return {
-      userName: fight.author,
+      userName: fight.userName,
       name: fight.name,
       data: {
         boss: {

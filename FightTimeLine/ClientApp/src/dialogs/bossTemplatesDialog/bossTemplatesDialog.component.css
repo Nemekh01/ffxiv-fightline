@@ -7,3 +7,17 @@ mat-sidenav-container {
 }
 
 
+.loadList .ant-list-item:hover {
+  background-color: #e6f7ff;
+}
+
+.loadList .ant-list-item {
+  cursor: pointer;
+  padding-left: 5px;
+}
+
+  .loadList .ant-list-item.selected {
+    background-color: #e6f7ff;
+    cursor: pointer;
+    font-weight: bold;
+  }

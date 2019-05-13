@@ -57,9 +57,9 @@
   max-height: 600px;
 }
 
-.recentList .ant-list-item:hover {
-  background-color: lightgray;
-}
+  .recentList .ant-list-item:hover {
+    background-color: #e6f7ff;
+  }
 
 .recentList:hover {
   overflow: auto;
