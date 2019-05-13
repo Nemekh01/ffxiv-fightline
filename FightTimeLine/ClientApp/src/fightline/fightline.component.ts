@@ -868,7 +868,12 @@ export class FightLineComponent implements OnInit, OnDestroy {
         bossData.ref = bossData.ref || value.reference;
         bossData.isPrivate = value.isPrivate;
 
-        this.fightService.saveBoss(bossData);
+        this.fightService.saveBoss(bossData).subscribe((e) => {
+          this.notification.success("Boss saved");
+        },
+          (err) => {
+            this.notification.error("Boss save faailed");
+          });
       }
     });
 
