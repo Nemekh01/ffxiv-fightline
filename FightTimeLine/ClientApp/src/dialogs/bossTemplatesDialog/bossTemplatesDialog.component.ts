@@ -160,7 +160,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       name: "BossTemplates Save",
       payload: {
         name: "Test name",
-        reference: this.selectedEncounter && this.selectedEncounter || 0,
+        reference: this.selectedEncounter && this.selectedEncounter.id || 0,
         isPrivate: false
       }
     });

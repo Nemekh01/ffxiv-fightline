@@ -36,6 +36,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   }
 
+  bossTemplates() {
+    this.dialogService.openBossTemplates(null);
+  }
+
   showWhatsNew() {
     const promise = new Promise<void>((resolve, reject) => {
       const changes = ChangeNotes.changes;

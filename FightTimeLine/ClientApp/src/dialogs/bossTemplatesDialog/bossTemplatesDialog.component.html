@@ -5,7 +5,7 @@
         <nz-layout style="height: 600px;min-width:400px">
           <nz-header style="background: #fff; padding: 3px;">
             <nz-input-group [nzPrefix]="prefixTemplate" [nzSuffix]="suffixTemplate">
-              <input nz-input placeholder="Search boss" [(ngModel)]="searchString" (ngModelChange)="onSearchChange($event)" />
+              <input nz-input placeholder="Search boss" [(ngModel)]="searchString"  (ngModelChange)="onSearchChange($event)" />
             </nz-input-group>
             <ng-template #prefixTemplate><i nz-icon type="search"></i></ng-template>
             <ng-template #suffixTemplate><i nz-icon type="close-circle" (click)="clear()" *ngIf="searchString"></i></ng-template>
