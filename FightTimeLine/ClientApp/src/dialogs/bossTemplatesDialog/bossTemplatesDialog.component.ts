@@ -127,9 +127,11 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       .subscribe(val => {
         this.zones = (val as any);
         this.filteredZones = val as any;
-        this.selectedEncounter = { name: "", id: this.data.encounter };
-        const zone = this.zones.find((z) => z.encounters.some(y => y.id == this.data.encounter))
-        this.selectedZone = String(zone && zone.id);
+        if (this.data.encounter) {
+          const zone = this.zones.find((z) => z.encounters.some(y => y.id === this.data.encounter));
+          this.onEncounterSelected(zone.id, this.data.encounter);
+        }
+
       }, null, () => {
         this.isSpinning = false;
       });
