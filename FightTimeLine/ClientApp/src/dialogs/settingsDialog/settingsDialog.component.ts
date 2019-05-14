@@ -42,7 +42,7 @@ export class SettingsDialog {
       this.onYesClick();
     });
 
-    (this.dialogRef.getInstance().nzOnOk as EventEmitter<any>).subscribe(() => {
+    (this.dialogRef.getInstance().nzOnCancel as EventEmitter<any>).subscribe(() => {
       this.onNoClick();
     });
 

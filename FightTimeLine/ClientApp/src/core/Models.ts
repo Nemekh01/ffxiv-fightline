@@ -87,7 +87,7 @@ export const byBuffRemove = (id: number, abilityName?: string, offsetCorrect?: n
 }
 
 const isAbility = (ev: FF.Event): ev is FF.AbilityEvent => {
-  return (ev.type === "cast" || ev.type === "cast");
+  return (ev.type === "cast" || ev.type === "damage");
 }
 
 const isBuffApply = (ev: FF.Event): ev is FF.BuffEvent => {
