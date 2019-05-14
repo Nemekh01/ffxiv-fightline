@@ -28,7 +28,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   @ViewChild("timeline") timeline: ElementRef;
   @ViewChild("listContainer") listContainer: ElementRef;
   @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
-  @Input("data") data: { needSave: boolean, encounter?: number };
+  @Input("data") data: { needSave: boolean, boss?: M.IBoss };
 
   optionsBoss = <VisTimelineOptions>{
     width: "100%",
@@ -127,11 +127,11 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       .subscribe(val => {
         this.zones = (val as any);
         this.filteredZones = val as any;
-        if (this.data.encounter) {
-          const zone = this.zones.find((z) => z.encounters.some(y => y.id === this.data.encounter));
+        if (this.data.boss) {
+          const zone = this.zones.find((z) => z.encounters.some(y => y.id === this.data.boss.ref));
           if (zone) {
-            const enc = zone.encounters.find(y => y.id === this.data.encounter);
-            this.onEncounterSelected(zone.id, enc);
+            const enc = zone.encounters.find(y => y.id === this.data.boss.ref);
+            this.onEncounterSelected(zone.id, enc, true);
           }
         }
 
@@ -163,26 +163,35 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
 
   }
 
-  onEncounterSelected(zone, enc: any) {
+  onEncounterSelected(zone, enc: any, skipCheck?: boolean) {
+    if (this.data.boss && this.data.boss.ref && !skipCheck)
+      return;
     console.log(enc.name);
     this.selectedTemplate = null;
     this.visItems.clear();
     this.selectedZone = zone;
     this.selectedEncounter = enc;
     this.isListLoading = true;
-    this.fightService.getBosses(enc.id, "", false).subscribe((data) => {
+    this.fightService.getBosses(enc.id, this.data.boss && this.data.boss.name || "", false).subscribe((data) => {
       this.templates = data;
-    }, null, () => {
-      this.isListLoading = false;
-    });
+      if (this.data.boss) {
+        this.select({ id: this.data.boss.id, name: "" }, skipCheck);
+      }
+    }, null,
+      () => {
+        this.isListLoading = false;
+      });
     this.listContainer.nativeElement.scrollTop = 0;
+
   }
 
   onNoClick(): void {
     this.dialogRef.destroy();
   }
 
-  select(item: any) {
+  select(item: M.IBossSearchEntry, skipCheck?: boolean) {
+    if (this.data.boss && this.data.boss.ref  && !skipCheck)
+      return;
     this.isTimelineLoading = true;
     this.selectedTemplate = item;
     this.fightService.getBoss(this.selectedTemplate.id).subscribe((boss) => {
@@ -190,10 +199,11 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       this.visItems.clear();
       this.visItems.add(data.attacks.map(a => this.createBossAttack(a.id, a.ability as M.IBossAbility, false)));
       this.visTimelineService.fit(this.visTimelineBoss);
-    }, null, () => {
-      this.isTimelineLoading = false;
-    });
-
+    },
+      null,
+      () => {
+        this.isTimelineLoading = false;
+      });
   }
 
 

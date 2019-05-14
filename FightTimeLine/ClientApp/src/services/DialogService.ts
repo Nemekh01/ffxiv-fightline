@@ -1,5 +1,5 @@
 import { Injectable, Inject } from "@angular/core"
-import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight, IAbility } from "../core/Models";
+import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight, IAbility, IBoss } from "../core/Models";
 import { LocalStorageService } from "./LocalStorageService";
 import { NzModalRef, NzModalService } from 'ng-zorro-antd';
 import { Observable } from "rxjs";
@@ -282,7 +282,7 @@ export class DialogService {
     });
   }
 
-  openBossTemplates(needSave: boolean, encounter?: number) {
+  openBossTemplates(needSave: boolean, boss?: IBoss) {
     this.dialogs.create({
       nzWrapClassName: "vertical-center-modal",
       nzContent: D.BossTemplatesDialog,
@@ -295,7 +295,7 @@ export class DialogService {
       nzComponentParams: {
         data: {
           needSave: needSave,
-          encounter: encounter
+          boss: boss
         }
       }
     });

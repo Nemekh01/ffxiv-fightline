@@ -790,6 +790,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.visTimelineService.off(this.visTimelineBoss, "rangechange");
 
     this.teamWorkService.disconnect();
+    this.subs.forEach(e=>e.unsubscribe());
   }
 
   privacy() {
@@ -806,7 +807,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   openBossTemplates() {
     const boss = this.fightLineController.loadedBoss;
-    this.dialogService.openBossTemplates(true, boss && boss.ref && boss.ref);
+    this.dialogService.openBossTemplates(true, boss);
   }
 
   showWhatsNew() {
@@ -831,8 +832,12 @@ export class FightLineComponent implements OnInit, OnDestroy {
     return promise;
   }
 
+  subs = [];
+
+
+
   private subscribeToDispatcher(dispatcher: S.DispatcherService) {
-    dispatcher.on("SidePanel Similar Click").subscribe(value => {
+    this.subs.push(dispatcher.on("SidePanel Similar Click").subscribe(value => {
       this.visTimelineService.setSelectionToId(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks([value]);
       this.fightLineController.notifySelect("enemy", [value]);
@@ -840,8 +845,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
       const w = this.visTimelineService.getWindow(this.visTimelineBoss);
       this.visTimelineService.setWindow(this.visTimeline, w.start, w.end, { animation: false });
       this.sidepanel.setItems(this.fightLineController.getItems([value]), this.fightLineController.getHolders());
-    });
-    dispatcher.on("SidePanel Similar All Click").subscribe(value => {
+    }));
+    this.subs.push(dispatcher.on("SidePanel Similar All Click").subscribe(value => {
       this.visTimelineService.setSelectionToIds(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks(value);
       this.fightLineController.notifySelect("enemy", value);
@@ -849,9 +854,9 @@ export class FightLineComponent implements OnInit, OnDestroy {
       const w = this.visTimelineService.getWindow(this.visTimelineBoss);
       this.visTimelineService.setWindow(this.visTimeline, w.start, w.end, { animation: false });
       this.sidepanel.setItems(this.fightLineController.getItems(value), this.fightLineController.getHolders());
-    });
+    }));
 
-    dispatcher.on("SidePanel Ability Click").subscribe(value => {
+    this.subs.push(dispatcher.on("SidePanel Ability Click").subscribe(value => {
       this.visTimelineService.setSelectionToId(this.visTimeline, value);
       this.visTimelineService.setSelectionToId(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks([]);
@@ -860,9 +865,9 @@ export class FightLineComponent implements OnInit, OnDestroy {
       const w = this.visTimelineService.getWindow(this.visTimeline);
       this.visTimelineService.setWindow(this.visTimelineBoss, w.start, w.end, { animation: false });
       this.sidepanel.setItems(this.fightLineController.getItems([value]), this.fightLineController.getHolders());
-    });
+    }));
 
-    dispatcher.on("BossTemplates Save").subscribe(value => {
+    this.subs.push(dispatcher.on("BossTemplates Save").subscribe(value => {
       const bossData = this.fightLineController.serializeBoss();
       this.dialogService.openSaveBoss( bossData && bossData.name || "New Template")
         .then(data => {
@@ -876,14 +881,14 @@ export class FightLineComponent implements OnInit, OnDestroy {
               this.notification.success("Boss saved");
             },
               (err) => {
-                this.notification.error("Boss save faailed");
+                this.notification.error("Boss save failed");
               });
           }
         });
-    });
+    }));
 
-    dispatcher.on("BossTemplates Load").subscribe(value => {
+    this.subs.push(dispatcher.on("BossTemplates Load").subscribe(value => {
       this.fightLineController.loadBoss(value.boss);
-    });
+    }));
   }
 }

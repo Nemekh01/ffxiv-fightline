@@ -15,6 +15,7 @@ export class DispatcherService {
       if (cmd.name === name)
         result.next(cmd.payload);
     });
+
     return result;
   }
 
