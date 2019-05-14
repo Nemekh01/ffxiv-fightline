@@ -862,20 +862,23 @@ export class FightLineComponent implements OnInit, OnDestroy {
     });
 
     dispatcher.on("BossTemplates Save").subscribe(value => {
-      if (value) {
-        const bossData = this.fightLineController.serializeBoss();
-        bossData.name = value.name;
-        bossData.userName = bossData.userName || this.authenticationService.username;
-        bossData.ref = bossData.ref || value.reference;
-        bossData.isPrivate = value.isPrivate;
+      const bossData = this.fightLineController.serializeBoss();
+      this.dialogService.openSaveBoss( bossData && bossData.name || "New Template")
+        .then(data => {
+          if (data) {
+            bossData.name = data;
+            bossData.userName = bossData && bossData.userName || this.authenticationService.username;
+            bossData.ref = bossData && bossData.ref || value.reference;
+            bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
 
-        this.fightService.saveBoss(bossData).subscribe((e) => {
-          this.notification.success("Boss saved");
-        },
-          (err) => {
-            this.notification.error("Boss save faailed");
-          });
-      }
+            this.fightService.saveBoss(bossData).subscribe((e) => {
+              this.notification.success("Boss saved");
+            },
+              (err) => {
+                this.notification.error("Boss save faailed");
+              });
+          }
+        });
     });
 
     dispatcher.on("BossTemplates Load").subscribe(value => {

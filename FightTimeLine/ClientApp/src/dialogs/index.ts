@@ -13,6 +13,7 @@ import { SessionCreateResultDialog } from "./sessionCreateResultDialog/sessionCr
 import { SettingsDialog } from "./settingsDialog/settingsDialog.component"
 import { TableViewDialog } from "./tableViewDialog/tableViewDialog.component"
 import { WhatsNewDialog } from "./whatsNewDialog/whatsNewDialog.component"
+import { BossSaveDialog } from "./bossSaveDialog/bossSaveDialog.component"
 
 export {
   AbilityEditDialog,
@@ -29,7 +30,8 @@ export {
   SessionCreateResultDialog,
   SettingsDialog,
   TableViewDialog,
-  WhatsNewDialog
+  WhatsNewDialog,
+  BossSaveDialog
 }
 
 export const DialogsModuleComponents =
@@ -37,7 +39,7 @@ export const DialogsModuleComponents =
       BossAttackDialog,
       HelpDialog,
       FightLoadDialog,
-//      BossSaveDialog,
+      BossSaveDialog,
       FightSaveDialog,
       SettingsDialog,
       AbilityEditDialog,

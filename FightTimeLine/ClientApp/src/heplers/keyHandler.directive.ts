@@ -12,6 +12,8 @@ import {
 }
   from "@angular/forms"
 
+import {DialogService} from "../services/DialogService"
+
 @Directive({
   selector: "[keyHandler]"
 })
@@ -29,7 +31,7 @@ export class KeyHandlerDirective {
   }
 
   private handleKey(event: any) {
-    if (this.code !== event.code) {
+    if (this.code !== event.code || this.dialogService.isAnyDialogOpened) {
       return;
     }
 
@@ -59,6 +61,6 @@ export class KeyHandlerDirective {
     return false;
   }
 
-  constructor() {
+  constructor(private dialogService: DialogService) {
   }
 }

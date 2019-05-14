@@ -1,5 +1,5 @@
 import { Injectable, Inject } from "@angular/core"
-import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight,IAbility } from "../core/Models";
+import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight, IAbility } from "../core/Models";
 import { LocalStorageService } from "./LocalStorageService";
 import { NzModalRef, NzModalService } from 'ng-zorro-antd';
 import { Observable } from "rxjs";
@@ -24,7 +24,7 @@ export class DialogService {
 
   openExportToTable(dataFn: () => any) {
     this.dialogs.create({
-      nzWrapClassName:"vertical-center-modal",
+      nzWrapClassName: "vertical-center-modal",
       nzTitle: "Export to table",
       nzWidth: 700,
       nzClosable: false,
@@ -150,15 +150,23 @@ export class DialogService {
     return this.toPromise(dialogRef.afterClose);
   }
 
-//  openSaveBoss(dataFn: () => any): Promise<any> {
-//    const dialogref = this.dialog.open(D.BossSaveDialog,
-//      {
-//        width: "700px",
-//        height: "500px",
-//        data: dataFn()
-//      });
-//    return dialogref.afterClosed().toPromise();
-//  }
+  openSaveBoss(name: string): Promise<any> {
+    const dialogref = this.dialogs.create({
+      nzTitle: "Save",
+      nzContent: D.BossSaveDialog,
+      nzWidth: 700,
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzCancelDisabled: true,
+      nzFooter: null,
+      nzMaskClosable: false,
+      nzComponentParams: {
+        data: name
+      }
+    });
+    return this.toPromise(dialogref.afterClose);
+  }
 
   openSaveFight(dataFn: () => any): Promise<IFight> {
     const dialogref = this.dialogs.create({
@@ -179,7 +187,7 @@ export class DialogService {
     return this.toPromise(dialogref.afterClose);
   }
 
-  private toPromise<T>(obs:Observable<T>):Promise<T> {
+  private toPromise<T>(obs: Observable<T>): Promise<T> {
     return new Promise((resolve, reject) => {
       obs.subscribe((data) => {
         resolve(data);
