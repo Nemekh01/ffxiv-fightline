@@ -26,8 +26,8 @@ export class FightTimeLineController {
 
   private commandStorage: UndoRedoController;
   private commandBag: CommandBag;
-  private loadedBoss: M.IBoss;
-  private loadedFight: M.IFight;
+  loadedBoss: M.IBoss;
+  loadedFight: M.IFight;
   private loading: boolean = false;
   private commandFactory = new CommandFactory(this.startDate);
   hasChanges = false;

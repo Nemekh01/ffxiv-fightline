@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy, TemplateRef , Input } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy, TemplateRef, Input } from "@angular/core";
 import { finalize, filter, map } from "rxjs/operators"
 import { Observable, BehaviorSubject } from "rxjs"
 import { NzModalRef } from "ng-zorro-antd"
@@ -28,7 +28,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   @ViewChild("timeline") timeline: ElementRef;
   @ViewChild("listContainer") listContainer: ElementRef;
   @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
-  @Input("data") data: {needSave: boolean};
+  @Input("data") data: { needSave: boolean, encounter?: number };
 
   optionsBoss = <VisTimelineOptions>{
     width: "100%",
@@ -75,14 +75,14 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
           (this.startDate.valueOf() as number));
         var result;
         switch (scale) {
-        case 'second':
-          result = (diff < 0 ? -1 : 1) * cd.getSeconds();
-          break;
-        case 'minute':
-          result = (diff < 0 ? -1 : 1) * cd.getMinutes();
-          break;
-        default:
-          return new Date(date);
+          case 'second':
+            result = (diff < 0 ? -1 : 1) * cd.getSeconds();
+            break;
+          case 'minute':
+            result = (diff < 0 ? -1 : 1) * cd.getMinutes();
+            break;
+          default:
+            return new Date(date);
         }
         return result;
       },
@@ -91,14 +91,14 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
         var cd = new Date(Math.abs(diff) + (this.startDate.valueOf() as number));
         var result;
         switch (scale) {
-        case 'second':
-          result = (diff < 0 ? -1 : 1) * cd.getMinutes();
-          break;
-        case 'minute':
-          result = 0;
-          break;
-        default:
-          return new Date(date);
+          case 'second':
+            result = (diff < 0 ? -1 : 1) * cd.getMinutes();
+            break;
+          case 'minute':
+            result = 0;
+            break;
+          default:
+            return new Date(date);
         }
         return result;
       }
@@ -122,11 +122,14 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.ffLogsService.getZones()
       .pipe(
         map((v, i) => {
-          return v.filter(x => x.brackets && x.brackets.min >= 4 && x.name.indexOf("Dungeons") !== 0 && x.name.indexOf("(Story)") < 0 ) ;
+          return v.filter(x => x.brackets && x.brackets.min >= 4 && x.name.indexOf("Dungeons") !== 0 && x.name.indexOf("(Story)") < 0);
         }))
       .subscribe(val => {
         this.zones = (val as any);
         this.filteredZones = val as any;
+        this.selectedEncounter = { name: "", id: this.data.encounter };
+        const zone = this.zones.find((z) => z.encounters.some(y => y.id == this.data.encounter))
+        this.selectedZone = String(zone && zone.id);
       }, null, () => {
         this.isSpinning = false;
       });

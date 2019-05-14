@@ -282,7 +282,7 @@ export class DialogService {
     });
   }
 
-  openBossTemplates(needSave: boolean) {
+  openBossTemplates(needSave: boolean, encounter?: number) {
     this.dialogs.create({
       nzWrapClassName: "vertical-center-modal",
       nzContent: D.BossTemplatesDialog,
@@ -294,7 +294,8 @@ export class DialogService {
       nzMaskClosable: false,
       nzComponentParams: {
         data: {
-          needSave: needSave
+          needSave: needSave,
+          encounter: encounter
         }
       }
     });

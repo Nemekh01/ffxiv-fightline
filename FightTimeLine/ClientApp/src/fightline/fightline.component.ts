@@ -805,7 +805,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   openBossTemplates() {
-    this.dialogService.openBossTemplates(true);
+    const boss = this.fightLineController.loadedBoss;
+    this.dialogService.openBossTemplates(true, boss && boss.ref && boss.ref);
   }
 
   showWhatsNew() {
