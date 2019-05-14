@@ -181,6 +181,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       const data = JSON.parse(boss.data);
       this.visItems.clear();
       this.visItems.add(data.attacks.map(a => this.createBossAttack(a.id, a.ability as M.IBossAbility, false)));
+      this.visTimelineService.fit(this.visTimelineBoss);
     }, null, () => {
       this.isTimelineLoading = false;
     });

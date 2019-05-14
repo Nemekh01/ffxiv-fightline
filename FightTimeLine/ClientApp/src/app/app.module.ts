@@ -35,6 +35,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OffsetWheelDirective } from "../heplers/OffsetWheelDirective"
 import { FFLogsMatcherDirective } from "../heplers/FFLogsMatchDirective"
 import { CustomScrollDirective } from "../heplers/customScroll.directive"
+import { KeyHandlerDirective } from "../heplers/keyHandler.directive"
 import { KillsOnlyPipe } from "../heplers/KillsPipe"
 import { PingComponent } from "../fightline/ping/ping.component";
 import * as Sentry from "@sentry/browser";
@@ -84,6 +85,7 @@ export function getBaseUrl() {
 
 @NgModule({
   declarations: [
+    KeyHandlerDirective,
     AreaComponent,
     AppComponent,
     FightLineComponent,

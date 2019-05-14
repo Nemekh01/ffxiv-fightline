@@ -21,9 +21,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
     private router: Router,
     private recentService: S.RecentActivityService,
-    private storage: S.LocalStorageService
+    private storage: S.LocalStorageService,
+    private dispatcher: S.DispatcherService
   ) {
-
+    dispatcher.on("BossTemplates Load").subscribe(value => {
+      this.router.navigateByUrl("/boss/"+value.boss.id);
+    });
   }
 
   ngOnInit(): void {

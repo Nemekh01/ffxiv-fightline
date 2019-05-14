@@ -152,7 +152,6 @@ class ByBuffApplyDetector implements IDetectionStrategy {
   }
 }
 
-
 class ByBuffRemoveDetector implements IDetectionStrategy {
   constructor(private id: number, private abilityName?: string, private offsetCorrection?: number) {
   }

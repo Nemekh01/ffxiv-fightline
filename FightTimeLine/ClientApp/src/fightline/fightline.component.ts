@@ -388,18 +388,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.sidepanel.setItems(items, this.fightLineController.getHolders());
       if (!this.sideNavOpened)
         this.sideNavOpened = true;
-      //      this.visTimelineService.setOptions(this.visTimeline,
-      //        {
-      //          showTooltips: false
-      //        });
     } else {
       this.sidepanel.setItems([], null);
       if (this.sideNavOpened)
         this.sideNavOpened = false;
-      //      this.visTimelineService.setOptions(this.visTimeline,
-      //        {
-      //          showTooltips: true
-      //        });
     }
 
   }
@@ -420,28 +412,23 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.visTimelineItems.update(toUpdate);
   }
 
-  keyPressed(event: any) {
-    if (this.dialogService.isAnyDialogOpened) return;
-
-    if (event.key === "Delete") {
+  private onCommand(command: { name: string, data?: any }) {
+    if (command.name === "delete") {
       const selected = [
         ...this.visTimelineService.getSelection(this.visTimeline),
         ...this.visTimelineService.getSelection(this.visTimelineBoss)
       ];
       this.fightLineController.handleDelete(selected);
     }
-    if (event.code === "KeyZ" && event.ctrlKey) {
-      this.fightLineController.undo();
+    if (command.name === "undo") {
+      this.undo();
     }
-    if (event.code === "KeyY" && event.ctrlKey) {
-      this.fightLineController.redo();
+    if (command.name === "redo") {
+      this.redo();
     }
 
-    if (event.code === "ArrowLeft") {
-      this.fightLineController.moveSelection(-1 * (event.ctrlKey ? 10 : 1));
-    }
-    if (event.code === "ArrowRight") {
-      this.fightLineController.moveSelection(1 * (event.ctrlKey ? 10 : 1));
+    if (command.name === "move") {
+      this.fightLineController.moveSelection(command.data.delta);
     }
   }
 
@@ -529,7 +516,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
         })
         .finally(() => {
           this.progressService.done();
-          this.setInitialWindow((this.fightLineController.getLatestAbilityUsageTime() || this.startDate).getMinutes() + 2);
+          this.setInitialWindow(this.fightLineController.getLatestAbilityUsageTime(), 2);
           this.refresh();
           ref.close();
         });
@@ -541,9 +528,12 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.fightLineController.new();
   }
 
-  private setInitialWindow(mins: number): void {
+  private setInitialWindow(date: Date, mins: number): void {
+
+    let eDate = (date || this.startDate).getMinutes() + mins;
+
     setTimeout(() => {
-      const endDate = new Date(this.startDate.valueOf() as number + Math.max(mins, 3) * 60 * 1000);
+      const endDate = new Date(this.startDate.valueOf() as number + Math.max(eDate, 3) * 60 * 1000);
       this.visTimelineService.setWindow(this.visTimeline, this.startDate, endDate, { animation: false });
       this.visTimelineService.setWindow(this.visTimelineBoss, this.startDate, endDate, { animation: false });
     });
@@ -645,9 +635,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
                   if (data.filter)
                     this.toolbar.filter.set(data.filter);
                   this.fightLineController.loadFight(fight);
-                  this.setInitialWindow((this.fightLineController.getLatestBossAttackTime() || this.startDate)
-                    .getMinutes() +
-                    2);
+                  this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
                   this.refresh();
                 }
                 ref.close();
@@ -659,6 +647,19 @@ export class FightLineComponent implements OnInit, OnDestroy {
           });
 
         } else {
+          const boss = r["boss"];
+          if (boss) {
+            this.dialogService.executeWithLoading(ref => {
+              this.fightService.getBoss(boss).subscribe((data) => {
+                this.fightLineController.loadBoss(data);
+                this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
+                this.refresh();
+                ref.close();
+              });
+            });
+            return;
+          }
+
           const code = r["code"];
           if (code) {
             this.fflogsCode = code;
