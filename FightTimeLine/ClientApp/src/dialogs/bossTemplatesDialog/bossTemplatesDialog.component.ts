@@ -129,7 +129,10 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
         this.filteredZones = val as any;
         if (this.data.encounter) {
           const zone = this.zones.find((z) => z.encounters.some(y => y.id === this.data.encounter));
-          this.onEncounterSelected(zone.id, this.data.encounter);
+          if (zone) {
+            const enc = zone.encounters.find(y => y.id === this.data.encounter);
+            this.onEncounterSelected(zone.id, enc);
+          }
         }
 
       }, null, () => {
