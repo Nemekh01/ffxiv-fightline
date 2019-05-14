@@ -412,7 +412,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.visTimelineItems.update(toUpdate);
   }
 
-  private onCommand(command: { name: string, data?: any }) {
+  onCommand(command: { name: string, data?: any }) {
     if (command.name === "delete") {
       const selected = [
         ...this.visTimelineService.getSelection(this.visTimeline),
