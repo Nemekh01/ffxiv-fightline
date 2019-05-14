@@ -14,7 +14,7 @@ import * as S from "../services/index"
 export class HomeComponent implements OnInit, OnDestroy {
 
   public container = { data: [] };
-
+  private subs = [];
   public constructor(
     private notification: S.ScreenNotificationsService,
     private dialogService: DialogService,
@@ -24,9 +24,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     private storage: S.LocalStorageService,
     private dispatcher: S.DispatcherService
   ) {
+    this.subs.push(
     dispatcher.on("BossTemplates Load").subscribe(value => {
       this.router.navigateByUrl("/boss/"+value.boss.id);
-    });
+    }));
   }
 
   ngOnInit(): void {
@@ -66,7 +67,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-
+      this.subs.forEach(e=>e.unsubscribe());
   }
 
   openSettings(): void {

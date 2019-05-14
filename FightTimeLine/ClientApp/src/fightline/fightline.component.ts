@@ -790,7 +790,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.visTimelineService.off(this.visTimelineBoss, "rangechange");
 
     this.teamWorkService.disconnect();
-    this.subs.forEach(e=>e.unsubscribe());
+    this.subs.forEach(e => e.unsubscribe());
   }
 
   privacy() {
@@ -869,9 +869,43 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
     this.subs.push(dispatcher.on("BossTemplates Save").subscribe(value => {
       const bossData = this.fightLineController.serializeBoss();
-      this.dialogService.openSaveBoss( bossData && bossData.name || "New Template")
+
+      if (bossData.id) {
+        this.fightService.saveBoss(bossData).subscribe((e) => {
+          this.notification.success("Boss saved");
+          this.fightLineController.updateBoss(e);
+        },
+          (err) => {
+            this.notification.error("Boss save failed");
+          });
+      } else {
+
+        this.dialogService.openSaveBoss(value.name+" new template")
+          .then(data => {
+            if (data) {
+              bossData.name = data;
+              bossData.userName = bossData && bossData.userName || this.authenticationService.username;
+              bossData.ref = bossData && bossData.ref || value.reference;
+              bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
+
+              this.fightService.saveBoss(bossData).subscribe((e) => {
+                this.notification.success("Boss saved");
+                this.fightLineController.updateBoss(e);
+              },
+                (err) => {
+                  this.notification.error("Boss save failed");
+                });
+            }
+          });
+      }
+    }));
+
+    this.subs.push(dispatcher.on("BossTemplates Save as new").subscribe(value => {
+      const bossData = this.fightLineController.serializeBoss();
+      this.dialogService.openSaveBoss("New Template")
         .then(data => {
           if (data) {
+            bossData.id = null;
             bossData.name = data;
             bossData.userName = bossData && bossData.userName || this.authenticationService.username;
             bossData.ref = bossData && bossData.ref || value.reference;
@@ -879,12 +913,14 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
             this.fightService.saveBoss(bossData).subscribe((e) => {
               this.notification.success("Boss saved");
+              this.fightLineController.updateBoss(e);
             },
               (err) => {
                 this.notification.error("Boss save failed");
               });
           }
         });
+
     }));
 
     this.subs.push(dispatcher.on("BossTemplates Load").subscribe(value => {

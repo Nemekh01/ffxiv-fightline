@@ -132,6 +132,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
           if (zone) {
             const enc = zone.encounters.find(y => y.id === this.data.boss.ref);
             this.onEncounterSelected(zone.id, enc, true);
+            this.onSearchChange(null);
           }
         }
 
@@ -147,7 +148,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       this.zones.
         filter(
           (zone: Zone) => {
-            return !this.searchString || zone.encounters.some(x => x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0);
+            return (!this.searchString || zone.encounters.some(x => x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0) && (!this.data.boss || zone.encounters.some(x => x.id === this.data.boss.ref)));
           }
         );
   }
@@ -159,7 +160,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
 
   filterEncounters(items: any[]) {
 
-    return items.filter(x => !this.searchString || x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0);
+    return items.filter(x => (!this.searchString || x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0) && (!this.data.boss || x.id === this.data.boss.ref));
 
   }
 
@@ -173,10 +174,10 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.selectedEncounter = enc;
     this.isListLoading = true;
     this.fightService.getBosses(enc.id, this.data.boss && this.data.boss.name || "", false).subscribe((data) => {
-      this.templates = data;
       if (this.data.boss) {
         this.select({ id: this.data.boss.id, name: "" }, skipCheck);
       }
+      this.templates = data.filter(x=>!this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
     }, null,
       () => {
         this.isListLoading = false;
@@ -236,11 +237,24 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.dispatcher.dispatch({
       name: "BossTemplates Save",
       payload: {
-        name: "Test name",
+        name: this.data.boss && this.data.boss.name,
         reference: this.selectedEncounter && this.selectedEncounter.id || 0,
         isPrivate: false
       }
     });
+    this.dialogRef.destroy();
+  }
+
+  saveAsNew() {
+    this.dispatcher.dispatch({
+      name: "BossTemplates Save as new",
+      payload: {
+        name: this.selectedEncounter.name,
+        reference: this.selectedEncounter && this.selectedEncounter.id || 0,
+        isPrivate: false
+      }
+    });
+    this.dialogRef.destroy();
   }
 
   load() {

@@ -105,7 +105,8 @@ namespace FightTimeLine.Controllers
                     Name = boss.Name,
                     UserName = boss.UserName,
                     Data = "",
-                    IsPrivate = boss.IsPrivate
+                    IsPrivate = boss.IsPrivate,
+                    Reference = boss.Reference.GetValueOrDefault()
                });
           }
 
