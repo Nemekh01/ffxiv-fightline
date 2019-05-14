@@ -27,7 +27,6 @@ export class KeyHandlerDirective {
   onKeyDown(event) {
     this.code = event.code;
     this.handleKey(event);
-    return false;
   }
 
   private handleKey(event: any) {
@@ -58,7 +57,6 @@ export class KeyHandlerDirective {
   @HostListener("window:keyup", ["$event"])
   onKeyUp(event) {
     this.code = null;
-    return false;
   }
 
   constructor(private dialogService: DialogService) {
