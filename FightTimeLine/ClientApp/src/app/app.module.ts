@@ -22,7 +22,8 @@ import * as Services from "../services/index"
 import { JwtInterceptor } from "../interceptors/jwtInterceptor"
 import { ClipboardModule } from "ngx-clipboard";
 import { NgProgressModule } from "ngx-progressbar";
-import { NgxCaptchaModule } from 'ngx-captcha';
+import { RecaptchaModule, RECAPTCHA_SETTINGS,RecaptchaSettings  } from "ng-recaptcha";
+import { RecaptchaFormsModule } from 'ng-recaptcha/forms';
 import { DialogsModuleComponents } from "../dialogs/index";
 import { SingleAbilityComponent } from "../sidepanel/components/singleAbility/singleAbility.component";
 import { SingleAttackComponent } from "../sidepanel/components/singleAttack/singleAttack.component";
@@ -125,7 +126,8 @@ export function getBaseUrl() {
     VisModule,
     ContextMenuModule,
     XivapiClientModule.forRoot(),
-    NgxCaptchaModule,
+    RecaptchaModule,
+    RecaptchaFormsModule,
     ClipboardModule,
     SocialLoginModule,
     AngularSplitModule
@@ -140,6 +142,10 @@ export function getBaseUrl() {
     { provide: "GOOGLE_API_SPREADSHEETS_URL", useValue: "https://sheets.googleapis.com/v4/spreadsheets" },
     { provide: ErrorHandler, useClass: SentryErrorHandler },
     { provide: AuthServiceConfig, useFactory: provideConfig },
+    {
+      provide: RECAPTCHA_SETTINGS,
+      useValue: { siteKey: '6LfToGAUAAAAAKcp3joBgzcqJ3sK_s_WCltAL7Tn' } as RecaptchaSettings,
+    },
     { provide: NZ_I18N, useValue: en_US },
     ...Services.ServicesModuleComponents
 

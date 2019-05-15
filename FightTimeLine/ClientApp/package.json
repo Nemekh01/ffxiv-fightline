@@ -31,7 +31,7 @@
     "guid-typescript": "^1.0.9",
     "ng-gapi": "0.0.51",
     "ng-zorro-antd": "^7.3.3",
-    "ngx-captcha": "6.4.0",
+    "ng-recaptcha": "4.2.1",
     "ngx-clipboard": "11.1.9",
     "ngx-contextmenu": "^5.1.1",
     "ngx-progressbar": "2.1.1",

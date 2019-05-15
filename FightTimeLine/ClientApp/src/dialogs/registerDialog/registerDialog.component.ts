@@ -51,7 +51,7 @@ export class RegisterDialog {
         "",
         [Validators.required, this.matchOtherValidator("password")]
       ],
-//      recaptcha: ['', Validators.required]
+      recaptcha: ['', Validators.required]
     });
   }
 
@@ -68,7 +68,7 @@ export class RegisterDialog {
           else resolve(null);
         }, () => {
           this.checkingUser = false;
-          resolve(null);
+            resolve({ 'isUserNameUnique': true });
         });
       });
     });
