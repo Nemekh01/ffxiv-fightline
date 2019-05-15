@@ -2,7 +2,7 @@
   <form nz-form>
     <nz-form-item>
       <nz-form-control nzHasFeedback [nzValidateStatus]="submitted && fightNameControl.errors && fightNameControl.errors.required?'error':''">
-        <input name="fightName"  required nz-input placeholder="Fight name" [formControl]="fightNameControl" [(ngModel)]="data.name"/>
+        <input name="fightName"  required nz-input placeholder="Fight name" [formControl]="fightNameControl" [(ngModel)]="data"/>
         <nz-form-explain *ngIf="submitted && fightNameControl.errors && fightNameControl.errors.required">You must enter a value</nz-form-explain>
       </nz-form-control>
     </nz-form-item>
@@ -11,5 +11,4 @@
 <ng-template #buttonsTemplate>
   <button nz-button nzType="primary" (click)="onNoClick()">Cancel</button>
   <button nz-button (click)="onSaveClick()" cdkFocusInitial>Save</button>
-  <button nz-button (click)="onSaveAsNewClick()" *ngIf="!!data.id" cdkFocusInitial>Save as new</button>
 </ng-template>

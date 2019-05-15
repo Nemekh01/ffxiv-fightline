@@ -42,7 +42,7 @@ export class FilterComponent {
     this.healing = filter.abilities.healing;
     this.healingBuff = filter.abilities.healing;
     this.utility = filter.abilities.utility;
-    this.enmity = filter.abilities.utility;
+    this.enmity = filter.abilities.enmity;
     this.pet = filter.abilities.pet;
     this.unused = filter.abilities.unused;
     this.isTankBuster = filter.attacks.isTankBuster;

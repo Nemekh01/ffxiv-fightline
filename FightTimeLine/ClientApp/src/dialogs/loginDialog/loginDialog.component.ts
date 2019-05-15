@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormC
 import { first } from 'rxjs/operators';
 import { IAuthenticationService } from "../../services/authentication.service-interface"
 import { authenticationServiceToken } from "../../services/authentication.service-provider"
+import { ScreenNotificationsService } from "../../services/ScreenNotificationsService"
 import { NzModalRef } from "ng-zorro-antd"
 
 @Component({
@@ -19,6 +20,7 @@ export class LoginDialog implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     @Inject(authenticationServiceToken) private authenticationService: IAuthenticationService,
+    private notification: ScreenNotificationsService,
     public dialogRef: NzModalRef) {
 
     this.dialogRef.getInstance().nzFooter = [
@@ -66,10 +68,7 @@ export class LoginDialog implements OnInit {
           this.dialogRef.destroy(data);
         },
         error => {
-          //                    this.snackBar.open("Invalid username or password", null,
-          //                        {
-          //                            duration:2000
-          //                        });
+          this.notification.error("Invalid username or password");
           this.loading = false;
         });
   }

@@ -4,12 +4,9 @@
   scroll-behavior: auto;
 }
 
-.mat-list .mat-list-item, .mat-list .mat-list-option, .mat-nav-list .mat-list-item, .mat-nav-list .mat-list-option, .mat-selection-list .mat-list-item, .mat-selection-list .mat-list-option {
-  height: 24px !important;
-}
 
 .loadList .ant-list-item:hover {
-  background-color: lightgray;
+  background-color: #e6f7ff;
 }
 
 .loadList .ant-list-item {

@@ -17,6 +17,9 @@ export class SyncSettingsComponent implements OnInit {
   uniqueIndex: number = 0;
   expression: string;
 
+  formatterPercent = (value: number) => `${value || 0} %`;
+  parserPercent = (value: string) => value.replace(' %', '');
+
   get selected(): NzTreeNodeOptions {
     const s = this.tree.getSelectedNodeList();
     if (s)

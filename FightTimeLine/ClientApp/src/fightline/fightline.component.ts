@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 
 import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineOptions } from "ngx-vis";
-import { FightTimeLineController, ISerializeData } from "../core/FightTimeLineController"
+import { FightTimeLineController, IFightSerializeData } from "../core/FightTimeLineController"
 import * as M from "../core/Models";
 import { NgProgress } from "ngx-progressbar"
 import { ChangeNotes } from "../changeNotes"
@@ -99,7 +99,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
         }
         return result;
       }
-    }
+    };
   }
 
   options = <VisTimelineOptions>{
@@ -388,18 +388,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.sidepanel.setItems(items, this.fightLineController.getHolders());
       if (!this.sideNavOpened)
         this.sideNavOpened = true;
-      //      this.visTimelineService.setOptions(this.visTimeline,
-      //        {
-      //          showTooltips: false
-      //        });
     } else {
       this.sidepanel.setItems([], null);
       if (this.sideNavOpened)
         this.sideNavOpened = false;
-      //      this.visTimelineService.setOptions(this.visTimeline,
-      //        {
-      //          showTooltips: true
-      //        });
     }
 
   }
@@ -420,28 +412,23 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.visTimelineItems.update(toUpdate);
   }
 
-  keyPressed(event: any) {
-    if (this.dialogService.isAnyDialogOpened) return;
-
-    if (event.key === "Delete") {
+  onCommand(command: { name: string, data?: any }) {
+    if (command.name === "delete") {
       const selected = [
         ...this.visTimelineService.getSelection(this.visTimeline),
         ...this.visTimelineService.getSelection(this.visTimelineBoss)
       ];
       this.fightLineController.handleDelete(selected);
     }
-    if (event.code === "KeyZ" && event.ctrlKey) {
-      this.fightLineController.undo();
+    if (command.name === "undo") {
+      this.undo();
     }
-    if (event.code === "KeyY" && event.ctrlKey) {
-      this.fightLineController.redo();
+    if (command.name === "redo") {
+      this.redo();
     }
 
-    if (event.code === "ArrowLeft") {
-      this.fightLineController.moveSelection(-1 * (event.ctrlKey ? 10 : 1));
-    }
-    if (event.code === "ArrowRight") {
-      this.fightLineController.moveSelection(1 * (event.ctrlKey ? 10 : 1));
+    if (command.name === "move") {
+      this.fightLineController.moveSelection(command.data.delta);
     }
   }
 
@@ -452,7 +439,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
   register() {
     return this.dialogService.openRegister()
       .then(result => {
-        this.authenticationService.login(result.username, result.password).subscribe((): void => {
+        if (result)
+          this.authenticationService.login(result.username, result.password).subscribe((): void => {
         });
       });
   }
@@ -529,7 +517,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
         })
         .finally(() => {
           this.progressService.done();
-          this.setInitialWindow((this.fightLineController.getLatestAbilityUsageTime() || this.startDate).getMinutes() + 2);
+          this.setInitialWindow(this.fightLineController.getLatestAbilityUsageTime(), 2);
           this.refresh();
           ref.close();
         });
@@ -541,9 +529,12 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.fightLineController.new();
   }
 
-  private setInitialWindow(mins: number): void {
+  private setInitialWindow(date: Date, mins: number): void {
+
+    let eDate = (date || this.startDate).getMinutes() + mins;
+
     setTimeout(() => {
-      const endDate = new Date(this.startDate.valueOf() as number + Math.max(mins, 3) * 60 * 1000);
+      const endDate = new Date(this.startDate.valueOf() as number + Math.max(eDate, 3) * 60 * 1000);
       this.visTimelineService.setWindow(this.visTimeline, this.startDate, endDate, { animation: false });
       this.visTimelineService.setWindow(this.visTimelineBoss, this.startDate, endDate, { animation: false });
     });
@@ -639,15 +630,13 @@ export class FightLineComponent implements OnInit, OnDestroy {
               .subscribe((fight: M.IFight) => {
                 if (fight) {
                   this.recent.register(fight.name, "/" + id.toLowerCase());
-                  const data = JSON.parse(fight.data) as ISerializeData;
+                  const data = JSON.parse(fight.data) as IFightSerializeData;
                   if (data.view)
                     this.toolbar.view.set(data.view);
                   if (data.filter)
                     this.toolbar.filter.set(data.filter);
                   this.fightLineController.loadFight(fight);
-                  this.setInitialWindow((this.fightLineController.getLatestBossAttackTime() || this.startDate)
-                    .getMinutes() +
-                    2);
+                  this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
                   this.refresh();
                 }
                 ref.close();
@@ -659,6 +648,19 @@ export class FightLineComponent implements OnInit, OnDestroy {
           });
 
         } else {
+          const boss = r["boss"];
+          if (boss) {
+            this.dialogService.executeWithLoading(ref => {
+              this.fightService.getBoss(boss).subscribe((data) => {
+                this.fightLineController.loadBoss(data);
+                this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
+                this.refresh();
+                ref.close();
+              });
+            });
+            return;
+          }
+
           const code = r["code"];
           if (code) {
             this.fflogsCode = code;
@@ -789,6 +791,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.visTimelineService.off(this.visTimelineBoss, "rangechange");
 
     this.teamWorkService.disconnect();
+    this.subs.forEach(e => e.unsubscribe());
   }
 
   privacy() {
@@ -804,7 +807,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   openBossTemplates() {
-    this.dialogService.openBossTemplates(() => this.fightLineController.serializeBoss());
+    const boss = this.fightLineController.loadedBoss;
+    this.dialogService.openBossTemplates(true, boss);
   }
 
   showWhatsNew() {
@@ -829,8 +833,12 @@ export class FightLineComponent implements OnInit, OnDestroy {
     return promise;
   }
 
+  subs = [];
+
+
+
   private subscribeToDispatcher(dispatcher: S.DispatcherService) {
-    dispatcher.on("SidePanel Similar Click").subscribe(value => {
+    this.subs.push(dispatcher.on("SidePanel Similar Click").subscribe(value => {
       this.visTimelineService.setSelectionToId(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks([value]);
       this.fightLineController.notifySelect("enemy", [value]);
@@ -838,8 +846,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
       const w = this.visTimelineService.getWindow(this.visTimelineBoss);
       this.visTimelineService.setWindow(this.visTimeline, w.start, w.end, { animation: false });
       this.sidepanel.setItems(this.fightLineController.getItems([value]), this.fightLineController.getHolders());
-    });
-    dispatcher.on("SidePanel Similar All Click").subscribe(value => {
+    }));
+    this.subs.push(dispatcher.on("SidePanel Similar All Click").subscribe(value => {
       this.visTimelineService.setSelectionToIds(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks(value);
       this.fightLineController.notifySelect("enemy", value);
@@ -847,9 +855,9 @@ export class FightLineComponent implements OnInit, OnDestroy {
       const w = this.visTimelineService.getWindow(this.visTimelineBoss);
       this.visTimelineService.setWindow(this.visTimeline, w.start, w.end, { animation: false });
       this.sidepanel.setItems(this.fightLineController.getItems(value), this.fightLineController.getHolders());
-    });
+    }));
 
-    dispatcher.on("SidePanel Ability Click").subscribe(value => {
+    this.subs.push(dispatcher.on("SidePanel Ability Click").subscribe(value => {
       this.visTimelineService.setSelectionToId(this.visTimeline, value);
       this.visTimelineService.setSelectionToId(this.visTimelineBoss, value);
       this.setSelectionOfBossAttacks([]);
@@ -858,6 +866,66 @@ export class FightLineComponent implements OnInit, OnDestroy {
       const w = this.visTimelineService.getWindow(this.visTimeline);
       this.visTimelineService.setWindow(this.visTimelineBoss, w.start, w.end, { animation: false });
       this.sidepanel.setItems(this.fightLineController.getItems([value]), this.fightLineController.getHolders());
-    });
+    }));
+
+    this.subs.push(dispatcher.on("BossTemplates Save").subscribe(value => {
+      const bossData = this.fightLineController.serializeBoss();
+
+      if (bossData.id) {
+        this.fightService.saveBoss(bossData).subscribe((e) => {
+          this.notification.success("Boss saved");
+          this.fightLineController.updateBoss(e);
+        },
+          (err) => {
+            this.notification.error("Boss save failed");
+          });
+      } else {
+
+        this.dialogService.openSaveBoss(value.name+" new template")
+          .then(data => {
+            if (data) {
+              bossData.name = data;
+              bossData.userName = bossData && bossData.userName || this.authenticationService.username;
+              bossData.ref = bossData && bossData.ref || value.reference;
+              bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
+
+              this.fightService.saveBoss(bossData).subscribe((e) => {
+                this.notification.success("Boss saved");
+                this.fightLineController.updateBoss(e);
+              },
+                (err) => {
+                  this.notification.error("Boss save failed");
+                });
+            }
+          });
+      }
+    }));
+
+    this.subs.push(dispatcher.on("BossTemplates Save as new").subscribe(value => {
+      const bossData = this.fightLineController.serializeBoss();
+      this.dialogService.openSaveBoss(value.name + " new template")
+        .then(data => {
+          if (data) {
+            bossData.id = null;
+            bossData.name = data;
+            bossData.userName = bossData && bossData.userName || this.authenticationService.username;
+            bossData.ref = bossData && bossData.ref || value.reference;
+            bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
+
+            this.fightService.saveBoss(bossData).subscribe((e) => {
+              this.notification.success("Boss saved");
+              this.fightLineController.updateBoss(e);
+            },
+              (err) => {
+                this.notification.error("Boss save failed");
+              });
+          }
+        });
+
+    }));
+
+    this.subs.push(dispatcher.on("BossTemplates Load").subscribe(value => {
+      this.fightLineController.loadBoss(value.boss);
+    }));
   }
 }

@@ -14,16 +14,20 @@ import * as S from "../services/index"
 export class HomeComponent implements OnInit, OnDestroy {
 
   public container = { data: [] };
-
+  private subs = [];
   public constructor(
     private notification: S.ScreenNotificationsService,
     private dialogService: DialogService,
     @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
     private router: Router,
     private recentService: S.RecentActivityService,
-    private storage: S.LocalStorageService
+    private storage: S.LocalStorageService,
+    private dispatcher: S.DispatcherService
   ) {
-
+    this.subs.push(
+    dispatcher.on("BossTemplates Load").subscribe(value => {
+      this.router.navigateByUrl("/boss/"+value.boss.id);
+    }));
   }
 
   ngOnInit(): void {
@@ -34,6 +38,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     });
 
+  }
+
+  bossTemplates() {
+    this.dialogService.openBossTemplates(false);
   }
 
   showWhatsNew() {
@@ -59,7 +67,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-
+      this.subs.forEach(e=>e.unsubscribe());
   }
 
   openSettings(): void {
@@ -96,8 +104,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   register() {
     this.dialogService.openRegister()
       .then(result => {
-        this.authenticationService.login(result.username, result.password).subscribe((): void => {
-        });
+        if (result)
+          this.authenticationService.login(result.username, result.password).subscribe((): void => {
+          });
       });
   }
 

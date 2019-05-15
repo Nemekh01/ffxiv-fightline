@@ -42,23 +42,22 @@ export enum AbilityType {
 export interface IBoss {
   id: string;
   name: string;
-  author: string;
   userName: string;
-  secret: string;
   data: string;
   isPrivate: boolean;
+  ref: number;
+}
+
+export interface IBossSearchEntry {
+  id: string;
+  name: string;
 }
 
 export interface IFight {
   id: string;
   name: string;
-  author: string;
   userName: string;
-  secret: string;
   data: string;
-  isPrivate: boolean;
-  bossRef: string;
-
 }
 
 export interface IContextMenuData {
@@ -88,7 +87,7 @@ export const byBuffRemove = (id: number, abilityName?: string, offsetCorrect?: n
 }
 
 const isAbility = (ev: FF.Event): ev is FF.AbilityEvent => {
-  return (ev.type === "cast" || ev.type === "cast");
+  return (ev.type === "cast" || ev.type === "damage");
 }
 
 const isBuffApply = (ev: FF.Event): ev is FF.BuffEvent => {
@@ -152,7 +151,6 @@ class ByBuffApplyDetector implements IDetectionStrategy {
     };
   }
 }
-
 
 class ByBuffRemoveDetector implements IDetectionStrategy {
   constructor(private id: number, private abilityName?: string, private offsetCorrection?: number) {

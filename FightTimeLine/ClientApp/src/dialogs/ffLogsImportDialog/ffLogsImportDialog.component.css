@@ -9,9 +9,9 @@
   padding-right: 3px;
 }
 
-.fflogsitem:hover {
-  background-color: lightgray;
-}
+  .fflogsitem:hover {
+    background-color: #e6f7ff;
+  }
 
 
 

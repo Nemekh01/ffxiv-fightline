@@ -12,14 +12,17 @@ export class Utils {
   }
 
   static getDateFromOffset(offset: number | string = 0, startDate?: Date): Date {
-    const d = new Date(startDate || 946677600000);
+    let d = new Date(startDate || 946677600000);
     if (typeof offset === "number")
       d.setSeconds(offset);
     else {
       const parts = offset.split(":");
-      d.setMinutes(parseInt(parts[0]));
-      d.setSeconds(parseInt(parts[1]));
+      const mins = Math.abs(parseInt(parts[0]));
+      const secs = parseInt(parts[1]);
+      const number = (Math.sign(parseInt(parts[0])) < 0 ? -1 : 1) * (mins * 60 * 1000 + secs * 1000);
+      d = new Date(d.valueOf() as number + number);
     }
+
     return d;
   }
 
@@ -27,7 +30,9 @@ export class Utils {
     const d = 946677600000;
     const dc = date.valueOf() as number;
     const padLeft = (nr: number, n: number, str?: string): string => new Array(n - String(nr).length + 1).join(str || "0") + nr;
-    return (Math.sign(dc - d) + 1 ? "" : "-") + (date => `${padLeft((date).getMinutes(), 2)}:${padLeft((date as Date).getSeconds(), 2)}`).apply(null, [new Date(Math.abs(dc - d) + d)])
+    return (Math.sign(dc - d) + 1 ? "" : "-") +
+      (date => `${padLeft((date).getMinutes(), 2)}:${padLeft((date as Date).getSeconds(), 2)}`).apply(null,
+        [new Date(Math.abs(dc - d) + d)]);
   }
 
   static clone<T>(obj: T): T {
