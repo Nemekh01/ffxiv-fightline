@@ -80,6 +80,8 @@ namespace FightTimeLine.Controllers
                var boss = await _dataContext.Bosses.FirstOrDefaultAsync(entity => entity.Identifier == guid);
                if (boss != null)
                {
+                    if (boss.UserName != nameClaim)
+                         return Unauthorized();
                     boss.Data = request.Data;
                     boss.IsPrivate = request.IsPrivate;
                }
@@ -113,7 +115,7 @@ namespace FightTimeLine.Controllers
           [HttpPost("[action]")]
           public async Task<IActionResult> RemoveBosses([FromBody] string[] ids)
           {
-               var nameClaim = HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
+               var nameClaim = CurrentUserName;
                if (nameClaim == null)
                     return Unauthorized();
 

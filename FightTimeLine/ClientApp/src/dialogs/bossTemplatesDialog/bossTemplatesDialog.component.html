@@ -30,7 +30,7 @@
         <ng-template #prefixTemplate2><i nz-icon type="search"></i></ng-template>
         <ng-template #suffixTemplate2><i nz-icon type="close-circle" (click)="clearTemplates()" *ngIf="searchFightString"></i></ng-template>
       </nz-header>
-      <nz-content style="margin: 4px 2px 2px 4px; overflow: auto" customScroll>
+      <nz-content style="margin: 4px 2px 2px 4px; overflow: auto;min-height: 524px" customScroll>
         <as-split direction="vertical" unit="percent" gutterSize="5" [class.fullSize]="true" restrictMove="true">
           <as-split-area size="50" minSize="10" maxSize="50">
             <nz-spin nzTip='Loading...' [nzSpinning]="isListLoading" [nzDelay]="500" style="width: 100%; height: 100%;">
