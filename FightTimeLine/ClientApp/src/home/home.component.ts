@@ -25,9 +25,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     private dispatcher: S.DispatcherService
   ) {
     this.subs.push(
-    dispatcher.on("BossTemplates Load").subscribe(value => {
-      this.router.navigateByUrl("/boss/"+value.boss.id);
-    }));
+      dispatcher.on("BossTemplates Load").subscribe(value => {
+        value.close();
+        this.router.navigateByUrl("/boss/" + value.boss.id);
+      }));
   }
 
   ngOnInit(): void {
@@ -67,7 +68,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.subs.forEach(e=>e.unsubscribe());
+    this.subs.forEach(e => e.unsubscribe());
   }
 
   openSettings(): void {

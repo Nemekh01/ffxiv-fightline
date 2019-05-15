@@ -875,6 +875,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
         this.fightService.saveBoss(bossData).subscribe((e) => {
           this.notification.success("Boss saved");
           this.fightLineController.updateBoss(e);
+          value.close();
         },
           (err) => {
             this.notification.error("Boss save failed");
@@ -890,12 +891,15 @@ export class FightLineComponent implements OnInit, OnDestroy {
               bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
 
               this.fightService.saveBoss(bossData).subscribe((e) => {
-                this.notification.success("Boss saved");
-                this.fightLineController.updateBoss(e);
-              },
+                  this.notification.success("Boss saved");
+                  this.fightLineController.updateBoss(e);
+                  value.close();
+                },
                 (err) => {
                   this.notification.error("Boss save failed");
                 });
+            } else {
+              value.close();
             }
           });
       }
@@ -913,12 +917,15 @@ export class FightLineComponent implements OnInit, OnDestroy {
             bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
 
             this.fightService.saveBoss(bossData).subscribe((e) => {
-              this.notification.success("Boss saved");
-              this.fightLineController.updateBoss(e);
-            },
+                this.notification.success("Boss saved");
+                this.fightLineController.updateBoss(e);
+                value.close();
+              },
               (err) => {
                 this.notification.error("Boss save failed");
               });
+          } else {
+            value.close();
           }
         });
 
@@ -926,6 +933,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
     this.subs.push(dispatcher.on("BossTemplates Load").subscribe(value => {
       this.fightLineController.loadBoss(value.boss);
+      value.close();
     }));
   }
 }

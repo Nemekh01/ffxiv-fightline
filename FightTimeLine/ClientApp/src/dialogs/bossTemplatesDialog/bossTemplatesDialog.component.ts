@@ -177,7 +177,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       if (this.data.boss) {
         this.select({ id: this.data.boss.id, name: "" }, skipCheck);
       }
-      this.templates = data.filter(x=>!this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
+      this.templates = data.filter(x => !this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
     }, null,
       () => {
         this.isListLoading = false;
@@ -191,7 +191,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   }
 
   select(item: M.IBossSearchEntry, skipCheck?: boolean) {
-    if (this.data.boss && this.data.boss.ref  && !skipCheck)
+    if (this.data.boss && this.data.boss.ref && !skipCheck)
       return;
     this.isTimelineLoading = true;
     this.selectedTemplate = item;
@@ -239,10 +239,10 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       payload: {
         name: this.data.boss && this.data.boss.name || this.selectedEncounter.name,
         reference: this.selectedEncounter && this.selectedEncounter.id || 0,
-        isPrivate: false
+        isPrivate: false,
+        close: () => this.dialogRef.destroy()
       }
     });
-    this.dialogRef.destroy();
   }
 
   saveAsNew() {
@@ -251,10 +251,10 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       payload: {
         name: this.selectedEncounter.name,
         reference: this.selectedEncounter && this.selectedEncounter.id || 0,
-        isPrivate: false
+        isPrivate: false,
+        close: () => this.dialogRef.destroy()
       }
     });
-    this.dialogRef.destroy();
   }
 
   load() {
@@ -263,10 +263,10 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
         name: "BossTemplates Load",
         payload: {
           boss: data,
-          encounter: this.selectedEncounter.id
+          encounter: this.selectedEncounter.id,
+          close: () => this.dialogRef.destroy()
         }
       });
-      this.dialogRef.destroy();
     });
 
   }
