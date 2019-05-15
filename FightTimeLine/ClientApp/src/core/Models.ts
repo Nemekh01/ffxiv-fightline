@@ -234,9 +234,20 @@ export interface IBossAbility {
   syncSettings?: string;
 }
 
+export interface ISyncData {
+  offset: string;
+  condition: Combined;
+}
+
 export interface ISyncSettingGroup {
   operation: SyncOperation,
   operands: Combined[];
+}
+
+export interface ISyncSetting {
+  type: string;
+  description: string;
+  payload: any;
 }
 
 export type Combined = ISyncSetting | ISyncSettingGroup;
@@ -249,11 +260,7 @@ export const isSettingGroup = (c: Combined): c is ISyncSettingGroup => {
   return !!(<ISyncSettingGroup>c).operation;
 }
 
-export interface ISyncSetting {
-  type: string;
-  description: string;
-  payload: any;
-}
+
 
 export enum SyncOperation {
   And = "and",

@@ -296,7 +296,10 @@ export class ChangeBossAttackCommand implements Command {
     }));
 
     bossAttackMaps.forEach((it) => {
-      it.applyData({ attack: this.bossAbility });
+      if (it.id === this.id)
+        it.applyData({ attack: this.bossAbility });
+      else
+        it.applyData({ attack: { ...this.bossAbility, ...{ offset: it.attack.offset } } });
     });
 
     context.holders.bossAttacks.update(bossAttackMaps);

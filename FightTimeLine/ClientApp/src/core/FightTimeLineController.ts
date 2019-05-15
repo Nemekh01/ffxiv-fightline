@@ -19,15 +19,11 @@ import * as _ from "lodash";
 
 export class FightTimeLineController {
   private jobRegistry = new JobRegistry();
-
+  data: IFightData = {};
   private holders: H.Holders;
-
   private bossGroup: string = "boss";
-
   private commandStorage: UndoRedoController;
   private commandBag: CommandBag;
-  loadedBoss: M.IBoss;
-  loadedFight: M.IFight;
   private loading: boolean = false;
   private commandFactory = new CommandFactory(this.startDate);
   hasChanges = false;
@@ -91,10 +87,10 @@ export class FightTimeLineController {
   }
 
   public loadBoss(boss: M.IBoss): void {
-    this.loadedBoss = boss;
+    this.data.boss = boss;
 
     const loadData: IBossSerializeData = JSON.parse(boss.data);
-    
+
     this.holders.bossAttacks.clear();
     this.holders.bossDownTime.clear();
     this.holders.selectionRegistry.clear();
@@ -103,7 +99,7 @@ export class FightTimeLineController {
     this.commandStorage.turnOffFireExecuted();
 
     for (let d of loadData.attacks) {
-        this.addBossAttack(d.id, Utils.getDateFromOffset(d.ability.offset, this.startDate), d.ability);
+      this.addBossAttack(d.id, Utils.getDateFromOffset(d.ability.offset, this.startDate), d.ability);
     }
 
     let index = 1;
@@ -369,10 +365,10 @@ export class FightTimeLineController {
     switch (type) {
       case M.EntryType.AbilityUsage:
         const ability = this.holders.abilities.get(item.group).ability;
-        return (item.end as number) - (item.start as number) === ability.cooldown * 1000 && new Date(item.start) >= new Date(this.startDate.valueOf() as number - ((ability.requiresBossTarget?0:1) * 30 * 1000)) &&
+        return (item.end as number) - (item.start as number) === ability.cooldown * 1000 && new Date(item.start) >= new Date(this.startDate.valueOf() as number - ((ability.requiresBossTarget ? 0 : 1) * 30 * 1000)) &&
           !this.holders.itemUsages.checkDatesOverlap(item.group, new Date(item.start), new Date(item.end), item.id.toString(), this.holders.selectionRegistry);
       case M.EntryType.StanceUsage:
-        return (item.end as number) - (item.start as number) > 0 && new Date(item.start) >= new Date(this.startDate.valueOf() as number - 30 * 1000)  &&
+        return (item.end as number) - (item.start as number) > 0 && new Date(item.start) >= new Date(this.startDate.valueOf() as number - 30 * 1000) &&
           !this.holders.stances.checkDatesOverlap(item.group, new Date(item.start), new Date(item.end), item.id.toString(), this.holders.selectionRegistry);
       case M.EntryType.BossAttack:
         return new Date(item.start) >= this.startDate;
@@ -776,14 +772,15 @@ export class FightTimeLineController {
 
   serializeFight(): M.IFight {
     return <M.IFight>{
-      id: this.loadedFight && this.loadedFight.id || "",
-      name: this.loadedFight && this.loadedFight.name || "",
-      userName: this.loadedFight && this.loadedFight.userName || "",
+      id: this.data.fight && this.data.fight.id || "",
+      name: this.data.fight && this.data.fight.name || "",
+      userName: this.data.fight && this.data.fight.userName || "",
       isPrivate: false,
       data: JSON.stringify(<IFightSerializeData>{
         boss: this.serializeBoss(),
         initialTarget: this.holders.bossTargets.initialBossTarget,
         filter: this.filter,
+        importedFrom: this.data.importedFrom,
         view: this.view,
         jobs: this.holders.jobs.serialize(),
         abilityMaps: this.holders.abilities
@@ -831,25 +828,26 @@ export class FightTimeLineController {
   }
 
   updateBoss(boss: M.IBoss): void {
-    this.loadedBoss = boss;
+    this.data.boss = boss;
   }
 
   updateFight(fight: M.IFight): void {
-    this.loadedFight = fight;
+    this.data.fight = fight;
     this.hasChanges = false;
   }
 
 
 
-  loadFight(input: M.IFight): void {
-    if (input === null || input === undefined) return;
-    const data = JSON.parse(input.data) as IFightSerializeData;
+  loadFight(fight: M.IFight): void {
+    if (fight === null || fight === undefined) return;
+    const data = JSON.parse(fight.data) as IFightSerializeData;
     try {
 
       this.loading = true;
       this.commandStorage.turnOffFireExecuted();
 
-      this.loadedFight = input;
+      this.data.fight = fight;
+      this.data.importedFrom = data.importedFrom;
 
       this.holders.jobs.clear();
       this.holders.abilities.clear();
@@ -869,7 +867,7 @@ export class FightTimeLineController {
         this.holders.bossAttacks.applyFilter(data.filter.attacks);
       }
 
-      if (data.jobs)
+      if (data.jobs) {
         for (let j of data.jobs.sort((a, b) => a.order - b.order)) {
           const rid = this.addJob(j.id, j.name, null, j.pet, j.collapsed, false);
           const jh = this.holders.jobs.get(rid);
@@ -878,19 +876,19 @@ export class FightTimeLineController {
           if (j.compact !== undefined && j.compact !== null)
             this.toggleCompactView(j.id, j.compact);
         }
+      }
 
       if (data.abilityMaps) {
         for (let it of data.abilityMaps) {
           var ab = this.holders.abilities.getByParentAndAbility(it.job, it.name);
           if (it.hidden !== undefined && it.hidden !== null) {
-            if (it.hidden)
+            if (it.hidden)//todo: optimize this
               this.hideAbility(ab.id);
             else
               this.showAbility(ab.id);
           }
           this.toggleCompactViewAbility(ab.id, it.compact);
         }
-
       }
 
       if (data.abilities)
@@ -933,11 +931,11 @@ export class FightTimeLineController {
   serializeBoss(): M.IBoss {
 
     return <M.IBoss>{
-      id: this.loadedBoss && this.loadedBoss.id || "",
-      name: this.loadedBoss && this.loadedBoss.name || "",
-      userName: this.loadedBoss && this.loadedBoss.userName || "",
-      isPrivate: this.loadedBoss && this.loadedBoss.isPrivate || false,
-      ref: this.loadedBoss && this.loadedBoss.ref || "",
+      id: this.data.boss && this.data.boss.id || "",
+      name: this.data.boss && this.data.boss.name || "",
+      userName: this.data.boss && this.data.boss.userName || "",
+      isPrivate: this.data.boss && this.data.boss.isPrivate || false,
+      ref: this.data.boss && this.data.boss.ref || "",
       data: JSON.stringify(<IBossSerializeData>{
         attacks: this.holders.bossAttacks.getAll()
           .map(ab => {
@@ -983,7 +981,7 @@ export class FightTimeLineController {
     const ab = this.holders.abilities.get(group).ability;
     if (ab.settings !== undefined && ab.settings && ab.settings.length > 0) {
       const item = this.holders.itemUsages.get(itemid);
-      this.dialogCallBacks.openAbilityEditDialog({ ability:ab , settings: ab.settings, values: item.settings, jobs: this.holders.jobs.getAll() },
+      this.dialogCallBacks.openAbilityEditDialog({ ability: ab, settings: ab.settings, values: item.settings, jobs: this.holders.jobs.getAll() },
         (b: any) => {
           if (b) {
             this.commandStorage.execute(new C.ChangeAbilitySettingsCommand(itemid, b));
@@ -1038,8 +1036,8 @@ export class FightTimeLineController {
     this.holders.stances.clear();
     this.holders.heatMaps.clear();
 
-    this.loadedBoss = null;
-    this.loadedFight = null;
+    this.data = {};
+
     this.loading = false;
 
     this.commandStorage.clear();
@@ -1047,12 +1045,12 @@ export class FightTimeLineController {
     this.hasChanges = false;
   }
 
-  importFromFFLogs(events: FF.Events): any {
+  importFromFFLogs(key: string, events: FF.Events): any {
 
     try {
 
       this.new();
-
+      this.data.importedFrom = key;
       this.loading = true;
       const settings = this.settingsService.load();
       const defaultOrder = ["Tank", "Heal", "DD"];
@@ -1146,7 +1144,7 @@ export class FightTimeLineController {
     const items = this.holders.selectionRegistry.getAll();
     if (items && items.length) {
       const ids = items.map(it => it.id);
-      const toMove: (H.IMoveable & {id: string, ability?: H.AbilityMap, end?: Date})[] = (_.flatten([
+      const toMove: (H.IMoveable & { id: string, ability?: H.AbilityMap, end?: Date })[] = (_.flatten([
         this.holders.itemUsages.getByIds(ids),
         this.holders.stances.getByIds(ids),
         this.holders.bossAttacks.getByIds(ids)
@@ -1174,8 +1172,8 @@ export class FightTimeLineController {
 
   serializeForExport(): ExportData {
     return <ExportData>{
-      name: this.loadedFight && this.loadedFight.name || "",
-      userName: this.loadedFight && this.loadedFight.userName || "",
+      name: this.data.fight && this.data.fight.name || "",
+      userName: this.data.fight && this.data.fight.userName || "",
       data: {
         boss: {
           attacks: this.holders.bossAttacks.getAll()
@@ -1326,15 +1324,14 @@ export class FightTimeLineController {
   }
 }
 
-
 export interface IFightSerializeData {
   initialTarget: string;
   encounter: string;
+  importedFrom: string;
   jobs: IJobSerializeData[];
   abilities: IAbilityUsageData[];
-  stances: any[];
-  downTimes: { start: Date, end: Date }[];
-  abilityMaps: any;
+  stances: IStanceUsageData[];
+  abilityMaps: IAbilityMapData[];
   boss: M.IBoss;
   filter: M.IFilter;
   view: M.IView;
@@ -1351,7 +1348,6 @@ export interface IDowntimeSerializeData {
   color: string;
 }
 
-
 export interface IJobSerializeData {
   id: string;
   name: string;
@@ -1362,13 +1358,27 @@ export interface IJobSerializeData {
   collapsed: boolean;
 }
 
-
 export interface IAbilityUsageData {
   id: string;
   job: string;
   ability: string;
   start: string;
   settings: string;
+}
+
+export interface IStanceUsageData {
+  id: string;
+  job: string;
+  ability: string;
+  start: string;
+  end: string;
+}
+
+export interface IAbilityMapData {
+  name: string;
+  job: string;
+  compact: boolean;
+  hidden: boolean;
 }
 
 export interface IBossAbilityUsageData {
@@ -1378,8 +1388,14 @@ export interface IBossAbilityUsageData {
 
 export interface IDialogs {
   openBossAttackAddDialog: (bossAbility: M.IBossAbility | {}, callBack: (b: any) => void) => void;
-  openAbilityEditDialog: (data: {ability: M.IAbility, settings: M.IAbilitySetting[], values: M.IAbilitySettingData[], jobs: H.JobMap[] }, callBack: (b: any) => void) => void;
+  openAbilityEditDialog: (data: { ability: M.IAbility, settings: M.IAbilitySetting[], values: M.IAbilitySettingData[], jobs: H.JobMap[] }, callBack: (b: any) => void) => void;
   openStanceSelector: (data: M.IContextMenuData[]) => void;
+}
+
+interface IFightData {
+  fight?: M.IFight;
+  boss?: M.IBoss;
+  importedFrom?: string;
 }
 
 

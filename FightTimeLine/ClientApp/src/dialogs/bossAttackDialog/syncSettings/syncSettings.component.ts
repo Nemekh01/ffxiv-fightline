@@ -13,7 +13,8 @@ export class SyncSettingsComponent implements OnInit {
 
   @Input("data") data: M.IBossAbility;
   @ViewChild("tree") tree: NzTreeComponent;
-  settings: any;
+  settings: NzTreeNodeOptions[];
+  offset: string;
   uniqueIndex: number = 0;
   expression: string;
 
@@ -85,7 +86,9 @@ export class SyncSettingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.settings = [this.convertToNodes(this.data.syncSettings && JSON.parse(this.data.syncSettings))];
+    const syncData: M.ISyncData = this.data.syncSettings && JSON.parse(this.data.syncSettings);
+    this.settings = [this.convertToNodes(syncData && syncData.condition)];
+    this.offset = syncData && syncData.offset;
     setTimeout(() => this.updateExpression());
   }
 
@@ -183,8 +186,12 @@ export class SyncSettingsComponent implements OnInit {
     const root = this.tree.getTreeNodes()[0];
     if (root.children.length === 0)
       return null;
-    return JSON.stringify(this.build(root));
+    return JSON.stringify(<M.ISyncData>{
+      condition: this.build(root),
+      offset: this.offset
+    });
   }
+  
 
   build(node: NzTreeNodeOptions): M.Combined {
     if (node.isLeaf) {

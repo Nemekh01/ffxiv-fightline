@@ -8,7 +8,6 @@ import { LocalStorageService } from "./LocalStorageService"
 import "rxjs/add/observable/from";
 import "rxjs/add/observable/of";
 import { Event, ReportEventsResponse, ReportFightsResponse, IJobInfo, Events, Zone } from "../core/FFLogs"
-import { FFLogsImportBossAttacksSource } from "./SettingsService"
 import * as _ from "lodash"
 
 
@@ -51,12 +50,10 @@ export class FFLogsService {
   }
 
   async getEvents(code: string, instance: number, callBack: (percentage: number) => void): Promise<Events> {
-    const settings = this.settings.load();
-    const bossAttacksSource = settings.fflogsImport.bossAttacksSource;
 
     let cache = this.storage.getObject<ICacheItem[]>("events_cache");
     if (cache) {
-      const item = cache.find(it => it.key === code + instance + bossAttacksSource);
+      const item = cache.find(it => it.key === code + instance);
       if (item) {
         item.timestamp = new Date();
         return Promise.resolve(item.data);
@@ -82,7 +79,7 @@ export class FFLogsService {
         })
         .filter((it) => it.job != null);
 
-    const filter = this.createFilter(fight, jobs, bossAttacksSource);
+    const filter = this.createFilter(fight, jobs);
     const events: Event[] = [];
     let a: ReportEventsResponse = null;
     do {
@@ -99,7 +96,7 @@ export class FFLogsService {
     const result = { events: events, jobs: jobs, start_time: foundFight.start_time, name: foundFight.zoneName + " " + foundFight.name };
 
     cache = cache || [];
-    const item = { key: code + instance + bossAttacksSource, timestamp: new Date(), data: result };
+    const item = { key: code + instance, timestamp: new Date(), data: result };
     cache.push(item);
     if (cache.length > 10)
       cache.splice(0, cache.length - 10);
@@ -108,7 +105,7 @@ export class FFLogsService {
     return Promise.resolve(result);
   }
 
-  private createFilter(fight: ReportFightsResponse, jobs: IJobInfo[], bossAttacksSource: FFLogsImportBossAttacksSource): string {
+  private createFilter(fight: ReportFightsResponse, jobs: IJobInfo[]): string {
 
     const enemyIds = fight.enemies.map(e => e.id).join();
 
@@ -126,7 +123,7 @@ export class FFLogsService {
     ((
          type in ('cast', 'damage') and ability.id in (${abilityIds}) and source.id in (${partyIds})
       )or(
-        type in ('${bossAttacksSource}') and source.id in (${enemyIds})
+        type in ('cast', 'damage') and source.id in (${enemyIds})
 	    )or(
 		    type in ('applybuff','removebuff') and ability.id in (${buffs})
 	    )) and ability.id not in (${bossAutoAttacks})`;
@@ -171,7 +168,15 @@ export class FFLogsService {
   }
 
   getZones(): Observable<Zone[]> {
-    let observable = this.httpClient.get<Zone[]>(`${this.fflogsUrl}v1/zones?api_key=${this.apiKey}`);
+    const cache = this.storage.getObject<ICacheItem>("zones_cache");
+    if (cache) {
+      if ((new Date().valueOf() - cache.timestamp.valueOf()) < 1000 * 60 * 60 * 24) {
+        return Observable.of(cache.data);
+      }
+    }
+    const observable = this.httpClient.get<Zone[]>(`${this.fflogsUrl}v1/zones?api_key=${this.apiKey}`).pipe(tap(x => {
+      this.storage.setObject("zones_cache", { key: "", data: x, timestamp: new Date() });
+    }));
     return observable;
   }
 

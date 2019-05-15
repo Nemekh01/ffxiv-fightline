@@ -19,7 +19,7 @@ export class Utils {
       const parts = offset.split(":");
       const mins = Math.abs(parseInt(parts[0]));
       const secs = parseInt(parts[1]);
-      const number = (Math.sign(parseInt(parts[0])) < 0 ? -1 : 1) * (mins * 60 * 1000 + secs * 1000);
+      const number = (offset.indexOf("-")>=0?-1:1) * (mins * 60 * 1000 + secs * 1000);
       d = new Date(d.valueOf() as number + number);
     }
 

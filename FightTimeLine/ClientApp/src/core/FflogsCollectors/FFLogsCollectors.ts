@@ -132,7 +132,7 @@ export class StancesCollector implements IFFLogsCollector {
 
 export class BossAttacksCollector implements IFFLogsCollector {
 
-  private bossAttacks: { [id: string]: Array<any> } = {};
+  private bossAttacks: { [id: string]: Array<FF.AbilityEvent> } = {};
   constructor(private jobsMapHolder: JobsMapHolder, private abilitiesMapHolder: AbilitiesMapHolder, private commandStorage: UndoRedoController, private idgen: IdGenerator, private startDate: Date) {
 
   }
@@ -150,10 +150,19 @@ export class BossAttacksCollector implements IFFLogsCollector {
   }
 
   process(startTime: number): void {
+    const tbs = Object.keys(this.bossAttacks).map(it=>this.bossAttacks[it]).filter((arr,i,a) => {
+      return arr.find(it => {
+        if (FF.isDamageEvent(it)) {
+          return (it.amount + it.blocked > 0.6 * it.targetResources.maxHitPoints) &&
+            arr.length <= 2;
+        }
+        return false;
+      });
+    }).filter(a=>!!a).map(it=>it[0].ability.name);
+
     Object.keys(this.bossAttacks).forEach((k: string) => {
       const arr = this.bossAttacks[k];
       const ability = arr.find((it) => it.ability &&
-        (it.type === "damage" || it.type === "cast") &&
         it.ability.name !== "Attack" &&
         it.ability.name !== "attack" &&
         it.ability.name.trim() !== "" &&
@@ -163,11 +172,13 @@ export class BossAttacksCollector implements IFFLogsCollector {
         this.commandStorage.execute(new AddBossAttackCommand(
           this.idgen.getNextId(EntryType.BossAttack), {
             name: ability.ability.name,
-            type: ability.ability.type === 128 ? DamageType.Physical : (ability.ability.type === 1024 ? DamageType.Magical : DamageType.None),
+            type: ability.ability.type === 128
+              ? DamageType.Physical
+              : (ability.ability.type === 1024 ? DamageType.Magical : DamageType.None),
             offset: Utils.formatTime(date),
             isAoe: arr.length > 4,
-            isTankBuster: arr.some(it => it.type === "damage" && it.overkill > 0) && arr.length < 2
-          }));
+            isTankBuster: tbs.indexOf(ability.ability.name) >= 0
+      }));
 
       }
     });

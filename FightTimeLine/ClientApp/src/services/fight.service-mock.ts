@@ -23,7 +23,7 @@ export class FightsMockService implements IFightService {
         }),
       concat(),
       toArray(),
-      delay(3000)
+      delay(1000)
     );
     return example;
   }
@@ -36,7 +36,7 @@ export class FightsMockService implements IFightService {
       isPrivate: false,
       data: '{"attacks":[{"id":"b56b029a6-d8ba-52eb-c034-d89d022d4c6d|1","ability":{"name":"test1","type":1,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"09: 24","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 2","ability":{"name":"test2","type":2,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"13: 50","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 3","ability":{"name":"test3","type":0,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"18: 50","syncSettings":null}}],"downTimes":[]}',
       userName: ""
-    }).pipe(delay(3000));
+    }).pipe(delay(1000));
   }
 
   saveBoss(boss: IBoss): Observable<IBoss> {

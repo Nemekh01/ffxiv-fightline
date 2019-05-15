@@ -164,6 +164,9 @@ interface EffectEvent extends AbilityEvent {
 
 export interface DeathEvent extends Event { type: 'death' }
 export interface CastEvent extends AbilityEvent { type: 'begincast' | 'cast' }
+
+export const isDamageEvent = (ev: AbilityEvent): ev is DamageEvent => ev.type === 'damage';
+
 export interface DamageEvent extends EffectEvent {
   type: 'damage';
   absorbed: number;

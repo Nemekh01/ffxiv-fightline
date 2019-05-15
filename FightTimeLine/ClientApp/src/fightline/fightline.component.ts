@@ -441,7 +441,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
       .then(result => {
         if (result)
           this.authenticationService.login(result.username, result.password).subscribe((): void => {
-        });
+          });
       });
   }
 
@@ -510,7 +510,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
           this.toolbar.filter.set(settings.main.defaultFilter);
           this.fightLineController.applyFilter(settings.main.defaultFilter);
 
-          this.fightLineController.importFromFFLogs(ev);
+          this.fightLineController.importFromFFLogs(code + ":" + enc, ev);
         })
         .catch(() => {
           this.notification.showUnableToImport();
@@ -807,7 +807,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   openBossTemplates() {
-    const boss = this.fightLineController.loadedBoss;
+    const boss = this.fightLineController.data.boss;
     this.dialogService.openBossTemplates(true, boss);
   }
 
@@ -882,7 +882,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
           });
       } else {
 
-        this.dialogService.openSaveBoss(value.name+" new template")
+        this.dialogService.openSaveBoss(value.name + " new template")
           .then(data => {
             if (data) {
               bossData.name = data;
@@ -891,10 +891,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
               bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
 
               this.fightService.saveBoss(bossData).subscribe((e) => {
-                  this.notification.success("Boss saved");
-                  this.fightLineController.updateBoss(e);
-                  value.close();
-                },
+                this.notification.success("Boss saved");
+                this.fightLineController.updateBoss(e);
+                value.close();
+              },
                 (err) => {
                   this.notification.error("Boss save failed");
                 });
@@ -917,10 +917,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
             bossData.isPrivate = bossData && bossData.isPrivate || value.isPrivate;
 
             this.fightService.saveBoss(bossData).subscribe((e) => {
-                this.notification.success("Boss saved");
-                this.fightLineController.updateBoss(e);
-                value.close();
-              },
+              this.notification.success("Boss saved");
+              this.fightLineController.updateBoss(e);
+              value.close();
+            },
               (err) => {
                 this.notification.error("Boss save failed");
               });

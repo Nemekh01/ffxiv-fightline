@@ -7,10 +7,6 @@ import {
   Output
 } from "@angular/core";
 
-import {
-  NgControl
-}
-  from "@angular/forms"
 
 import { Utils } from "../core/Utils"
 
@@ -26,10 +22,21 @@ enum WheelOperator {
 export class OffsetWheelDirective {
   private operators: any = {
     [WheelOperator.INCREASE]: (a: string, b: number): string =>
-      Utils.formatTime(new Date(Math.max(Math.min(this.handleParse(a).valueOf() + b * 1000, 946677600000 + 30 * 60 * 1000), 946677600000))),
+      Utils.formatTime(new Date(Math.max(Math.min(this.handleParse(a).valueOf() + b * 1000, this.getMax()), this.getMin()))),
     [WheelOperator.DECREASE]: (a: string, b: number): string =>
-      Utils.formatTime(new Date(Math.max(Math.min(this.handleParse(a).valueOf() - b * 1000, 946677600000 + 30 * 60 * 1000), 946677600000)))
+      Utils.formatTime(new Date(Math.max(Math.min(this.handleParse(a).valueOf() - b * 1000, this.getMax()), this.getMin())))
   };
+
+  @Input("min") min: string = "0:0";
+  @Input("max") max: string = "0:30";
+
+  private getMin(): number {
+    return this.handleParse(this.min).valueOf() as number;
+  }
+
+  private getMax(): number {
+    return this.handleParse(this.max).valueOf() as number;
+  }
 
   @HostListener("mousewheel", ["$event"])
   onMouseWheel(event) {
@@ -51,7 +58,6 @@ export class OffsetWheelDirective {
     
     //propagate ngModel changes
     this.el.nativeElement.dispatchEvent(new Event("input"));
-    //this.control.control.setValue(this.el.nativeElement.value);
     return false;
   }
 
@@ -75,7 +81,7 @@ export class OffsetWheelDirective {
       return new Date(946677600000);
   }
 
-  constructor(private el: ElementRef, private control: NgControl) {
+  constructor(private el: ElementRef) {
     //el.nativeElement.value = this.handleParse(el.nativeElement.value);
     el.nativeElement.step = 1;
   }
