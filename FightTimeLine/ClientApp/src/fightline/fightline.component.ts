@@ -439,7 +439,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
   register() {
     return this.dialogService.openRegister()
       .then(result => {
-        this.authenticationService.login(result.username, result.password).subscribe((): void => {
+        if (result)
+          this.authenticationService.login(result.username, result.password).subscribe((): void => {
         });
       });
   }

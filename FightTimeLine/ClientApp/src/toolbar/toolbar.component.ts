@@ -220,6 +220,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   register() {
     this.dialogService.openRegister()
       .then(result => {
+        if (result)
         this.authenticationService
           .login(result.username, result.password)
           .subscribe((): void => {

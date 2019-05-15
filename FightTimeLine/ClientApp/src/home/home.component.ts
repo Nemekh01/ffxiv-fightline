@@ -104,8 +104,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   register() {
     this.dialogService.openRegister()
       .then(result => {
-        this.authenticationService.login(result.username, result.password).subscribe((): void => {
-        });
+        if (result)
+          this.authenticationService.login(result.username, result.password).subscribe((): void => {
+          });
       });
   }
 
