@@ -1,7 +1,7 @@
 <div mat-dialog-content style="height: 600px; min-height: 600px;overflow: hidden">
   <nz-layout>
     <nz-spin nzTip='Loading...' [nzSpinning]="isSpinning" [nzDelay]="500">
-      <nz-sider nzTheme="light" style="overflow: auto; height: 600px;" [nzWidth]="350">
+      <nz-sider nzTheme="light" style="overflow: auto; height: 600px;background: #fff;" [nzWidth]="350">
         <nz-layout style="height: 600px;min-width:350px">
           <nz-header style="background: #fff; padding: 3px;">
             <nz-input-group [nzPrefix]="prefixTemplate1" [nzSuffix]="suffixTemplate1">
@@ -33,7 +33,7 @@
       <nz-content style="margin: 4px 2px 2px 4px; overflow: auto;min-height: 524px" customScroll>
         <as-split direction="vertical" unit="percent" gutterSize="5" [class.fullSize]="true" restrictMove="true">
           <as-split-area size="50" minSize="10" maxSize="50">
-            <nz-spin nzTip='Loading...' [nzSpinning]="isListLoading" [nzDelay]="500" style="width: 100%; height: 100%;">
+            <nz-spin nzTip='Loading...' [nzSpinning]="isListLoading" [nzDelay]="500" style="min-width: 100%; min-height: 100%;">
               <div #listContainer [class.fullSize]="true" style="overflow: auto; background: #fff" customScroll>
                 <nz-list [nzDataSource]="templates" nzSize="small" [ngClass]="{loadList:true}" [class.fullSize]="true" [nzBordered]="true" [nzNoResult]="nothing" [nzRenderItem]="item">
                   <ng-template #nothing>
@@ -49,10 +49,10 @@
             </nz-spin>
           </as-split-area>
           <as-split-area size="50" minSize="50">
-            <nz-spin nzTip='Loading...' [nzSpinning]="isTimelineLoading" [nzDelay]="500" style="width: 100%; height: 100%;">
-              <div style="width: 100%; height: 100%; background-color: white; display: block;">
+            <nz-spin nzTip='Loading...' [nzSpinning]="isTimelineLoading" [nzDelay]="500" style="min-width: 100%; min-height: 100%;">
+              <div style="min-width: 100%; min-height: 100%; background-color: white; display: block;">
 
-                <div #timeline class="boss-timeline" style="width: 100%; height: 100%"></div>
+                <div #timeline class="boss-timeline" style="min-width: 100%; min-height: 100%"></div>
 
               </div>
             </nz-spin>
