@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject, EventEmitter } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject, EventEmitter,TemplateRef } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import { SettingsFilterComponent } from "./filter/settingsFilter.component"
 import { SettingsViewComponent } from "./view/settingsView.component"
@@ -33,22 +33,19 @@ export class SettingsDialog {
   @ViewChild("view")
   view: SettingsViewComponent;
 
+  @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
+
   constructor(
     private dialogRef: NzModalRef,
     private formBuilder: FormBuilder,
     private settingsService: SettingsService) {
 
-    (this.dialogRef.getInstance().nzOnOk as EventEmitter<any>).subscribe(() => {
-      this.onYesClick();
-    });
-
-    (this.dialogRef.getInstance().nzOnCancel as EventEmitter<any>).subscribe(() => {
-      this.onNoClick();
-    });
-
   }
 
   ngOnInit() {
+
+    this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
+
     const settings = this.settingsService.load();
     const sortOrder = settings.fflogsImport.sortOrderAfterImport;
 

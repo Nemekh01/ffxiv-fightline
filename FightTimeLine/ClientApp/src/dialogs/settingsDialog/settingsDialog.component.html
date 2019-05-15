@@ -60,7 +60,7 @@
             Display name:
           </div>
           <div class="settings-body">
-              <input nz-input formControlName="displayName" placeholder="Your preffered name here"/>
+            <input nz-input formControlName="displayName" placeholder="Your preffered name here"/>
           </div>
         </div>
       </form>
@@ -71,3 +71,8 @@
     </nz-tab>
   </nz-tabset>
 </div>
+
+<ng-template #buttonsTemplate>
+  <button nz-button nzType="primary" (click)="onNoClick()">Cancel</button>
+  <button nz-button (click)="onYesClick()" cdkFocusInitial>Save</button>
+</ng-template>
