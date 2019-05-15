@@ -902,7 +902,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
     this.subs.push(dispatcher.on("BossTemplates Save as new").subscribe(value => {
       const bossData = this.fightLineController.serializeBoss();
-      this.dialogService.openSaveBoss("New Template")
+      this.dialogService.openSaveBoss(value.name + " new template")
         .then(data => {
           if (data) {
             bossData.id = null;

@@ -237,7 +237,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.dispatcher.dispatch({
       name: "BossTemplates Save",
       payload: {
-        name: this.data.boss && this.data.boss.name,
+        name: this.data.boss && this.data.boss.name || this.selectedEncounter.name,
         reference: this.selectedEncounter && this.selectedEncounter.id || 0,
         isPrivate: false
       }

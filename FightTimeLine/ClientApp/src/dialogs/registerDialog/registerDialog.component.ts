@@ -34,7 +34,7 @@ export class RegisterDialog {
   loading = false;
   checkingUser = false;
   captchaLoaded = false;
-  notRobot = false;
+  notRobot = true;
   private captchaData: string;
 
   buildForm() {
