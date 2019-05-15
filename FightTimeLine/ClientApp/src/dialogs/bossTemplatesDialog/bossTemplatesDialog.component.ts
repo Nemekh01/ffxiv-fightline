@@ -65,6 +65,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   selectedEncounter: Encounter;
   selectedTemplate: M.IBossSearchEntry;
   templates: M.IBossSearchEntry[] = [];
+  filteredTemplates: M.IBossSearchEntry[] = [];
   isTimelineLoading: boolean = false;
 
   format() {
@@ -153,6 +154,15 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
         );
   }
 
+  onSearchFightChange(event: any) {
+    this.filteredTemplates =
+      this.templates.filter(
+        (t: M.IBossSearchEntry) => {
+          return (!this.searchFightString || t.name.toLowerCase().indexOf(this.searchFightString.toLowerCase()) >= 0);
+        }
+      );
+  }
+
   clear() {
     this.searchString = "";
     this.onSearchChange("");
@@ -178,6 +188,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
         this.select({ id: this.data.boss.id, name: "" }, skipCheck);
       }
       this.templates = data.filter(x => !this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
+      this.onSearchFightChange(null);
     }, null,
       () => {
         this.isListLoading = false;

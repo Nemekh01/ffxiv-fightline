@@ -25,7 +25,7 @@
     <nz-layout style="min-height: 600px">
       <nz-header style="background: #fff; padding: 3px;">
         <nz-input-group nzSpan="8" [nzPrefix]="prefixTemplate2" [nzSuffix]="suffixTemplate2">
-          <input nz-input placeholder="Search template" [(ngModel)]="searchFightString" (ngModelChange)="onSearchChange($event)" />
+          <input nz-input placeholder="Search template" [(ngModel)]="searchFightString" (ngModelChange)="onSearchFightChange($event)" />
         </nz-input-group>
         <ng-template #prefixTemplate2><i nz-icon type="search"></i></ng-template>
         <ng-template #suffixTemplate2><i nz-icon type="close-circle" (click)="clearTemplates()" *ngIf="searchFightString"></i></ng-template>
@@ -35,7 +35,7 @@
           <as-split-area size="50" minSize="10" maxSize="50">
             <nz-spin nzTip='Loading...' [nzSpinning]="isListLoading" [nzDelay]="500" style="min-width: 100%; min-height: 100%;height: 100%">
               <div #listContainer [class.fullSize]="true" style="overflow: auto; background: #fff" customScroll>
-                <nz-list [nzDataSource]="templates" nzSize="small" [ngClass]="{loadList:true}" [class.fullSize]="true" [nzBordered]="true" [nzNoResult]="nothing" [nzRenderItem]="item">
+                <nz-list [nzDataSource]="filteredTemplates" nzSize="small" [ngClass]="{loadList:true}" [class.fullSize]="true" [nzBordered]="true" [nzNoResult]="nothing" [nzRenderItem]="item">
                   <ng-template #nothing>
                     <nz-empty></nz-empty>
                   </ng-template>
