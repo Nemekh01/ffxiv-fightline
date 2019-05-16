@@ -16,6 +16,8 @@ namespace FightTimeLine.DataLayer
           public bool IsPrivate { get; set; }
           public string Data { get; set; }
           public long? Reference { get; set; }
+          public DateTimeOffset? CreateDate { get; set; }
+          public DateTimeOffset? ModifiedDate { get; set; }
      }
 
      [Table("Fights")]

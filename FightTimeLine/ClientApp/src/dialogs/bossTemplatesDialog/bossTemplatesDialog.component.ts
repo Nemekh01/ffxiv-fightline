@@ -6,6 +6,7 @@ import { Zone, Encounter } from "../../core/FFLogs"
 import * as M from "../../core/Models"
 import { Utils } from "../../core/Utils"
 import { FFLogsService } from "../../services/FFLogsService"
+import { ScreenNotificationsService } from "../../services/ScreenNotificationsService"
 import { DispatcherService } from "../../services/dispatcher.service"
 import { fightServiceToken } from "../../services/fight.service-provider"
 import { IFightService } from "../../services/fight.service-interface"
@@ -114,6 +115,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     private visTimelineService: VisTimelineService,
     private dispatcher: DispatcherService,
     @Inject(authenticationServiceToken) private authService: IAuthenticationService,
+    private notification: ScreenNotificationsService
   ) {
 
   }
@@ -183,18 +185,34 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.selectedZone = zone;
     this.selectedEncounter = enc;
     this.isListLoading = true;
+    
+    this.loadBosses(enc, skipCheck);
+
+  }
+
+  loadBosses(enc: any, skipCheck?: boolean) {
     this.fightService.getBosses(enc.id, this.data.boss && this.data.boss.name || "", false).subscribe((data) => {
-      if (this.data.boss) {
-        this.select({ id: this.data.boss.id, name: "" }, skipCheck);
-      }
-      this.templates = data.filter(x => !this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
-      this.onSearchFightChange(null);
-    }, null,
+        if (this.data.boss) {
+          this.select({ id: this.data.boss.id, name: "", canRemove: false }, skipCheck);
+        }
+        this.templates = data.filter(x => !this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
+        this.onSearchFightChange(null);
+      }, null,
       () => {
         this.isListLoading = false;
+        this.listContainer.nativeElement.scrollTop = 0;
       });
-    this.listContainer.nativeElement.scrollTop = 0;
+  }
 
+  remove(item: any, event: any) {
+    this.fightService.removeBosses([item.id]).subscribe((data) => {
+      this.notification.success("Template has been removed.");
+      this.selectedTemplate = null;
+    }, (error) => {
+      this.notification.success("Ubable to remove tempalte");
+    }, () => {
+        this.loadBosses(this.selectedEncounter, true);
+    });
   }
 
   onNoClick(): void {
@@ -220,8 +238,6 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
 
 
   createBossAttack(id: string, attack: M.IBossAbility, vertical: boolean): VisTimelineItem {
-    const cls = { bossAttack: true, vertical: vertical };
-    cls[M.DamageType[attack.type]] = true;
     const data = {
       id: id,
       content: this.createBossAttackElement(attack),

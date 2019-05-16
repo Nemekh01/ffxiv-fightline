@@ -17,7 +17,7 @@ export class FightsMockService implements IFightService {
       //call 5 times
       take(50),
       map(x =>
-        <IBoss>{
+        <IBossSearchEntry>{
           id: (reference*1000 + Number(x)).toString(),
           name: reference + " name " + x
         }),

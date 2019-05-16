@@ -41,7 +41,10 @@ namespace FightTimeLine.Controllers
                     {
                          Id = s.Identifier.ToString(),
                          Name = s.Name,
-                         Owner = s.UserName
+                         Owner = s.UserName,
+                         CanRemove = !string.IsNullOrWhiteSpace(name) && string.Equals(name, s.UserName,StringComparison.OrdinalIgnoreCase),
+                         CreateDate = s.CreateDate.GetValueOrDefault(),
+                         ModifiedDate = s.ModifiedDate.GetValueOrDefault()
                     }).ToArrayAsync();
           }
 
@@ -65,7 +68,7 @@ namespace FightTimeLine.Controllers
                     UserName = name,
                     Data = data.Data,
                     Reference = data.Reference ?? 0,
-                    IsPrivate = data.IsPrivate
+                    IsPrivate = data.IsPrivate,
                });
           }
 
@@ -94,10 +97,12 @@ namespace FightTimeLine.Controllers
                          UserName = request.UserName,
                          IsPrivate = request.IsPrivate,
                          Data = request.Data,
-                         Reference = request.Reference
+                         Reference = request.Reference,
+                         CreateDate = DateTimeOffset.UtcNow
                     };
                     _dataContext.Bosses.Add(boss);
                }
+               boss.ModifiedDate = DateTimeOffset.UtcNow;
 
                await _dataContext.SaveChangesAsync();
 
@@ -108,7 +113,9 @@ namespace FightTimeLine.Controllers
                     UserName = boss.UserName,
                     Data = "",
                     IsPrivate = boss.IsPrivate,
-                    Reference = boss.Reference.GetValueOrDefault()
+                    Reference = boss.Reference.GetValueOrDefault(),
+                    CreateDate = boss.CreateDate.GetValueOrDefault(),
+                    ModifiedDate = boss.ModifiedDate.GetValueOrDefault()
                });
           }
 
@@ -232,6 +239,10 @@ namespace FightTimeLine.Controllers
                public bool IsPrivate { get; set; }
                [JsonProperty("ref")]
                public long Reference { get; set; }
+               [JsonProperty("createDate")]
+               public DateTimeOffset CreateDate { get; set; }
+               [JsonProperty("modifiedDate")]
+               public DateTimeOffset ModifiedDate { get; set; }
           }
 
           public class FightData
@@ -251,6 +262,11 @@ namespace FightTimeLine.Controllers
                public string Id { get; set; }
                public string Name { get; set; }
                public string Owner { get; set; }
+               public bool CanRemove { get; set; }
+               [JsonProperty("createDate")]
+               public DateTimeOffset CreateDate { get; set; }
+               [JsonProperty("modifiedDate")]
+               public DateTimeOffset ModifiedDate { get; set; }
           }
 
           public class FightSearchResult

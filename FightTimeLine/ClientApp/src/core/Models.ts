@@ -51,6 +51,9 @@ export interface IBoss {
 export interface IBossSearchEntry {
   id: string;
   name: string;
+  canRemove?: boolean;
+  createDate?: Date;
+  modifiedDate?:Date;
 }
 
 export interface IFight {

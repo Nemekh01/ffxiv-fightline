@@ -19,8 +19,13 @@ mat-sidenav-container {
   padding-left: 5px;
 }
 
-  .loadList .ant-list-item.selected {
-    background-color: #e6f7ff;
-    cursor: pointer;
-    font-weight: bold;
+
+
+.loadList .ant-list-item.selected  {
+  background-color: #e6f7ff;
+  cursor: pointer;
+}
+
+  .loadList .ant-list-item.selected span.selected {
+    font-weight: bold !important;
   }
