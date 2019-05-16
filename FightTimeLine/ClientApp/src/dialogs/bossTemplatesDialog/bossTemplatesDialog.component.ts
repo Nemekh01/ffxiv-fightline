@@ -209,7 +209,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       this.notification.success("Template has been removed.");
       this.selectedTemplate = null;
     }, (error) => {
-      this.notification.success("Ubable to remove tempalte");
+      this.notification.success("Unable to remove tempalte");
     }, () => {
         this.loadBosses(this.selectedEncounter, true);
     });
