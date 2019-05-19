@@ -1,7 +1,7 @@
 import { Injectable, Inject } from "@angular/core"
 import { Observable } from "rxjs"
 import { expand, take, concatMap, concat, toArray, map, delay } from "rxjs/operators"
-import { IBoss, IFight, IBossSearchEntry } from "../core/Models"
+import { IBoss, IFight, IBossSearchEntry,ISyncData, SyncOperation } from "../core/Models"
 import { IFightService } from "./fight.service-interface"
 
 @Injectable()
@@ -18,7 +18,7 @@ export class FightsMockService implements IFightService {
       take(50),
       map(x =>
         <IBossSearchEntry>{
-          id: (reference*1000 + Number(x)).toString(),
+          id: (reference * 1000 + Number(x)).toString(),
           name: reference + " name " + x
         }),
       concat(),
@@ -34,7 +34,26 @@ export class FightsMockService implements IFightService {
       name: "test boss",
       ref: 1,
       isPrivate: false,
-      data: '{"attacks":[{"id":"b56b029a6-d8ba-52eb-c034-d89d022d4c6d|1","ability":{"name":"test1","type":1,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"09: 24","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 2","ability":{"name":"test2","type":2,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"13: 50","syncSettings":null}},{"id":"b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d | 3","ability":{"name":"test3","type":0,"isAoe":null,"isShareDamage":null,"isTankBuster":null,"offset":"18: 50","syncSettings":null}}],"downTimes":[]}',
+      data: JSON.stringify({
+        "attacks": [
+          { "id": "b56b029a6-d8ba-52eb-c034-d89d022d4c6d|1", "ability": { "name": "test1", "type": 1, "isAoe": null, "isShareDamage": null, "isTankBuster": null, "offset": "09: 24", "syncSettings": JSON.stringify(
+            <ISyncData>{
+              offset: "00:00",
+              condition: {
+                operation: SyncOperation.And,
+                operands: [
+                  {
+                    type: "name",
+                    payload: {
+                      name:"Flamethrower"
+                    },
+                    description:"nothing new"
+                  }]
+              }
+            }) } },
+          { "id": "b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d|2", "ability": { "name": "test2", "type": 2, "isAoe": null, "isShareDamage": null, "isTankBuster": null, "offset": "13: 50", "syncSettings": null } },
+          { "id": "b56b029a6 - d8ba - 52eb - c034 - d89d022d4c6d|3", "ability": { "name": "test3", "type": 0, "isAoe": null, "isShareDamage": null, "isTankBuster": null, "offset": "18: 50", "syncSettings": null } }], "downTimes": []
+      }),
       userName: ""
     }).pipe(delay(1000));
   }

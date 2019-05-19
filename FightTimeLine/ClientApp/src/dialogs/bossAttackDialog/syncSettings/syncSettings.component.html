@@ -53,12 +53,32 @@
               <nz-select name="type" #typeControl style="width: 160px;" [(ngModel)]="selected.origin.data.type" nzPlaceHolder="Choose">
                 <nz-option nzValue="type" nzLabel="Type"></nz-option>
                 <nz-option nzValue="name" nzLabel="Name"></nz-option>
+                <nz-option nzValue="count" nzLabel="Count"></nz-option>
                 <nz-option nzValue="time" nzLabel="Time"></nz-option>
                 <nz-option nzValue="hp" nzLabel="HP"></nz-option>
               </nz-select>
             </nz-form-control>
           </nz-form-item>
           <div [ngSwitch]="selected && selected.origin.data.type">
+            <div *ngSwitchCase="'count'">
+              <nz-form-item>
+                <nz-form-control nzSpan="12">
+                  <nz-input-group [nzAddOnBefore]="addOnBeforeTemplate">
+                    <ng-template #addOnBeforeTemplate>
+                      <nz-select name="countComparer" #typeControl style="width: 100px;" [(ngModel)]="selected.origin.data.payload.countComparer" nzPlaceHolder="Choose">
+                        <nz-option nzValue="l" nzLabel="<"></nz-option>
+                        <nz-option nzValue="le" nzLabel="<="></nz-option>
+                        <nz-option nzValue="g" nzLabel=">"></nz-option>
+                        <nz-option nzValue="ge" nzLabel=">="></nz-option>
+                        <nz-option nzValue="e" nzLabel="=="></nz-option>
+                        <nz-option nzValue="ne" nzLabel="<>"></nz-option>
+                      </nz-select>
+                    </ng-template>
+                    <nz-input-number name="hp" [nzMin]="0" [nzMax]="1000" [nzStep]="1" [(ngModel)]="selected.origin.data.payload.count"></nz-input-number>
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
             <div *ngSwitchCase="'type'">
               <nz-form-item>
                 <nz-form-control>
@@ -72,41 +92,45 @@
             <div *ngSwitchCase="'name'">
               <nz-form-item>
                 <nz-form-control>
-                  <input nz-input name="nameName" [(ngModel)]="selected.origin.data.payload.name" />
+                  <input nz-input name="nameName" [(ngModel)]="selected.origin.data.payload.name"/>
                 </nz-form-control>
               </nz-form-item>
             </div>
             <div *ngSwitchCase="'time'">
               <nz-form-item>
-                <nz-form-control [nzSpan]="6">
-                  <nz-select name="offsetComparer" #typeControl style="width: 150px;" [(ngModel)]="selected.origin.data.payload.offsetComparer" nzPlaceHolder="Choose">
-                    <nz-option nzValue="l" nzLabel="<"></nz-option>
-                    <nz-option nzValue="le" nzLabel="<="></nz-option>
-                    <nz-option nzValue="g" nzLabel=">"></nz-option>
-                    <nz-option nzValue="ge" nzLabel=">="></nz-option>
-                    <nz-option nzValue="e" nzLabel="=="></nz-option>
-                    <nz-option nzValue="ne" nzLabel="!="></nz-option>
-                  </nz-select>
-                </nz-form-control>
                 <nz-form-control [nzSpan]="12">
-                  <input nz-input wheelOn name="offset" [(ngModel)]="selected.origin.data.payload.offset" />
+                  <nz-input-group [nzAddOnBefore]="addOnBeforeTemplate">
+                    <ng-template #addOnBeforeTemplate>
+                      <nz-select name="offsetComparer" #typeControl style="width: 100px;" [(ngModel)]="selected.origin.data.payload.offsetComparer" nzPlaceHolder="Choose">
+                        <nz-option nzValue="l" nzLabel="<"></nz-option>
+                        <nz-option nzValue="le" nzLabel="<="></nz-option>
+                        <nz-option nzValue="g" nzLabel=">"></nz-option>
+                        <nz-option nzValue="ge" nzLabel=">="></nz-option>
+                        <nz-option nzValue="e" nzLabel="=="></nz-option>
+                        <nz-option nzValue="ne" nzLabel="<>"></nz-option>
+                      </nz-select>
+                    </ng-template>
+                    <input nz-input wheelOn name="offset" [(ngModel)]="selected.origin.data.payload.offset"/>
+                  </nz-input-group>
                 </nz-form-control>
               </nz-form-item>
             </div>
             <div *ngSwitchCase="'hp'">
               <nz-form-item>
-                <nz-form-control nzSpan="6">
-                  <nz-select name="hpComparer" #typeControl style="width: 150px;" [(ngModel)]="selected.origin.data.payload.hpComparer" nzPlaceHolder="Choose">
-                    <nz-option nzValue="l" nzLabel="<"></nz-option>
-                    <nz-option nzValue="le" nzLabel="<="></nz-option>
-                    <nz-option nzValue="g" nzLabel=">"></nz-option>
-                    <nz-option nzValue="ge" nzLabel=">="></nz-option>
-                    <nz-option nzValue="e" nzLabel="=="></nz-option>
-                    <nz-option nzValue="ne" nzLabel="!="></nz-option>
-                  </nz-select>
-                </nz-form-control>
                 <nz-form-control nzSpan="12">
-                  <nz-input-number name="hp" [nzMin]="1" [nzMax]="100" [nzStep]="1" [nzFormatter]="formatterPercent" [nzParser]="parserPercent" [(ngModel)]="selected.origin.data.payload.hp"></nz-input-number>
+                  <nz-input-group [nzAddOnBefore]="addOnBeforeTemplate">
+                    <ng-template #addOnBeforeTemplate>
+                      <nz-select name="hpComparer" #typeControl style="width: 100px;" [(ngModel)]="selected.origin.data.payload.hpComparer" nzPlaceHolder="Choose">
+                        <nz-option nzValue="l" nzLabel="<"></nz-option>
+                        <nz-option nzValue="le" nzLabel="<="></nz-option>
+                        <nz-option nzValue="g" nzLabel=">"></nz-option>
+                        <nz-option nzValue="ge" nzLabel=">="></nz-option>
+                        <nz-option nzValue="e" nzLabel="=="></nz-option>
+                        <nz-option nzValue="ne" nzLabel="<>"></nz-option>
+                      </nz-select>
+                    </ng-template>
+                    <nz-input-number name="hp" [nzMin]="1" [nzMax]="100" [nzStep]="1" [nzFormatter]="formatterPercent" [nzParser]="parserPercent" [(ngModel)]="selected.origin.data.payload.hp"></nz-input-number>
+                  </nz-input-group>
                 </nz-form-control>
               </nz-form-item>
             </div>

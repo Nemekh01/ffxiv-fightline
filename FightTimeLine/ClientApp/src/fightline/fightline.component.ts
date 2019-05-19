@@ -1,15 +1,19 @@
 import { Component, OnInit, OnDestroy, ViewChild, HostListener, Inject } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
+import * as _ from "lodash";
 
 
 import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineOptions } from "ngx-vis";
-import { FightTimeLineController, IFightSerializeData } from "../core/FightTimeLineController"
+import { FightTimeLineController, IFightSerializeData, IBossSerializeData, IBossAbilityUsageData } from "../core/FightTimeLineController"
 import * as M from "../core/Models";
+import * as FF from "../core/FFLogs";
 import { NgProgress } from "ngx-progressbar"
 import { ChangeNotes } from "../changeNotes"
 
 import * as S from "../services/index"
+import { Utils } from "../core/Utils"
+import { process } from "../core/BossAttackProcessors"
 
 import { FightLineContextMenuComponent } from "./contextmenu/contextmenu.component"
 import { ToolbarComponent } from "../toolbar/toolbar.component"
@@ -932,8 +936,33 @@ export class FightLineComponent implements OnInit, OnDestroy {
     }));
 
     this.subs.push(dispatcher.on("BossTemplates Load").subscribe(value => {
-      this.fightLineController.loadBoss(value.boss);
-      value.close();
+      const source = this.fightLineController.data.importedFrom;
+      if (source) {
+        const parts = source.split(":");
+        this.ffLogsService.getEvents(parts[0], Number(parts[1]), null).then(data => {
+          const enemyAttacks = data.events.map(it => it as FF.AbilityEvent).filter(it => !it.sourceIsFriendly && it.ability &&
+            it.ability.name.toLowerCase() !== "attack" &&
+            it.ability.name.trim() !== "" &&
+            it.ability.name.indexOf("Unknown_") < 0);
+          const g = _.groupBy(enemyAttacks, d => d.ability.name + "_" + Math.trunc(d.timestamp / 1000));
+          const attacks = Object.keys(g).map((k: string) => {
+            return g[k][0];
+          });
+
+          const bossData = JSON.parse(value.boss.data) as IBossSerializeData;
+          const result = process(attacks, data.start_time, bossData.attacks.map(it => it.ability));
+          bossData.attacks = result.map(it => <IBossAbilityUsageData>{
+            ability : it,
+            id:this.idgen.getNextId(M.EntryType.BossAttack)
+          });
+          value.boss.data = JSON.stringify(bossData);
+          this.fightLineController.loadBoss(value.boss);
+          value.close();
+        });
+      } else {
+        this.fightLineController.loadBoss(value.boss);
+        value.close();
+      }
     }));
   }
 }

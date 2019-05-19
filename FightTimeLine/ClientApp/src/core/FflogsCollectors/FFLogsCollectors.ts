@@ -1,10 +1,11 @@
 import { JobsMapHolder, AbilitiesMapHolder } from "../DataHolders"
 import { UndoRedoController } from "../UndoRedo"
 import { IdGenerator } from "../Generators"
-import { EntryType, AbilityType, DamageType, IAbilitySettingData } from "../Models"
+import * as M from "../Models"
 import { Utils } from "../Utils"
 import { AddAbilityCommand, AddStanceCommand, AddBossAttackCommand } from "../Commands"
 import * as FF from "../FFLogs"
+import * as T from "../BossAttackProcessors"
 
 export interface IFFLogsCollector {
   collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void;
@@ -26,12 +27,12 @@ export class AbilityUsagesCollector implements IFFLogsCollector {
         if (found) {
           const ability = this.abilitiesMapHolder.getByParentAndAbility(jobMap.id, found.name);
           if (ability) {
-            const settingsData:IAbilitySettingData[] = [];
+            const settingsData: M.IAbilitySettingData[] = [];
             const pty = ability.getSettingOfType('partyMember');
             if (pty) {
-              settingsData.push({ name: pty.name, value: jobs.find(it1 => it1.id.some((it2: any) => it2 === data.targetID)).rid});
+              settingsData.push({ name: pty.name, value: jobs.find(it1 => it1.id.some((it2: any) => it2 === data.targetID)).rid });
             }
-            this.commandStorage.execute(new AddAbilityCommand(this.idgen.getNextId(EntryType.AbilityUsage),
+            this.commandStorage.execute(new AddAbilityCommand(this.idgen.getNextId(M.EntryType.AbilityUsage),
               jobMap.id,
               ability.ability.name,
               Utils.getDateFromOffset((found.offset - startTime) / 1000, this.startDate),
@@ -59,7 +60,7 @@ export class JobPetCollector implements IFFLogsCollector {
         const jobMap = this.jobsMapHolder.getByName(foundJob.job, foundJob.actorName);
         if (!jobMap.pet && jobMap.job.pets && jobMap.job.pets.length > 0) {
           const peta = jobMap.job.abilities.find(
-            am => (am.abilityType & AbilityType.Pet) === AbilityType.Pet && am.name === data.ability.name);
+            am => (am.abilityType & M.AbilityType.Pet) === M.AbilityType.Pet && am.name === data.ability.name);
           if (peta) {
             jobMap.pet = peta.pet;
           }
@@ -118,17 +119,29 @@ export class StancesCollector implements IFFLogsCollector {
           start = Utils.getDateFromOffset((v.timestamp - startTime) / 1000, this.startDate);
           ability = v.ability.name;
         } else {
-          this.commandStorage.execute(new AddStanceCommand(this.idgen.getNextId(EntryType.StanceUsage), k, ability || v.ability.name, start, Utils.getDateFromOffset((v.timestamp - startTime) / 1000, this.startDate), true));
+          this.commandStorage.execute(new AddStanceCommand(this.idgen.getNextId(M.EntryType.StanceUsage), k, ability || v.ability.name, start, Utils.getDateFromOffset((v.timestamp - startTime) / 1000, this.startDate), true));
           start = this.startDate;
         }
       }
       if (start !== this.startDate) {
-        this.commandStorage.execute(new AddStanceCommand(this.idgen.getNextId(EntryType.StanceUsage), k, ability, start, new Date(this.startDate.valueOf() + 30 * 60 * 1000), true));
+        this.commandStorage.execute(new AddStanceCommand(this.idgen.getNextId(M.EntryType.StanceUsage), k, ability, start, new Date(this.startDate.valueOf() + 30 * 60 * 1000), true));
       }
     });
   }
 }
 
+class TestCollector implements IFFLogsCollector {
+  collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void {
+
+  }
+
+  process(startTime: number): void {
+
+
+
+
+  }
+}
 
 export class BossAttacksCollector implements IFFLogsCollector {
 
@@ -150,7 +163,7 @@ export class BossAttacksCollector implements IFFLogsCollector {
   }
 
   process(startTime: number): void {
-    const tbs = Object.keys(this.bossAttacks).map(it=>this.bossAttacks[it]).filter((arr,i,a) => {
+    const tbs = Object.keys(this.bossAttacks).map(it => this.bossAttacks[it]).filter((arr, i, a) => {
       return arr.find(it => {
         if (FF.isDamageEvent(it)) {
           return (it.amount + it.blocked > 0.6 * it.targetResources.maxHitPoints) &&
@@ -158,28 +171,26 @@ export class BossAttacksCollector implements IFFLogsCollector {
         }
         return false;
       });
-    }).filter(a=>!!a).map(it=>it[0].ability.name);
+    }).filter(a => !!a).map(it => it[0].ability.name);
 
     Object.keys(this.bossAttacks).forEach((k: string) => {
       const arr = this.bossAttacks[k];
       const ability = arr.find((it) => it.ability &&
-        it.ability.name !== "Attack" &&
-        it.ability.name !== "attack" &&
+        it.ability.name.toLowerCase() !== "attack" &&
         it.ability.name.trim() !== "" &&
         it.ability.name.indexOf("Unknown_") < 0);
       if (ability) {
         const date = Utils.getDateFromOffset((ability.timestamp - startTime) / 1000, this.startDate);
         this.commandStorage.execute(new AddBossAttackCommand(
-          this.idgen.getNextId(EntryType.BossAttack), {
+          this.idgen.getNextId(M.EntryType.BossAttack), {
             name: ability.ability.name,
-            type: ability.ability.type === 128
-              ? DamageType.Physical
-              : (ability.ability.type === 1024 ? DamageType.Magical : DamageType.None),
+            type: ability.ability.type === FF.AbilityType.PHYSICAL_DIRECT
+              ? M.DamageType.Physical
+              : (ability.ability.type === FF.AbilityType.MAGICAL_DIRECT ? M.DamageType.Magical : M.DamageType.None),
             offset: Utils.formatTime(date),
             isAoe: arr.length > 4,
             isTankBuster: tbs.indexOf(ability.ability.name) >= 0
-      }));
-
+          }));
       }
     });
   }
