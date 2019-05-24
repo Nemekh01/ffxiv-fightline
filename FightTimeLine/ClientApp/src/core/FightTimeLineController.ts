@@ -1235,16 +1235,17 @@ export class FightTimeLineController {
 
   toggleCompactViewAbility(id: string, compact?: boolean): void {
     const it = this.holders.abilities.get(id);
+    if (it) {
+      it.applyData({ isCompact: compact != undefined ? compact : !it.isCompact });
 
-    it.applyData({ isCompact: compact != undefined ? compact : !it.isCompact });
+      const items = this.holders.itemUsages.getByAbility(it.id);
+      items.forEach(a => {
+        a.applyData();
+      });
+      this.holders.itemUsages.update(items);
 
-    const items = this.holders.itemUsages.getByAbility(it.id);
-    items.forEach(a => {
-      a.applyData();
-    });
-    this.holders.itemUsages.update(items);
-
-    this.holders.abilities.update([it]);
+      this.holders.abilities.update([it]);
+    }
   }
 
   setHighLightLoadedView(highlightLoaded: boolean): void {

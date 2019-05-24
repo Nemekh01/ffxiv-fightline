@@ -13,6 +13,8 @@
 }
 
 .similarLink {
+  margin-right: 2px;
+  margin-left: 3px;
   cursor: pointer;
 }
 

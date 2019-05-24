@@ -5,7 +5,7 @@
   <span class="type">{{getType(it.attack.type)}}</span>
 </div>
 <div>
-  @<span class="time">{{it.attack.offset}}</span>
+  <i nz-icon type="clock-circle" theme="outline"></i><span class="time">{{it.attack.offset}}</span>
 </div>
 <div cdkDropList>
   <sidepanel-area header="Defensives" *ngIf="defs.length>0">
@@ -27,8 +27,10 @@
     <div *ngIf="similar.length">
       <div class="similar">
         <ul style="padding-left: 10px; display: block">
-          <li style="list-style-type: none;display: contents" *ngFor="let it of similar" class="similar-item">
-            @<a class="similarLink" (click)="similarClick(it)"><span class="">{{it.attack.offset}}</span></a>
+          <li style="list-style-type: none; display: contents" *ngFor="let it of similar" class="similar-item">
+            <div>
+              <i nz-icon type="clock-circle" theme="outline"></i><a class="similarLink" (click)="similarClick(it)"><span class="">{{it.attack.offset}}</span></a>
+            </div>
           </li>
         </ul>
       </div>

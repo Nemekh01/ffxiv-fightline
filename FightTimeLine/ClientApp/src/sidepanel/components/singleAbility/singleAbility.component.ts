@@ -5,7 +5,7 @@ import * as M from "../../../core/Models"
 import * as X from "@xivapi/angular-client"
 import { Utils } from "../../../core/Utils"
 import { settings } from "../../../core/Jobs/index"
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer } from "@angular/platform-browser";
 import * as S from "../../../services/index"
 
 @Component({
