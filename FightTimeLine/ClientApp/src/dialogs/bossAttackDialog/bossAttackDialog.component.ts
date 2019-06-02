@@ -52,6 +52,7 @@ export class BossAttackDialog implements OnInit {
       tankBuster: new FormControl(this.data.isTankBuster),
       aoe: new FormControl(this.data.isAoe),
       share: new FormControl(this.data.isShareDamage),
+      description: new FormControl(this.data.description)
     }, {
         validator: Time('bossAttackTime')
       });
@@ -71,6 +72,7 @@ export class BossAttackDialog implements OnInit {
     this.data.isTankBuster = this.f.tankBuster.value;
     this.data.isAoe = this.f.aoe.value;
     this.data.isShareDamage = this.f.share.value;
+    this.data.description = this.f.description.value;
 
     this.data.syncSettings = this.syncSettings.buildSyncSettings();
   }

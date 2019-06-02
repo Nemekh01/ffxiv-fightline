@@ -235,6 +235,7 @@ export interface IBossAbility {
   isAoe?: boolean;
   isShareDamage?: boolean;
   syncSettings?: string;
+  description?: string;
 }
 
 export interface ISyncData {

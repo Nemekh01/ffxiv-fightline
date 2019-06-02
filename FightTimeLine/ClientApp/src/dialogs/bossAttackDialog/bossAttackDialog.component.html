@@ -34,13 +34,20 @@
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <label nz-checkbox formControlName="tankBuster" style="margin-right:10px">Tank Buster</label>
+          <nz-form-control>
+            <label nz-checkbox formControlName="tankBuster" style="margin-right: 10px">Tank Buster</label>
+          </nz-form-control>
+          <nz-form-control>
+            <label nz-checkbox formControlName="aoe" style="margin-right: 10px">AoE</label>
+          </nz-form-control>
+          <nz-form-control>
+            <label nz-checkbox formControlName="share" style="margin-right: 10px">Share Damage</label>
+          </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <label nz-checkbox formControlName="aoe" style="margin-right:10px">AoE</label>
-        </nz-form-item>
-        <nz-form-item>
-          <label nz-checkbox formControlName="share" style="margin-right:10px">Share Damage</label>
+          <nz-form-control>
+            <textarea nz-input placeholder="Description" formControlName="description" [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+          </nz-form-control>
         </nz-form-item>
       </form>
     </nz-tab>

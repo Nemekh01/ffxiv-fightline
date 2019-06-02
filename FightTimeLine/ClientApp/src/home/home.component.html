@@ -3,7 +3,7 @@
          [authenticated]="authenticationService.authenticated"
          [username]="authenticationService.username">
 </toolbar>
-<div class="main-content" style="text-align: center">
+<div class="main-content" style="text-align: center; height: calc(100% - 54px);max-height: calc(100% - 54px);overflow: auto" customScroll>
   <div style="width: 90%; min-width: 800px; max-width: 1400px;  margin-top: 15px; display: inline-block">
     <nz-card [nzTitle]="header">
       <ng-template #header>
@@ -64,7 +64,11 @@
       </div>
     </nz-card>
   </div>
+  <div style="width: 90%; min-width: 800px; max-width: 1400px;  margin-top: 15px; display: inline-block">
+    <disqus [identifier]="'/'"></disqus>
+  </div>
 </div>
+
 
 
 

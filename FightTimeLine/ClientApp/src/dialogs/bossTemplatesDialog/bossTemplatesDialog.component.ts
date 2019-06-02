@@ -185,19 +185,19 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.selectedZone = zone;
     this.selectedEncounter = enc;
     this.isListLoading = true;
-    
+
     this.loadBosses(enc, skipCheck);
 
   }
 
   loadBosses(enc: any, skipCheck?: boolean) {
     this.fightService.getBosses(enc.id, this.data.boss && this.data.boss.name || "", false).subscribe((data) => {
-        if (this.data.boss) {
-          this.select({ id: this.data.boss.id, name: "", canRemove: false }, skipCheck);
-        }
-        this.templates = data.filter(x => !this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
-        this.onSearchFightChange(null);
-      }, null,
+      if (this.data.boss) {
+        this.select({ id: this.data.boss.id, name: "", canRemove: false }, skipCheck);
+      }
+      this.templates = data.filter(x => !this.data.boss || x.id.toLowerCase() === this.data.boss.id.toLowerCase());
+      this.onSearchFightChange(null);
+    }, null,
       () => {
         this.isListLoading = false;
         this.listContainer.nativeElement.scrollTop = 0;
@@ -211,7 +211,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     }, (error) => {
       this.notification.success("Unable to remove tempalte");
     }, () => {
-        this.loadBosses(this.selectedEncounter, true);
+      this.loadBosses(this.selectedEncounter, true);
     });
   }
 
@@ -228,6 +228,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       const data = JSON.parse(boss.data);
       this.visItems.clear();
       this.visItems.add(data.attacks.map(a => this.createBossAttack(a.id, a.ability as M.IBossAbility, false)));
+      this.visItems.add(data.downTimes.map(a => this.createDownTime(a.id, Utils.getDateFromOffset(a.start), Utils.getDateFromOffset(a.end), a.color)));
       this.visTimelineService.fit(this.visTimelineBoss);
     },
       null,
@@ -236,6 +237,16 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       });
   }
 
+  createDownTime(id: string, start: Date, end: Date, color: string): VisTimelineItem {
+    return {
+      start: start,
+      end: end,
+      id: id,
+      content: "",
+      type: "background",
+      className: "downtime " + color
+    }
+  }
 
   createBossAttack(id: string, attack: M.IBossAbility, vertical: boolean): VisTimelineItem {
     const data = {

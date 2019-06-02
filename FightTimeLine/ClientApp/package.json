@@ -41,7 +41,8 @@
     "vis": "^4.21.0",
     "zone.js": "~0.8.26",
     "lodash": "4.17.11",
-    "angular-split": "3.0.1"
+    "angular-split": "3.0.1",
+    "ngx-disqus": "2.4.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.13.9",

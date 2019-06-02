@@ -241,6 +241,10 @@ fightline .vis-label.boss .vis-inner {
   top: -5px !important;
 }
 
+.vis-item.vis-point.compact.vis-selected .vis-item.vis-dot.ability {
+  top: -5px !important;
+}
+
 .vis-item.vis-dot.compact {
   border-width: 3px;
 }

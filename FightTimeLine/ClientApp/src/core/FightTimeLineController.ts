@@ -67,7 +67,7 @@ export class FightTimeLineController {
       checkDatesOverlap: this.holders.itemUsages.checkDatesOverlap.bind(this.holders.itemUsages),
       jobRegistry: this.jobRegistry,
       update: this.update.bind(this),
-      ogcdAttacksAsPoints: (ability: M.IAbility) => (ability.duration === 0 && ability.cooldown === 1) || (ability.abilityType === M.AbilityType.Damage && (ability.duration === 0 ? this.view.ogcdAsPoints : false)),
+      ogcdAttacksAsPoints: (ability: M.IAbility) => (ability.duration === 0 && ability.cooldown === 1) || ((ability.abilityType & M.AbilityType.Damage) === M.AbilityType.Damage && (ability.duration === 0 ? this.view.ogcdAsPoints : false)),
       verticalBossAttacks: () => this.view.verticalBossAttacks,
       isCompactView: () => this.view.compactView,
       highlightLoaded: () => this.view.highlightLoaded
@@ -665,16 +665,10 @@ export class FightTimeLineController {
   }
 
   paste(time: any) {
-    this.addBossAttack(null, time,
-      <M.IBossAbility>{
-        name: this.copyContainer.name,
-        isAoe: this.copyContainer.isAoe,
-        isShareDamage: this.copyContainer.isShareDamage,
-        isTankBuster: this.copyContainer.isTankBuster,
-        type: this.copyContainer.type,
-        offset: Utils.formatTime(time),
-        syncSettings: this.copyContainer.syncSettings
-      });
+    const copy = Utils.clone(this.copyContainer as M.IBossAbility);
+    copy.offset = Utils.formatTime(time);
+
+    this.addBossAttack(null, time, copy);
   }
 
   toggleCompactView(group: string, value?: boolean): void {
@@ -948,11 +942,13 @@ export class FightTimeLineController {
                 isShareDamage: ab.attack.isShareDamage,
                 isTankBuster: ab.attack.isTankBuster,
                 offset: Utils.formatTime(ab.start),
-                syncSettings: ab.attack.syncSettings
+                syncSettings: ab.attack.syncSettings,
+                description: ab.attack.description
               }
             }
           }),
         downTimes: this.holders.bossDownTime.getAll().map((it) => <IDowntimeSerializeData>{
+          id: it.id,
           start: Utils.formatTime(it.start),
           end: Utils.formatTime(it.end),
           color: it.color
@@ -1099,7 +1095,7 @@ export class FightTimeLineController {
       const items = this.holders.itemUsages.getAll();
       items.forEach(x => {
         const map = x.ability;
-        if (map.ability.duration === 0 && map.ability.abilityType === M.AbilityType.Damage)
+        if (map.ability.duration === 0 && (map.ability.abilityType & M.AbilityType.Damage) === M.AbilityType.Damage)
           x.applyData({ ogcdAsPoints: view.ogcdAsPoints });
       });
       this.holders.itemUsages.update(items);
@@ -1344,6 +1340,7 @@ export interface IBossSerializeData {
 }
 
 export interface IDowntimeSerializeData {
+  id: string;
   start: string;
   end: string;
   color: string;

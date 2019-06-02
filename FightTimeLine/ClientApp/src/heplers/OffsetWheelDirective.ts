@@ -28,7 +28,7 @@ export class OffsetWheelDirective {
   };
 
   @Input("min") min: string = "0:0";
-  @Input("max") max: string = "0:30";
+  @Input("max") max: string = "30:0";
 
   private getMin(): number {
     return this.handleParse(this.min).valueOf() as number;

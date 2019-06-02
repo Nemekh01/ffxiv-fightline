@@ -22,7 +22,7 @@ import * as Services from "../services/index"
 import { JwtInterceptor } from "../interceptors/jwtInterceptor"
 import { ClipboardModule } from "ngx-clipboard";
 import { NgProgressModule } from "ngx-progressbar";
-import { RecaptchaModule, RECAPTCHA_SETTINGS,RecaptchaSettings  } from "ng-recaptcha";
+import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from "ng-recaptcha";
 import { RecaptchaFormsModule } from 'ng-recaptcha/forms';
 import { DialogsModuleComponents } from "../dialogs/index";
 import { SingleAbilityComponent } from "../sidepanel/components/singleAbility/singleAbility.component";
@@ -45,6 +45,7 @@ import { environment } from "../environments/environment"
 import { XivapiClientModule } from "@xivapi/angular-client";
 import { en_US, NgZorroAntdModule, NZ_I18N } from 'ng-zorro-antd';
 import { registerLocaleData } from '@angular/common';
+import { DisqusModule } from "ngx-disqus"
 import en from '@angular/common/locales/en'
 
 registerLocaleData(en);
@@ -130,7 +131,8 @@ export function getBaseUrl() {
     RecaptchaFormsModule,
     ClipboardModule,
     SocialLoginModule,
-    AngularSplitModule
+    AngularSplitModule,
+    DisqusModule.forRoot("ffxiv-fightline")
   ],
   providers: [
     ContextMenuService,
