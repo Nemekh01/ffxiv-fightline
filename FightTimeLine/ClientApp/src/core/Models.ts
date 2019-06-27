@@ -10,7 +10,7 @@ export enum Role {
 export interface IJob {
   name: string;
   icon?: string;
-  abilities: Array<IAbility>;
+  abilities: IAbility[];
   role: Role;
   pets?: IPet[];
   defaultPet?: string;
@@ -190,6 +190,12 @@ export interface IAbility {
   abilityType: AbilityType;
   pet?: string;
   detectStrategy?: IDetectionStrategy;
+  charges?: IAbilityCharges;
+}
+
+export interface IAbilityCharges {
+  count: number;
+  cooldown: number;
 }
 
 export interface IAbilitySetting {

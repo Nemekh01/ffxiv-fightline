@@ -7,14 +7,6 @@ export const BRD: IJob = {
   icon: ("JobIcons/Bard_Icon_10"),
   abilities: [
     {
-      name: "Barrage",
-      duration: 10,
-      cooldown: 80,
-      xivDbId: "107",
-      icon: ("41_Bard/0107_Barrage"),
-      abilityType: AbilityType.SelfDamageBuff,
-    },
-    {
       name: "Raging Strikes",
       duration: 20,
       cooldown: 80,
@@ -23,31 +15,12 @@ export const BRD: IJob = {
       abilityType: AbilityType.SelfDamageBuff,
     },
     {
-      name: "Battle Voice",
-      duration: 20,
-      cooldown: 180,
-      requiresBossTarget: true,
-      xivDbId: "118",
-      icon: ("41_Bard/0118_Battle Voice"),
-      abilityType: AbilityType.PartyDamageBuff,
-    },
-    {
-      name: "Troubadour",
-      duration: 30,
-      cooldown: 180,
-      requiresBossTarget: true,
-      xivDbId: "7405",
-      icon: ("41_Bard/7405_Troubadour"),
-      abilityType: AbilityType.PartyDefense,
-    },
-    {
-      name: "Nature's Minne",
-      duration: 15,
-      cooldown: 45,
-      xivDbId: "7408",
-      icon: ("41_Bard/7408_Natures Minne"),
-      abilityType: AbilityType.HealingBuff,
-      settings: [settings.target],
+      name: "Barrage",
+      duration: 10,
+      cooldown: 80,
+      xivDbId: "107",
+      icon: ("41_Bard/0107_Barrage"),
+      abilityType: AbilityType.SelfDamageBuff,
     },
     {
       name: "Mage's Ballad",
@@ -80,6 +53,15 @@ export const BRD: IJob = {
       },
     },
     {
+      name: "Battle Voice",
+      duration: 20,
+      cooldown: 180,
+      requiresBossTarget: true,
+      xivDbId: "118",
+      icon: ("41_Bard/0118_Battle Voice"),
+      abilityType: AbilityType.PartyDamageBuff,
+    },
+    {
       name: "The Wanderer's Minuet",
       duration: 30,
       cooldown: 80,
@@ -102,6 +84,36 @@ export const BRD: IJob = {
       icon: ("41_Bard/8841_Sidewinder"),
       abilityType: AbilityType.Damage,
     },
+    {
+      name: "Troubadour",
+      duration: 15,
+      cooldown: 180,
+      requiresBossTarget: true,
+      xivDbId: "7405",
+      icon: ("41_Bard/7405_Troubadour"),
+      abilityType: AbilityType.PartyDefense,
+    },
+    {
+      name: "Nature's Minne",
+      duration: 15,
+      cooldown: 90,
+      xivDbId: "7408",
+      icon: ("41_Bard/7408_Natures Minne"),
+      abilityType: AbilityType.HealingBuff,
+      settings: [settings.target],
+    },
+    {
+      name: "Shadowbite",
+      duration: 0,
+      cooldown: 60,
+      xivDbId: "7408",
+      icon: ("41_Bard/icon_25 (1)"),
+      abilityType: AbilityType.Damage
+    },
+    
+    
+   
+ 
     ...getAbilitiesFrom(rangeSharedAbilities),
     medicine["Dexterity"]
   ]

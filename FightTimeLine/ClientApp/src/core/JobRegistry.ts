@@ -1,13 +1,13 @@
 import { IJob, IAbility, IStance, byName, byBuffApply, byBuffRemove } from "./Models"
 import { abilitySortFn } from "./Jobs/shared"
-import { PLD, WAR, DRK, WHM, SCH, AST, BRD, MCH, DRG, MNK, NIN, SAM, BLM, RDM, SMN } from "./Jobs/index"
+import { PLD, WAR, DRK, WHM, SCH, AST, BRD, MCH, DRG, MNK, NIN, SAM, BLM, RDM, SMN, DNC, GNB } from "./Jobs/index"
 
 export class JobRegistry {
   private jobs: IJob[];
 
 
   public getJobs(): IJob[] {
-    return this.jobs = (this.jobs = [PLD, WAR, DRK, WHM, SCH, AST, BRD, MCH, DRG, MNK, NIN, SAM, BLM, RDM, SMN].map(j => this.build(j)));
+    return this.jobs = (this.jobs = [PLD, WAR, DRK, GNB, WHM, SCH, AST, BRD, MCH, DNC, DRG, MNK, NIN, SAM, BLM, RDM, SMN].map(j => this.build(j)));
   }
 
   private build(job: IJob): IJob {

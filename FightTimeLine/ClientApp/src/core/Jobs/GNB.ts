@@ -4,7 +4,7 @@ import { settings, getAbilitiesFrom, tankSharedAbilities, abilitySortFn, medicin
 export const GNB: IJob = {
   name: "GNB",
   role: Role.Tank,
-  icon: ("JobIcons/"),
+  icon: ("JobIcons/Gunbreaker"),
   abilities: [
     {
       name: "No Mercy",

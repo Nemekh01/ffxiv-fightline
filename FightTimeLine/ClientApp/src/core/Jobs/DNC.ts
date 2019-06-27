@@ -4,7 +4,7 @@ import { settings, getAbilitiesFrom, rangeSharedAbilities, abilitySortFn, medici
 export const DNC: IJob = {
   name: "DNC",
   role: Role.Range,
-  icon: ("JobIcons/"),
+  icon: ("JobIcons/Dancer"),
   abilities: [
     {
       name: "Shield Samba",

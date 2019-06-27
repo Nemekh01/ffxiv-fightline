@@ -17,7 +17,7 @@ export class CombinedCommand implements Command {
     };
   }
 
-  constructor(private actions: ReadonlyArray<Command>) {
+  constructor(private actions: Array<Command>) {
 
   }
 

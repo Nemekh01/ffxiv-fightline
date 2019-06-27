@@ -26,7 +26,7 @@ export const RDM: IJob = {
     {
       name: "Contre Sixte",
       duration: 0,
-      cooldown: 45,
+      cooldown: 35,
       xivDbId: "7519",
       requiresBossTarget: true,
       icon: ("53_RedMage/7519_Contre Sixte"),
@@ -35,7 +35,7 @@ export const RDM: IJob = {
     {
       name: "Manafication",
       duration: 0,
-      cooldown: 120,
+      cooldown: 110,
       xivDbId: "7521",
       requiresBossTarget: true,
       icon: ("53_RedMage/7521_Manafication"),

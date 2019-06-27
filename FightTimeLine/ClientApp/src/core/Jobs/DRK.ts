@@ -8,28 +8,46 @@ export const DRK: IJob = {
   abilities: [
     {
       name: "Blood Weapon",
-      duration: 15,
-      cooldown: 40,
+      duration: 10,
+      cooldown: 60,
       xivDbId: "3625",
       icon: ("13_DarkKnight/3625_Blood Weapon"),
       abilityType: AbilityType.SelfDamageBuff,
     },
     {
-      name: "Dark Passenger",
+      name: "Flood of Shadow",
       duration: 0,
-      cooldown: 60,
+      cooldown: 2,
       xivDbId: "3633",
       requiresBossTarget: true,
-      icon: ("13_DarkKnight/3633_Dark Passenger"),
-      abilityType: AbilityType.Damage,
+      icon: ("13_DarkKnight/icon_22"),
+      abilityType: AbilityType.Damage | AbilityType.SelfDamageBuff,
+    },
+    {
+      name: "Edge of Shadow",
+      duration: 0,
+      cooldown: 2,
+      xivDbId: "3633",
+      requiresBossTarget: true,
+      icon: ("13_DarkKnight/icon_23"),
+      abilityType: AbilityType.Damage | AbilityType.SelfDamageBuff,
     },
     {
       name: "Salted Earth",
       duration: 21,
-      cooldown: 45,
+      cooldown: 90,
       xivDbId: "3639",
       requiresBossTarget: true,
       icon: ("13_DarkKnight/3639_Salted Earth"),
+      abilityType: AbilityType.Damage,
+    },
+    {
+      name: "Abyssal Drain",
+      duration: 0,
+      cooldown: 60,
+      xivDbId: "3641",
+      requiresBossTarget: true,
+      icon: ("13_DarkKnight/3641_Abyssal Drain"),
       abilityType: AbilityType.Damage,
     },
     {
@@ -40,6 +58,10 @@ export const DRK: IJob = {
       requiresBossTarget: true,
       icon: ("13_DarkKnight/3640_Plunge"),
       abilityType: AbilityType.Damage,
+      charges: {
+        count: 2,
+        cooldown: 30
+      }
     },
     {
       name: "Carve and Spit",
@@ -94,37 +116,35 @@ export const DRK: IJob = {
     },
     {
       name: "Delirium",
-      duration: 0,
-      cooldown: 80,
+      duration: 10,
+      cooldown: 90,
       xivDbId: "7390",
       requiresBossTarget: true,
       icon: ("13_DarkKnight/7390_Delirium"),
       abilityType: AbilityType.Utility,
     },
     {
-      name: "Sole Survivor",
+      name: "Dark Missionary",
       duration: 15,
+      cooldown: 90,
+      xivDbId: "7390",
+      requiresBossTarget: false,
+      icon: ("13_DarkKnight/icon_24"),
+      abilityType: AbilityType.PartyDefense,
+    },
+    {
+      name: "Living Shadow",
+      duration: 24,
       cooldown: 120,
-      xivDbId: "8778",
-      requiresBossTarget: true,
-      icon: ("13_DarkKnight/8778_Sole Survivor"),
-      abilityType: AbilityType.Utility
+      xivDbId: "7390",
+      requiresBossTarget: false,
+      icon: ("13_DarkKnight/icon_25"),
+      abilityType: AbilityType.Damage,
     },
     ...getAbilitiesFrom(tankSharedAbilities),
     medicine["Strength"]
   ].sort(abilitySortFn),
-  stances: [
-    {
-      ability: {
-        name: "Grit",
-        duration: 0,
-        cooldown: 10,
-        icon: ("13_DarkKnight/3629_Grit"),
-        abilityType: AbilityType.Utility,
-        xivDbId: "3629",
-      },
-    }
-  ]
+  stances: []
 };
 
 

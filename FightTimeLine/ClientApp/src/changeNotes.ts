@@ -136,7 +136,15 @@ export class ChangeNotes {
           "Some improvements for tablest. I am testing on my IPad pro.",
           "Bug fixes"
         ]
+      },
+      {
+        revision: 22,
+        date: "6/28/2019",
+        items: [
+          "Job changes for 5.0"
+        ]
       }
+
     ].sort((a, b) => b.revision - a.revision);
   }
 }

@@ -7,6 +7,14 @@ export const BLM: IJob = {
   icon: ("JobIcons/Black_Mage_Icon_10"),
   abilities: [
     {
+      name: "Transpose",
+      duration: 0,
+      cooldown: 5,
+      xivDbId: "149",
+      icon: ("51_BlackMage/0149_Transpose"),
+      abilityType: AbilityType.Utility,
+    },
+    {
       name: "Manaward",
       duration: 20,
       cooldown: 120,
@@ -14,16 +22,9 @@ export const BLM: IJob = {
       icon: ("51_BlackMage/0157_Manaward"),
       abilityType: AbilityType.SelfDefense,
     },
+    
     {
-      name: "Transpose",
-      duration: 0,
-      cooldown: 8,
-      xivDbId: "149",
-      icon: ("51_BlackMage/0149_Transpose"),
-      abilityType: AbilityType.Utility,
-    },
-    {
-      name: "Convert",
+      name: "Manafont",
       duration: 0,
       cooldown: 180,
       xivDbId: "158",

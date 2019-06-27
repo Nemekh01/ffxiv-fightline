@@ -7,6 +7,27 @@ export const MCH: IJob = {
   icon: ("JobIcons/Machinist_Icon_10"),
   abilities: [
     {
+      name: "Reassemble",
+      duration: 5,
+      cooldown: 60,
+      xivDbId: "2876",
+      icon: ("42_Machinist/2876_Reassemble"),
+      abilityType: AbilityType.SelfDamageBuff,
+    },
+    {
+      name: "Gauss Round",
+      duration: 0,
+      cooldown: 30,
+      xivDbId: "2874",
+      requiresBossTarget: true,
+      icon: ("42_Machinist/2874_Gauss Round"),
+      abilityType: AbilityType.Damage,
+      charges: {
+        count: 3,
+        cooldown: 30
+      }
+    },
+    {
       name: "Wildfire",
       duration: 10,
       cooldown: 60,
@@ -15,23 +36,28 @@ export const MCH: IJob = {
       icon: ("42_Machinist/2878_Wildfire"),
       abilityType: AbilityType.Damage,
     },
+   
     {
-      name: "Gauss Round",
+      name: "Hot Shot",
       duration: 0,
-      cooldown: 15,
-      xivDbId: "2874",
+      cooldown: 40,
+      xivDbId: "2872",
       requiresBossTarget: true,
-      icon: ("42_Machinist/2874_Gauss Round"),
+      icon: ("42_Machinist/2872_Hot Shot"),
       abilityType: AbilityType.Damage,
     },
     {
       name: "Ricochet",
       duration: 0,
-      cooldown: 60,
+      cooldown: 30,
       xivDbId: "2890",
       requiresBossTarget: true,
       icon: ("42_Machinist/2890_Ricochet"),
       abilityType: AbilityType.Damage,
+      charges: {
+        count: 3,
+        cooldown: 30
+      }
     },
     {
       name: "Rook Overdrive",
@@ -49,46 +75,22 @@ export const MCH: IJob = {
       icon: ("42_Machinist/7418_Flamethrower"),
       abilityType: AbilityType.Damage,
     },
+  
     {
-      name: "Reassemble",
-      duration: 20,
-      cooldown: 60,
-      xivDbId: "2876",
-      icon: ("42_Machinist/2876_Reassemble"),
+      name: "Hypercharge",
+      duration: 8,
+      cooldown: 10,
+      xivDbId: "2885",
+      icon: ("42_Machinist/icon_08"),
       abilityType: AbilityType.SelfDamageBuff,
     },
     {
-      name: "Hypercharge",
-      duration: 28,
+      name: "Tactician",
+      duration: 15,
       cooldown: 120,
-      xivDbId: "2885",
-      icon: ("42_Machinist/2885_Hypercharge"),
-      abilityType: AbilityType.PartyDamageBuff,
-    },
-    {
-      name: "Dismantle",
-      duration: 5,
-      cooldown: 60,
       xivDbId: "2887",
-      requiresBossTarget: true,
-      icon: ("42_Machinist/2887_Dismantle"),
+      icon: ("42_Machinist/icon_16"),
       abilityType: AbilityType.PartyDefense,
-    },
-    {
-      name: "Reload",
-      duration: 0,
-      cooldown: 30,
-      xivDbId: "2867",
-      icon: ("42_Machinist/2867_Reload"),
-      abilityType: AbilityType.Utility,
-    },
-    {
-      name: "Quick Reload",
-      duration: 0,
-      cooldown: 15,
-      xivDbId: "2879",
-      icon: ("42_Machinist/2879_Quick Reload"),
-      abilityType: AbilityType.Utility,
     },
     {
       name: "Barrel Stabilizer",

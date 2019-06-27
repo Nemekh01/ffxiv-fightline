@@ -13,6 +13,10 @@ import { SAM } from "./SAM"
 import { RDM } from "./RDM"
 import { SMN } from "./SMN"
 import { BLM } from "./BLM"
+import { DNC } from "./DNC"
+import { GNB } from "./GNB"
+
+
 import { settings } from "./shared"
 
 export {
@@ -32,4 +36,6 @@ export {
   RDM,
   SMN,
   BLM,
+  DNC,
+  GNB
 }

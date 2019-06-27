@@ -1,4 +1,4 @@
-import { IJob,  Role, AbilityType } from "../Models"
+import { IJob, Role, AbilityType } from "../Models"
 import { settings, getAbilitiesFrom, healerSharedAbilities, medicine } from "./shared"
 
 export const AST: IJob = {
@@ -8,37 +8,11 @@ export const AST: IJob = {
   abilities: [
     {
       name: "Lightspeed",
-      duration: 10,
+      duration: 15,
       cooldown: 120,
       xivDbId: "3606",
       icon: ("23_Astrologian/3606_Lightspeed"),
       abilityType: AbilityType.Utility,
-    },
-    {
-      name: "Synastry",
-      duration: 20,
-      cooldown: 90,
-      xivDbId: "3612",
-      icon: ("23_Astrologian/3612_Synastry"),
-      abilityType: AbilityType.Healing,
-      settings: [settings.target],
-    },
-    {
-      name: "Time Dilation",
-      duration: 0,
-      cooldown: 90,
-      xivDbId: "3611",
-      icon: ("23_Astrologian/3611_Time Dilation"),
-      abilityType: AbilityType.Healing,
-      settings: [settings.target],
-    },
-    {
-      name: "Earthly Star",
-      duration: 20,
-      cooldown: 60,
-      xivDbId: "7439",
-      icon: ("23_Astrologian/7439_Earthly Star"),
-      abilityType: AbilityType.Healing,
     },
     {
       name: "Essential Dignity",
@@ -48,22 +22,27 @@ export const AST: IJob = {
       icon: ("23_Astrologian/3614_Essential Dignity"),
       abilityType: AbilityType.Healing,
       settings: [settings.target],
+      charges: {
+        count: 2,
+        cooldown: 40
+      }
     },
     {
-      name: "Celestial Opposition",
-      duration: 0,
+      name: "Synastry",
+      duration: 20,
       cooldown: 120,
-      xivDbId: "3616",
-      icon: ("23_Astrologian/3616_Celestial Opposition"),
-      abilityType: AbilityType.Utility,
+      xivDbId: "3612",
+      icon: ("23_Astrologian/3612_Synastry"),
+      abilityType: AbilityType.Healing,
+      settings: [settings.target],
     },
     {
-      name: "Sleeve Draw",
-      duration: 0,
+      name: "Divination",
+      duration: 10,
       cooldown: 120,
-      xivDbId: "7448",
-      icon: ("23_Astrologian/7448_Sleeve Draw"),
-      abilityType: AbilityType.Utility,
+      xivDbId: "3612",
+      icon: ("23_Astrologian/icon_19"),
+      abilityType: AbilityType.PartyDamageBuff,
     },
     {
       name: "Collective Unconscious",
@@ -71,8 +50,57 @@ export const AST: IJob = {
       cooldown: 90,
       xivDbId: "3613",
       icon: ("23_Astrologian/3613_Collective Unconscious"),
+      abilityType: AbilityType.PartyDefense,
+    },
+    {
+      name: "Celestial Opposition",
+      duration: 0,
+      cooldown: 120,
+      xivDbId: "3616",
+      icon: ("23_Astrologian/3616_Celestial Opposition"),
+      abilityType: AbilityType.Healing,
+    },
+    {
+      name: "Earthly Star",
+      duration: 30,
+      cooldown: 60,
+      xivDbId: "7439",
+      icon: ("23_Astrologian/7439_Earthly Star"),
+      abilityType: AbilityType.Healing,
+    },
+    {
+      name: "Sleeve Draw",
+      duration: 0,
+      cooldown: 180,
+      xivDbId: "7448",
+      icon: ("23_Astrologian/7448_Sleeve Draw"),
       abilityType: AbilityType.Utility,
     },
+    {
+      name: "Celestial Intersection",
+      duration: 0,
+      cooldown: 30,
+      xivDbId: "3611",
+      icon: ("23_Astrologian/icon_28"),
+      abilityType: AbilityType.Healing,
+    },
+    {
+      name: "Horoscope",
+      duration: 30,
+      cooldown: 60,
+      xivDbId: "3611",
+      icon: ("23_Astrologian/icon_29"),
+      abilityType: AbilityType.Healing,
+    },
+    {
+      name: "Neutral Sect",
+      duration: 20,
+      cooldown: 120,
+      xivDbId: "3611",
+      icon: ("23_Astrologian/icon_30"),
+      abilityType: AbilityType.HealingBuff,
+    },
+  
     ...getAbilitiesFrom(healerSharedAbilities),
     medicine["Mind"]
   ]

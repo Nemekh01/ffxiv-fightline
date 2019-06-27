@@ -7,14 +7,6 @@ export const PLD: IJob = {
   icon: ("JobIcons/Paladin_Icon_10"),
   abilities: [
     {
-      name: "Tempered Will",
-      duration: 10,
-      cooldown: 180,
-      xivDbId: "19",
-      icon: ("11_Paladin/0019_Tempered Will"),
-      abilityType: AbilityType.Utility,
-    },
-    {
       name: "Fight or Flight",
       duration: 25,
       cooldown: 60,
@@ -40,15 +32,6 @@ export const PLD: IJob = {
       abilityType: AbilityType.Damage,
     },
     {
-      name: "Shield Swipe",
-      duration: 0,
-      cooldown: 15,
-      xivDbId: "25",
-      requiresBossTarget: true,
-      icon: ("11_Paladin/0025_Shield Swipe"),
-      abilityType: AbilityType.Damage,
-    },
-    {
       name: "Requiescat",
       duration: 12,
       cooldown: 60,
@@ -60,7 +43,7 @@ export const PLD: IJob = {
     {
       name: "Sentinel",
       duration: 10,
-      cooldown: 180,
+      cooldown: 120,
       xivDbId: "17",
       icon: ("11_Paladin/0017_Sentinel"),
       abilityType: AbilityType.SelfDefense,
@@ -91,14 +74,6 @@ export const PLD: IJob = {
       abilityType: AbilityType.PartyDefense,
     },
     {
-      name: "Bulwark",
-      duration: 15,
-      cooldown: 180,
-      xivDbId: "22",
-      icon: ("11_Paladin/0022_Bulwark"),
-      abilityType: AbilityType.SelfDefense,
-    },
-    {
       name: "Cover",
       duration: 12,
       cooldown: 120,
@@ -109,8 +84,8 @@ export const PLD: IJob = {
     },
     {
       name: "Sheltron",
-      duration: 10,
-      cooldown: 10,
+      duration: 6,
+      cooldown: 6,
       xivDbId: "3542",
       requiresBossTarget: true,
       icon: ("11_Paladin/3542_Sheltron"),
@@ -126,29 +101,21 @@ export const PLD: IJob = {
       abilityType: AbilityType.PartyDefense,
       settings: [settings.target],
     },
+    {
+      name: "Intervene",
+      duration: 0,
+      cooldown: 0,
+      xivDbId: "",
+      requiresBossTarget: true,
+      icon: "11_Paladin/icon_25",
+      abilityType: AbilityType.Utility,
+      charges: {
+        count: 2,
+        cooldown: 30
+      }
+    },
     ...getAbilitiesFrom(tankSharedAbilities),
     medicine["Strength"]
   ].sort(abilitySortFn),
-  stances: [
-    {
-      ability: {
-        name: "Sword Oath",
-        duration: 0,
-        cooldown: 10,
-        icon: ("11_Paladin/0026_Sword Oath"),
-        abilityType: AbilityType.Utility,
-        xivDbId: "26",
-      },
-    },
-    {
-      ability: {
-        name: "Shield Oath",
-        duration: 0,
-        cooldown: 10,
-        icon: ("11_Paladin/0028_Shield Oath"),
-        abilityType: AbilityType.Utility,
-        xivDbId: "28",
-      },
-    }
-  ]
+  stances: []
 };

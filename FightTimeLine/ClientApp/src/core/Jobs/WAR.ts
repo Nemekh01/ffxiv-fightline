@@ -1,19 +1,11 @@
 import { IJob,  Role, AbilityType,  byName } from "../Models"
-import { abilitySortFn, getAbilitiesFrom, tankSharedAbilities, medicine } from "./shared"
+import { abilitySortFn, getAbilitiesFrom, settings, tankSharedAbilities, medicine } from "./shared"
 
 export const WAR: IJob = {
   name: "WAR",
   role: Role.Tank,
   icon: ("JobIcons/Warrior_Icon_10"),
   abilities: [
-    {
-      name: "Unchained",
-      duration: 20,
-      cooldown: 90,
-      xivDbId: "50",
-      icon: ("12_Warrior/0050_Unchained"),
-      abilityType: AbilityType.SelfDamageBuff,
-    },
     {
       name: "Infuriate",
       duration: 0,
@@ -22,6 +14,10 @@ export const WAR: IJob = {
       requiresBossTarget: true,
       icon: ("12_Warrior/0052_Infuriate"),
       abilityType: AbilityType.Utility,
+      charges: {
+        count: 2,
+        cooldown: 30
+      }
     },
     {
       name: "Inner Release",
@@ -35,7 +31,7 @@ export const WAR: IJob = {
     {
       name: "Onslaught",
       duration: 0,
-      cooldown: 15,
+      cooldown: 10,
       xivDbId: "7386",
       requiresBossTarget: true,
       icon: ("12_Warrior/7386_Onslaught"),
@@ -52,7 +48,7 @@ export const WAR: IJob = {
     },
     {
       name: "Vengeance",
-      duration: 15,
+      duration: 10,
       cooldown: 120,
       xivDbId: "44",
       icon: ("12_Warrior/0044_Vengeance"),
@@ -84,8 +80,8 @@ export const WAR: IJob = {
     },
     {
       name: "Thrill of Battle",
-      duration: 20,
-      cooldown: 120,
+      duration: 10,
+      cooldown: 90,
       xivDbId: "40",
       icon: ("12_Warrior/0040_Thrill Of Battle"),
       abilityType: AbilityType.SelfDefense,
@@ -94,8 +90,8 @@ export const WAR: IJob = {
     },
     {
       name: "Raw Intuition",
-      duration: 20,
-      cooldown: 90,
+      duration: 5,
+      cooldown: 25,
       xivDbId: "3551",
       icon: ("12_Warrior/3551_Raw Intuition"),
       abilityType: AbilityType.SelfDefense,
@@ -109,29 +105,18 @@ export const WAR: IJob = {
       icon: ("12_Warrior/3552_Equilibrium"),
       abilityType: AbilityType.Utility,
     },
+    {
+      name: "Nascent Flash",
+      duration: 6,
+      cooldown: 25,
+      xivDbId: "",
+      icon: ("12_Warrior/icon_24 (1)"),
+      abilityType: AbilityType.Utility,
+      settings:[settings.target]
+    },
     ...getAbilitiesFrom(tankSharedAbilities),
     medicine["Strength"]
   ].sort(abilitySortFn),
   stances: [
-    {
-      ability: {
-        name: "Defiance",
-        duration: 0,
-        cooldown: 10,
-        icon: ("12_Warrior/0048_Defiance"),
-        abilityType: AbilityType.Utility,
-        xivDbId: "48",
-      },
-    },
-    {
-      ability: {
-        name: "Deliverance",
-        duration: 0,
-        cooldown: 10,
-        icon: ("12_Warrior/3548_Deliverance"),
-        abilityType: AbilityType.Utility,
-        xivDbId: "3548",
-      },
-    }
   ]
 };
