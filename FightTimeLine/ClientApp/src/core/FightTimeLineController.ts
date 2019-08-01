@@ -875,13 +875,15 @@ export class FightTimeLineController {
       if (data.abilityMaps) {
         for (let it of data.abilityMaps) {
           var ab = this.holders.abilities.getByParentAndAbility(it.job, it.name);
-          if (it.hidden !== undefined && it.hidden !== null) {
-            if (it.hidden)//todo: optimize this
-              this.hideAbility(ab.id);
-            else
-              this.showAbility(ab.id);
+          if (ab) {
+            if (it.hidden !== undefined && it.hidden !== null) {
+              if (it.hidden) //todo: optimize this
+                this.hideAbility(ab.id);
+              else
+                this.showAbility(ab.id);
+            }
+            this.toggleCompactViewAbility(ab.id, it.compact);
           }
-          this.toggleCompactViewAbility(ab.id, it.compact);
         }
       }
 
@@ -889,7 +891,13 @@ export class FightTimeLineController {
         for (let a of data.abilities) {
           if (a) {
             const abilityMap = this.holders.abilities.getByParentAndAbility(a.job, a.ability);
-            this.addClassAbility(a.id, abilityMap, Utils.getDateFromOffset(a.start, this.startDate), true, a.settings);
+            if (abilityMap) {
+              this.addClassAbility(a.id,
+                abilityMap,
+                Utils.getDateFromOffset(a.start, this.startDate),
+                true,
+                a.settings);
+            }
 
           }
         }
@@ -897,10 +905,14 @@ export class FightTimeLineController {
         for (let a of data.stances) {
           if (a) {
             const abilityMap = this.holders.abilities.getStancesAbility(a.job);
-            this.commandStorage.execute(new C.AddStanceCommand(this.idgen.getNextId(M.EntryType.StanceUsage),
-              abilityMap.job.id,
-              a.ability,
-              Utils.getDateFromOffset(a.start, this.startDate), Utils.getDateFromOffset(a.end, this.startDate), true));
+            if (abilityMap) {
+              this.commandStorage.execute(new C.AddStanceCommand(this.idgen.getNextId(M.EntryType.StanceUsage),
+                abilityMap.job.id,
+                a.ability,
+                Utils.getDateFromOffset(a.start, this.startDate),
+                Utils.getDateFromOffset(a.end, this.startDate),
+                true));
+            }
           }
         }
       this.filter = data.filter;

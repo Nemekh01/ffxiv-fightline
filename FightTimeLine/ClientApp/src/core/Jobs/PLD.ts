@@ -60,7 +60,7 @@ export const PLD: IJob = {
     {
       name: "Divine Veil",
       duration: 30,
-      cooldown: 120,
+      cooldown: 90,
       xivDbId: "3540",
       icon: ("11_Paladin/3540_Divine Veil"),
       abilityType: AbilityType.PartyDefense,
@@ -85,7 +85,7 @@ export const PLD: IJob = {
     {
       name: "Sheltron",
       duration: 6,
-      cooldown: 6,
+      cooldown: 5,
       xivDbId: "3542",
       requiresBossTarget: true,
       icon: ("11_Paladin/3542_Sheltron"),

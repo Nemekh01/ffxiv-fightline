@@ -17,7 +17,7 @@ export const NIN: IJob = {
     {
       name: "Mug",
       duration: 0,
-      cooldown: 90,
+      cooldown: 110,
       xivDbId: "2248",
       requiresBossTarget: true,
       icon: ("33_Ninja/8813_Mug"),
@@ -84,7 +84,7 @@ export const NIN: IJob = {
     {
       name: "Bunshin",
       duration: 0,
-      cooldown: 120,
+      cooldown: 110,
       xivDbId: "",
       requiresBossTarget: true,
       icon: ("33_Ninja/icon_25"),

@@ -50,7 +50,7 @@ export const GNB: IJob = {
     {
       name: "Superbolide",
       duration: 8,
-      cooldown: 420,
+      cooldown: 360,
       xivDbId: "",
       icon: ("Gunbreaker/icon_14"),
       abilityType: AbilityType.SelfDefense,

@@ -12,7 +12,6 @@ import { NgProgress } from "ngx-progressbar"
 import { ChangeNotes } from "../changeNotes"
 
 import * as S from "../services/index"
-import { Utils } from "../core/Utils"
 import { process } from "../core/BossAttackProcessors"
 
 import { FightLineContextMenuComponent } from "./contextmenu/contextmenu.component"
@@ -23,7 +22,6 @@ import { ClassNameBuilder } from "../core/ClassNameBuilder"
 import { IdGenerator } from "../core/Generators"
 import { DownTimesController } from "../core/DownTimesController"
 import { ICommandData } from "../core/UndoRedo"
-//import * as Sentry from "@sentry/browser";
 
 
 @Component({

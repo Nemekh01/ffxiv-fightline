@@ -2,7 +2,7 @@ import {Command, UndoRedoController } from "./UndoRedo"
 import {CombinedCommand} from "./Commands"
 
 export class CommandBag {
-    private commandsBag: Array<Command> = [];
+    private commandsBag: Command[] = [];
     private commandStorage: UndoRedoController;
 
     constructor(commandStorage: UndoRedoController) {

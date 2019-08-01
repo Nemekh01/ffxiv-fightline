@@ -58,7 +58,7 @@ export const WAR: IJob = {
     {
       name: "Holmgang",
       duration: 6,
-      cooldown: 180,
+      cooldown: 240,
       xivDbId: "43",
       requiresBossTarget: true,
       icon: ("12_Warrior/0043_Holmgang"),

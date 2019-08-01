@@ -9,7 +9,7 @@ export const SAM: IJob = {
     {
       name: "Meikyo Shisui",
       duration: 15,
-      cooldown: 60,
+      cooldown: 55,
       xivDbId: "7499",
       icon: ("34_Samurai/7499_Meikyo Shisui"),
       abilityType: AbilityType.Utility,
@@ -17,7 +17,7 @@ export const SAM: IJob = {
     {
       name: "Meditate",
       duration: 15,
-      cooldown: 60,
+      cooldown: 45,
       xivDbId: "7497",
       icon: ("34_Samurai/7497_Meditate"),
       abilityType: AbilityType.Utility,

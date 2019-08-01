@@ -9,7 +9,7 @@ export const AST: IJob = {
     {
       name: "Lightspeed",
       duration: 15,
-      cooldown: 120,
+      cooldown: 90,
       xivDbId: "3606",
       icon: ("23_Astrologian/3606_Lightspeed"),
       abilityType: AbilityType.Utility,
@@ -38,8 +38,8 @@ export const AST: IJob = {
     },
     {
       name: "Divination",
-      duration: 10,
-      cooldown: 120,
+      duration: 15,
+      cooldown: 180,
       xivDbId: "3612",
       icon: ("23_Astrologian/icon_19"),
       abilityType: AbilityType.PartyDamageBuff,
@@ -55,7 +55,7 @@ export const AST: IJob = {
     {
       name: "Celestial Opposition",
       duration: 0,
-      cooldown: 120,
+      cooldown: 60,
       xivDbId: "3616",
       icon: ("23_Astrologian/3616_Celestial Opposition"),
       abilityType: AbilityType.Healing,

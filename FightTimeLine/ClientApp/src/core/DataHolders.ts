@@ -249,7 +249,7 @@ export class JobMap extends BaseMap<string, VisTimelineGroup, IJobMapData> {
     this.applyData({});
   }
 
-  detectAbility(event: any): any {
+  detectAbility(event: any): { offset: number, name: string } {
     const data = this.job.abilities.map(a => a.detectStrategy.process(event)).filter(a => !!a);
     if (data.length > 1)
       throw Error("More then 1 ability");
@@ -1140,7 +1140,15 @@ export class AbilityUsageHolder extends BaseHolder<string, VisTimelineItem, Abil
 
   checkDatesOverlap(group: string, start: Date, end: Date, id?: string, selectionRegistry?: AbilitySelectionHolder): boolean {
     if (this.values.length > 0) {
-      return this.values.some((x: AbilityUsageMap) => (id === undefined || x.id !== id) && x.ability.id === group && x.start < end && x.end > start && (!selectionRegistry || !selectionRegistry.get(x.id)));
+      const result = this.values.some((x: AbilityUsageMap) => {
+        const idCheck = (id === undefined || x.id !== id);
+        const groupCheck = x.ability.id === group;
+        const timeCheck = x.start < end && x.end > start;
+        const selectionCheck = (!selectionRegistry || !selectionRegistry.get(x.id));
+        const result = idCheck && groupCheck && timeCheck && selectionCheck;
+        return result as any;
+      });
+      return result;
     }
     return false;
   }

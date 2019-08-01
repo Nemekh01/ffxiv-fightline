@@ -143,6 +143,20 @@ export class ChangeNotes {
         items: [
           "Job changes for 5.0"
         ]
+      },
+      {
+        revision: 23,
+        date: "7/31/2019",
+        items: [
+          "5.05 updates"
+        ]
+      },
+      {
+        revision: 24,
+        date: "8/2/2019",
+        items: [
+          "FFLogs integration fix"
+        ]
       }
 
     ].sort((a, b) => b.revision - a.revision);

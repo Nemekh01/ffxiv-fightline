@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FightLineComponent } from "../fightline/fightline.component";
 import { TableViewComponent } from "../tableview/tableview.component";
+//import { BossTemplateComponent } from "../bosstemplate/bosstemplate.component";
 import { HomeComponent } from "../home/home.component";
 import { FightLineContextMenuComponent } from "../fightline/contextmenu/contextmenu.component";
 import { SidepanelComponent } from "../sidepanel/sidepanel.component";
@@ -92,6 +93,7 @@ export function getBaseUrl() {
     AppComponent,
     FightLineComponent,
     ToolbarComponent,
+//    BossTemplateComponent,
     FightLineContextMenuComponent,
     TableViewComponent,
     PingComponent,

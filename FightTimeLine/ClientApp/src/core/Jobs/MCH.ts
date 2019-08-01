@@ -9,7 +9,7 @@ export const MCH: IJob = {
     {
       name: "Reassemble",
       duration: 5,
-      cooldown: 60,
+      cooldown: 55,
       xivDbId: "2876",
       icon: ("42_Machinist/2876_Reassemble"),
       abilityType: AbilityType.SelfDamageBuff,
@@ -30,20 +30,10 @@ export const MCH: IJob = {
     {
       name: "Wildfire",
       duration: 10,
-      cooldown: 60,
+      cooldown: 120,
       xivDbId: "2878",
       requiresBossTarget: true,
       icon: ("42_Machinist/2878_Wildfire"),
-      abilityType: AbilityType.Damage,
-    },
-   
-    {
-      name: "Hot Shot",
-      duration: 0,
-      cooldown: 40,
-      xivDbId: "2872",
-      requiresBossTarget: true,
-      icon: ("42_Machinist/2872_Hot Shot"),
       abilityType: AbilityType.Damage,
     },
     {
@@ -58,14 +48,6 @@ export const MCH: IJob = {
         count: 3,
         cooldown: 30
       }
-    },
-    {
-      name: "Rook Overdrive",
-      duration: 0,
-      cooldown: 120,
-      xivDbId: "7415",
-      icon: ("42_Machinist/7415_Rook Overdrive"),
-      abilityType: AbilityType.Damage,
     },
     {
       name: "Flamethrower",
@@ -95,7 +77,7 @@ export const MCH: IJob = {
     {
       name: "Barrel Stabilizer",
       duration: 0,
-      cooldown: 60,
+      cooldown: 120,
       xivDbId: "7414",
       requiresBossTarget: true,
       icon: ("42_Machinist/7414_Barrel Stabilizer"),

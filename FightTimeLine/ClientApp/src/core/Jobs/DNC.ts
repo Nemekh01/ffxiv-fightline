@@ -15,17 +15,9 @@ export const DNC: IJob = {
       abilityType: AbilityType.PartyDefense,
     },
     {
-      name: "Saber Dance",
-      duration: 15,
-      cooldown: 120,
-      xivDbId: "",
-      icon: ("Dancer/icon_16"),
-      abilityType: AbilityType.SelfDamageBuff,
-    },
-    {
       name: "Improvisation",
       duration: 15,
-      cooldown: 180,
+      cooldown: 120,
       xivDbId: "",
       icon: ("Dancer/icon_21"),
       abilityType: AbilityType.Utility,
@@ -37,6 +29,14 @@ export const DNC: IJob = {
       xivDbId: "",
       icon: ("Dancer/icon_19"),
       abilityType: AbilityType.Utility,
+    },
+    {
+      name: "Devilment",
+      duration: 20,
+      cooldown: 120,
+      xivDbId: "",
+      icon: ("Dancer/icon_16"),
+      abilityType: AbilityType.SelfDamageBuff,
     },
     {
       name: "Closed Position",

@@ -215,6 +215,7 @@ export interface ReportFightsResponse {
 
 export interface IJobInfo {
   id: number[];
+  guid: number[];
   job: string;
   actorName: string;
   role?: number;

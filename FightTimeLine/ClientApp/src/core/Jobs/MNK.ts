@@ -17,7 +17,7 @@ export const MNK: IJob = {
     {
       name: "Perfect Balance",
       duration: 10,
-      cooldown: 129,
+      cooldown: 120,
       xivDbId: "69",
       icon: ("31_Monk/0069_Perfect Balance"),
       abilityType: AbilityType.SelfDamageBuff,
@@ -25,7 +25,7 @@ export const MNK: IJob = {
     {
       name: "Shoulder Tackle",
       duration: 0,
-      cooldown: 0,
+      cooldown: 30,
       xivDbId: "0071",
       icon: ("31_Monk/0071_Shoulder Tackle"),
       abilityType: AbilityType.Damage | AbilityType.Utility,

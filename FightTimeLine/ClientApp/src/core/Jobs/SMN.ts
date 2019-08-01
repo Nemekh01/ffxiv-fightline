@@ -19,6 +19,14 @@ export const SMN: IJob = {
       }
     },
     {
+      name: "Energy Drain",
+      duration: 0,
+      cooldown: 30,
+      xivDbId: "167",
+      icon: ("52_Summoner/0167_Energy Drain"),
+      abilityType: AbilityType.Damage
+    },
+    {
       name: "Egi Assault II",
       duration: 0,
       cooldown: 30,
@@ -33,16 +41,25 @@ export const SMN: IJob = {
     {
       name: "Enkindle",
       duration: 0,
-      cooldown: 180,
+      cooldown: 120,
       xivDbId: "184",
       icon: ("61_PetsEgi/0184_Enkindle"),
       requiresBossTarget: true,
       abilityType: AbilityType.Damage,
     },
     {
+      name: "Tri-disaster",
+      duration: 0,
+      cooldown: 50,
+      xivDbId: "3580",
+      icon: ("61_PetsEgi/3580_Tri-disaster"),
+      requiresBossTarget: true,
+      abilityType: AbilityType.Damage,
+    },
+    {
       name: "Aetherpact",
       duration: 15,
-      cooldown: 120,
+      cooldown: 180,
       xivDbId: "7423",
       icon: ("61_PetsEgi/7423_Aetherpact"),
       abilityType: AbilityType.PartyDamageBuff,

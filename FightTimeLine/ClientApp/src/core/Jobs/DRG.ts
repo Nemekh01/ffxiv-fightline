@@ -16,8 +16,8 @@ export const DRG: IJob = {
     },
     {
       name: "Life Surge",
-      duration: 10,
-      cooldown: 50,
+      duration: 5,
+      cooldown: 45,
       xivDbId: "83",
       icon: ("32_Dragoon/0083_Life Surge"),
       abilityType: AbilityType.SelfDamageBuff,

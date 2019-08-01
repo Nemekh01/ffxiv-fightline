@@ -8,7 +8,7 @@ export const SCH: IJob = {
   abilities: [
     {
       name: "Whispering Dawn",
-      duration: 21,
+      duration: 0,
       cooldown: 60,
       xivDbId: "803",
       icon: ("62_PetsFairy/0803_Whispering Dawn"),
@@ -38,6 +38,14 @@ export const SCH: IJob = {
       icon: ("62_PetsFairy/0189_Lustrate"),
       abilityType: AbilityType.Healing,
       settings: [settings.target],
+    },
+    {
+      name: "Energy Drain",
+      duration: 0,
+      cooldown: 3,
+      xivDbId: "0167",
+      icon: ("52_Summoner/0167_Energy Drain"),
+      abilityType: AbilityType.Damage,
     },
     {
       name: "Sacred Soil",
@@ -122,6 +130,14 @@ export const SCH: IJob = {
       xivDbId: "804",
       icon: ("Scholar/icon_29"),
       abilityType: AbilityType.Utility,
+    },
+    {
+      name: "Consolation",
+      duration: 0,
+      cooldown: 20,
+      xivDbId: "804",
+      icon: ("Scholar/icon_30"),
+      abilityType: AbilityType.Healing,
     },
    
     ...getAbilitiesFrom(healerSharedAbilities),

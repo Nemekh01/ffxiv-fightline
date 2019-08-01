@@ -74,7 +74,8 @@ export class FFLogsService {
             id: [it.id, ...fight.friendlyPets.filter((it1) => it1.petOwner === it.id).map((it1) => it1.id)],
             job: ji && ji.jobName,
             actorName: it.name.substring(0, 16),
-            role: ji && ji.order
+            role: ji && ji.order,
+            guid: [it.guid, ...fight.friendlyPets.filter((it1) => it1.petOwner === it.id).map((it1) => it1.guid)]
           };
         })
         .filter((it) => it.job != null);
@@ -107,7 +108,7 @@ export class FFLogsService {
 
   private createFilter(fight: ReportFightsResponse, jobs: IJobInfo[]): string {
 
-    const enemyIds = fight.enemies.map(e => e.id).join();
+    const enemyIds = fight.enemies.map(e => e.guid).join();
 
     const js = new JobRegistry().getJobs().filter(j => jobs.some(j1 => j1.job === j.name));
 
@@ -115,18 +116,20 @@ export class FFLogsService {
     const abilityByBuffIds = _.concat([], js.map(j => j.abilities.map(a => a.detectStrategy.deps.buffs)));
     const stances = _.concat([], js.map(j => j.stances && j.stances.map(a => a.ability.detectStrategy.deps.buffs)));
     const buffs = _.uniq(_.flattenDeep(_.concat(stances, abilityByBuffIds))).filter(a => !!a).join();
-    const partyIds = jobs.map(j => j.id.join()).join();
+    const partyIds = jobs.map(j => j.guid).join();
 
     const bossAutoAttacks =
       "1478,1479,1480,1481,6631,6882,6910,7319,7351,8535,8645,8938,9202,9375,9441,9442,9448,9654,9895,9908,9936,9989,10236,10237,10238,10239,10433,11070";
     const filter = `
-    ((
+    (
+      (
          type in ('cast', 'damage') and ability.id in (${abilityIds}) and source.id in (${partyIds})
       )or(
         type in ('cast', 'damage') and source.id in (${enemyIds})
 	    )or(
 		    type in ('applybuff','removebuff') and ability.id in (${buffs})
-	    )) and ability.id not in (${bossAutoAttacks})`;
+	    )
+    ) and ability.id not in (${bossAutoAttacks})`;
 
     return filter;
   }

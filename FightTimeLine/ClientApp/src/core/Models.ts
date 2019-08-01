@@ -53,7 +53,7 @@ export interface IBossSearchEntry {
   name: string;
   canRemove?: boolean;
   createDate?: Date;
-  modifiedDate?:Date;
+  modifiedDate?: Date;
 }
 
 export interface IFight {
@@ -327,6 +327,19 @@ export interface IView {
 export interface ITools {
   downtime: boolean;
   stickyAttacks: boolean;
+}
+
+export interface IBossTemplate {
+  name: string;
+  encounter: number;
+  rootPhase: IPhase;
+
+}
+
+export interface IPhase {
+  name: string;
+  nextPhases: IPhase[];
+  syncData: ISyncData;
 }
 
 
