@@ -66,7 +66,7 @@ export const PLD: IJob = {
       abilityType: AbilityType.PartyDefense,
     },
     {
-      name: "Passage Of Arms",
+      name: "Passage of Arms",
       duration: 18,
       cooldown: 120,
       xivDbId: "7385",
@@ -105,7 +105,7 @@ export const PLD: IJob = {
       name: "Intervene",
       duration: 0,
       cooldown: 0,
-      xivDbId: "",
+      xivDbId: "16461",
       requiresBossTarget: true,
       icon: "11_Paladin/icon_25",
       abilityType: AbilityType.Utility,

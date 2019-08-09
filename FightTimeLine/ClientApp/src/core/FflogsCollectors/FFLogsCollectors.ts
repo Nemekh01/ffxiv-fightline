@@ -2,10 +2,12 @@ import { JobsMapHolder, AbilitiesMapHolder } from "../DataHolders"
 import { UndoRedoController } from "../UndoRedo"
 import { IdGenerator } from "../Generators"
 import * as M from "../Models"
+import * as S from "../../services/SettingsService"
 import { Utils } from "../Utils"
 import { AddAbilityCommand, AddStanceCommand, AddBossAttackCommand } from "../Commands"
 import * as FF from "../FFLogs"
 import * as T from "../BossAttackProcessors"
+import { settings } from "../Jobs/index";
 
 export interface IFFLogsCollector {
   collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void;
@@ -18,31 +20,36 @@ export class AbilityUsagesCollector implements IFFLogsCollector {
   }
 
   collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void {
-    if (data.sourceIsFriendly) {
-      const foundJob = jobs.find(it1 => it1.id.some((it2: any) => it2 === data.sourceID));
-      if (foundJob) {
-        const jobMap = this.jobsMapHolder.getByName(foundJob.job, foundJob.actorName);
+    
+    const foundJob = jobs.find(it1 => it1.id.some(((it2: any) => it2 === data.sourceID) as any));
+    if (!foundJob) return;
 
-        const found = jobMap.detectAbility(data);
-        if (found) {
-          const ability = this.abilitiesMapHolder.getByParentAndAbility(jobMap.id, found.name);
-          if (ability) {
-            const settingsData: M.IAbilitySettingData[] = [];
-            const pty = ability.getSettingOfType('partyMember');
-            if (pty) {
-              settingsData.push({ name: pty.name, value: jobs.find(it1 => it1.id.some((it2: any) => it2 === data.targetID)).rid });
-            }
-            this.commandStorage.execute(new AddAbilityCommand(this.idgen.getNextId(M.EntryType.AbilityUsage),
-              jobMap.id,
-              ability.ability.name,
-              Utils.getDateFromOffset((found.offset - startTime) / 1000, this.startDate),
-              true,
-              settingsData
-            ));
-          }
-        }
+    const jobMap = this.jobsMapHolder.getByName(foundJob.job, foundJob.actorName);
+
+    const found = jobMap.detectAbility(data);
+    if (!found) return;
+
+    const ability = this.abilitiesMapHolder.getByParentAndAbility(jobMap.id, found.name);
+    if (!ability) return;
+
+    const settingsData: M.IAbilitySettingData[] = [];
+    const pty = ability.getSettingOfType('partyMember');
+    if (pty) {
+      const target = jobs.find(it1 => it1.id.some(((it2: any) => it2 === data.targetID) as any));
+      if (target) {
+        settingsData.push({
+          name: pty.name,
+          value: target.rid
+        });
       }
     }
+    this.commandStorage.execute(new AddAbilityCommand(this.idgen.getNextId(M.EntryType.AbilityUsage),
+      jobMap.id,
+      ability.ability.name,
+      Utils.getDateFromOffset((found.offset - startTime) / 1000, this.startDate),
+      true,
+      settingsData
+    ));
   }
 
   process(startTime: number): void { }
@@ -55,7 +62,7 @@ export class JobPetCollector implements IFFLogsCollector {
 
   collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void {
     if (data.sourceIsFriendly) {
-      const foundJob = jobs.find(it1 => it1.id.some((it2: any) => it2 === data.sourceID));
+      const foundJob = jobs.find(it1 => it1.id.some(((it2: any) => it2 === data.sourceID) as any));
       if (foundJob) {
         const jobMap = this.jobsMapHolder.getByName(foundJob.job, foundJob.actorName);
         if (!jobMap.pet && jobMap.job.pets && jobMap.job.pets.length > 0) {
@@ -81,7 +88,7 @@ export class StancesCollector implements IFFLogsCollector {
 
   collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void {
     if (data.sourceIsFriendly) {
-      const foundJob = jobs.find(it1 => it1.id.some((it2: any) => it2 === data.sourceID));
+      const foundJob = jobs.find(it1 => it1.id.some(((it2: any) => it2 === data.sourceID) as any));
       if (foundJob) {
         const jobMap = this.jobsMapHolder.getByName(foundJob.job, foundJob.actorName);
         if ((data.type === "applybuff" || data.type === "removebuff") && jobMap.job.stances && jobMap.job.stances.length > 0) {
@@ -146,24 +153,26 @@ class TestCollector implements IFFLogsCollector {
 export class BossAttacksCollector implements IFFLogsCollector {
 
   private bossAttacks: { [id: string]: Array<FF.AbilityEvent> } = {};
-  constructor(private jobsMapHolder: JobsMapHolder, private abilitiesMapHolder: AbilitiesMapHolder, private commandStorage: UndoRedoController, private idgen: IdGenerator, private startDate: Date) {
+  constructor(private jobsMapHolder: JobsMapHolder, private abilitiesMapHolder: AbilitiesMapHolder, private commandStorage: UndoRedoController, private idgen: IdGenerator, private startDate: Date, private settings: S.ISettings) {
 
   }
 
   collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void {
-    if (!data.sourceIsFriendly) {
-      const key = data.ability.name + "_" + Math.trunc(data.timestamp / 1000);
-      let g = this.bossAttacks[key];
-      if (!g) {
-        this.bossAttacks[key] = new Array<any>();
-        g = this.bossAttacks[key];
-      }
-      g.push(data);
+    if (data.type !== this.settings.fflogsImport.bossAttacksSource) return;
+    
+    if (data.sourceIsFriendly) return;
+
+    const key = data.ability.name + "_" + Math.trunc(data.timestamp / 1000);
+    let g = this.bossAttacks[key];
+    if (!g) {
+      this.bossAttacks[key] = new Array<any>();
+      g = this.bossAttacks[key];
     }
+    g.push(data);
   }
 
   process(startTime: number): void {
-    const tbs = Object.keys(this.bossAttacks).map(it => this.bossAttacks[it]).filter((arr, i, a) => {
+    const tbs = Object.keys(this.bossAttacks).map(it => this.bossAttacks[it]).filter((arr) => {
       return arr.find(it => {
         if (FF.isDamageEvent(it)) {
           return (it.amount + it.blocked > 0.6 * it.targetResources.maxHitPoints) &&

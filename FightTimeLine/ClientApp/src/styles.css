@@ -20,6 +20,9 @@
   border: 2px solid white;
 }
 
+.jobName {
+  pointer-events: none;
+}
 
 body {
   margin: 0;
@@ -128,6 +131,7 @@ html, body, app, .container-fluid, .row, .body-content, .timeline, .ant-spin-con
 .abilityIcon {
   width: 16px;
   height: 16px;
+  pointer-events: none;
 }
 
 .tooltipAbilityIcon {

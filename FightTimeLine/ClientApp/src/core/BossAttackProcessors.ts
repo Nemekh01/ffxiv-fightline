@@ -148,7 +148,7 @@ export const process = (data: FF.AbilityEvent[], startTime: number, attacks: M.I
   //filter by windows
   const result = attacks.filter(it => {
     const offset = Utils.getDateFromOffset(it.offset).valueOf();
-    return !windows.some(w => offset >= w.start && offset < w.end);
+    return !windows.some((w => offset >= w.start && offset < w.end) as any);
   });
 
 
@@ -190,7 +190,7 @@ class AndNode<TData> implements IExpressionNode<TData> {
     this.nodes = nodes;
   }
   value(data: TData): boolean {
-    return this.nodes && this.nodes.every(n => n.value(data));
+    return this.nodes && this.nodes.every((n => n.value(data)) as any);
   }
 
   nodes: IExpressionNode<TData>[];
@@ -203,7 +203,7 @@ class OrNode<TData> implements IExpressionNode<TData> {
   }
 
   value(data: TData): boolean {
-    return this.nodes && this.nodes.some(n => n.value(data));
+    return this.nodes && this.nodes.some((n => n.value(data)) as any);
   }
 
   nodes: IExpressionNode<TData>[];

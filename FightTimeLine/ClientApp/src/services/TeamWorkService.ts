@@ -63,7 +63,7 @@ export class TeamWorkService {
       });
     connection.on("disconnected",
       (data) => {
-        this.connectedUsers.splice(this.connectedUsers.findIndex(it => it.name === data), 1);
+        this.connectedUsers.splice(this.connectedUsers.findIndex((it => it.name === data) as any), 1);
         this.hubConnection.invoke("syncUsers", this.session, this.connectedUsers);
         this.usersChanged.emit();
         if (handlers && handlers.onDisconnected)

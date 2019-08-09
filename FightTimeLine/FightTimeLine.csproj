@@ -25,6 +25,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20190803140216_Commands table.cs" />
+    <Compile Remove="Migrations\20190803140216_Commands table.Designer.cs" />
+    <Compile Remove="Migrations\20190803140606_Commands table.cs" />
+    <Compile Remove="Migrations\20190803140606_Commands table.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Controllers\" />
   </ItemGroup>
 

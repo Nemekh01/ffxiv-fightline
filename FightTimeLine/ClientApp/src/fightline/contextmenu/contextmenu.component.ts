@@ -153,23 +153,25 @@ export class FightLineContextMenuComponent {
 
   resetJobFilter() {
     console.log("reset job filter requested");
-    this.jobFilter = {
-      unused: undefined,
-      utility: undefined,
-      damage: undefined,
-      selfDefence: undefined,
-      partyDefence: undefined,
-      healing: undefined,
-      healingBuff: undefined,
-      partyDamageBuff: undefined,
-      selfDamageBuff: undefined,
-      enmity: undefined,
-    };
-    this.filterUpdated.emit(this.jobFilter);
+    Object.assign(this.jobFilter,
+      {
+        unused: undefined,
+        utility: undefined,
+        damage: undefined,
+        selfDefence: undefined,
+        partyDefence: undefined,
+        healing: undefined,
+        healingBuff: undefined,
+        partyDamageBuff: undefined,
+        selfDamageBuff: undefined,
+        enmity: undefined,
+      });
+    this.filterUpdated.emit();
   }
 
-  updateFilter(data: IAbilityFilter): void {
-    this.filterUpdated.emit(data);
+  updateFilter(data: IAbilityFilter,prop: string): void {
+    this.jobFilter[prop] = data;
+    this.filterUpdated.emit();
   }
 
 }

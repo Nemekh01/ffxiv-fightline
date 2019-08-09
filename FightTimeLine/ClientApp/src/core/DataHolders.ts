@@ -175,6 +175,10 @@ export class AbilityMap extends BaseMap<string, VisTimelineGroup, IAbilityMapDat
     return this.data.hidden;
   }
 
+  get filtered(): boolean {
+    return this.data.filtered;
+  }
+
   get isCompact(): boolean {
     return this.data.isCompact;
   }
@@ -255,6 +259,8 @@ export class JobMap extends BaseMap<string, VisTimelineGroup, IJobMapData> {
       throw Error("More then 1 ability");
     return data[0];
   }
+
+  getShowNested() { return this.item.showNested; }
 }
 
 export interface IBossAttackMapData {
@@ -404,19 +410,19 @@ export class BossDownTimeMap extends BaseMap<string, VisTimelineItem, IBossDownT
   endId: string;
 
   get start(): Date {
-    return this.item.start as Date;
+    return this.data.start as Date;
   }
 
   get end(): Date {
-    return this.item.end as Date;
+    return this.data.end as Date;
   }
 
   set start(v: Date) {
-    this.item.start = v;
+    this.data.start = v;
   }
 
   set end(v: Date) {
-    this.item.end = v;
+    this.data.end = v;
   }
 
   constructor(id: string, startId: string, endId: string, data: IBossDownTimeMapData) {
@@ -705,13 +711,6 @@ export class StancesHolder extends BaseHolder<string, VisTimelineItem, JobStance
     super.clear();
   }
 
-  checkDatesOverlap(group: string, start: Date, end: Date, id?: string, selectionRegistry?: AbilitySelectionHolder): boolean {
-    if (this.values.length > 0) {
-      return this.values.some((x: JobStanceMap) => (id === undefined || x.id !== id) && x.ability.id === group && x.start < end && x.end > start && (!selectionRegistry || !selectionRegistry.get(x.id)));
-    }
-    return false;
-  }
-
   remove(ids: string[]): void {
     super.remove(ids);
     this.visItems.remove(ids);
@@ -799,15 +798,15 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
   }
 
   isBossTargetForGroup(group: string): boolean {
-    return this.values.find((b: AbilityMap) => group === b.id && b.ability.settings && b.ability.settings.some(s => s.name === settings.changesTarget.name) && b.job.id !== "boss") !== undefined;
+    return this.values.find((b: AbilityMap) => group === b.id && b.ability.settings && b.ability.settings.some((s => s.name === settings.changesTarget.name) as any) && b.job.id !== "boss") !== undefined;
   }
 
   getParent(group: string): string {
     return this.values.find((b: AbilityMap) => group === b.id).job.id;
   }
 
-  getByParentAndAbility(id: string, ability: string): AbilityMap {
-    return this.values.find((b: AbilityMap) => b.job.id === id && !!b.ability && (b.ability.name.toUpperCase() === ability.toUpperCase()));
+  getByParentAndAbility(jobId: string, ability: string): AbilityMap {
+    return this.values.find((b: AbilityMap) => b.job.id === jobId && !!b.ability && (b.ability.name.toUpperCase() === ability.toUpperCase()));
   }
 
   getStancesAbility(jobGroup: string): AbilityMap {
@@ -906,14 +905,14 @@ export class JobsMapHolder extends BaseHolder<string, VisTimelineGroup, JobMap> 
   }
 
   getOrder(initialBossTarget: string): number {
-    return this.values.findIndex((value: JobMap) => value.id === initialBossTarget);
+    return this.values.findIndex(((value: JobMap) => value.id === initialBossTarget) as any);
   }
 
   getByName(name: string, actorName?: string): JobMap {
     return this.values.find((b: JobMap) => b.job.name === name && (!actorName || actorName === b.actorName));
   }
 
-  serialize(): { id: string, name: string, order: number, pet: string, filter: any, compact: boolean, collapsed: boolean }[] {
+  serialize(): { id: string, name: string, order: number, pet: string, filter: M.IAbilityFilter, compact: boolean, collapsed: boolean }[] {
     const map = this.values.map((value: JobMap) => <any>{
       id: value.id,
       name: value.job.name,
@@ -921,7 +920,7 @@ export class JobsMapHolder extends BaseHolder<string, VisTimelineGroup, JobMap> 
       pet: value.pet,
       filter: value.filter,
       compact: value.isCompact,
-      collapsed: value.collapsed
+      collapsed: !value.getShowNested()
     });
     return map;
   }
@@ -1136,21 +1135,6 @@ export class AbilityUsageHolder extends BaseHolder<string, VisTimelineItem, Abil
   clear(): void {
     this.visItems.removeItems(this.getIds());
     super.clear();
-  }
-
-  checkDatesOverlap(group: string, start: Date, end: Date, id?: string, selectionRegistry?: AbilitySelectionHolder): boolean {
-    if (this.values.length > 0) {
-      const result = this.values.some((x: AbilityUsageMap) => {
-        const idCheck = (id === undefined || x.id !== id);
-        const groupCheck = x.ability.id === group;
-        const timeCheck = x.start < end && x.end > start;
-        const selectionCheck = (!selectionRegistry || !selectionRegistry.get(x.id));
-        const result = idCheck && groupCheck && timeCheck && selectionCheck;
-        return result as any;
-      });
-      return result;
-    }
-    return false;
   }
 
   remove(ids: string[]): void {

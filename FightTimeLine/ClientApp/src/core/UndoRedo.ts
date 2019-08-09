@@ -8,7 +8,6 @@ export interface ICommandExecutionContext {
   idGen: IdGenerator;
   holders: Holders,
   jobRegistry: JobRegistry;
-  checkDatesOverlap: (group: string, start: Date, end: Date, id?: string) => boolean;
   update: (options: IUpdateOptions) => void;
   ogcdAttacksAsPoints: (ability: IAbility) => boolean;
   verticalBossAttacks: () => boolean;

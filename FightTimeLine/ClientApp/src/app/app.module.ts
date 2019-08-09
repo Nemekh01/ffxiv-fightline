@@ -51,9 +51,9 @@ import en from '@angular/common/locales/en'
 
 registerLocaleData(en);
 
-Sentry.init({
-  dsn: "https://aa772d49f3bb4a33851f765d5d5f2d86@sentry.io/1407389",
-  enabled: environment.production
+Sentry.init(<Object>{
+  dsn : "https://aa772d49f3bb4a33851f765d5d5f2d86@sentry.io/1407389",
+  enabled : environment.production
 });
 
 @Injectable()

@@ -40,11 +40,23 @@ namespace FightTimeLine.DataLayer
           public string Password { get; set; }
      }
 
+     [Table("Commands")]
+     public class CommandEntity
+     {
+          [Key]
+          public int Id { get; set; }
+          public Guid Fight { get; set; }
+          public string UserName { get; set; }
+          public DateTimeOffset DateCreated { get; set; }
+          public string Body { get; set; }
+     }
+
      public interface IFightTimelineDbContext
      {
           DbSet<BossEntity> Bosses { get; set; }
           DbSet<FightEntity> Fights { get; set; }
           DbSet<UserEntity> Users { get; set; }
+          DbSet<CommandEntity> Commands { get; set; }
      }
 
 
@@ -53,6 +65,7 @@ namespace FightTimeLine.DataLayer
           public DbSet<BossEntity> Bosses { get; set; }
           public DbSet<FightEntity> Fights { get; set; }
           public DbSet<UserEntity> Users { get; set; }
+          public DbSet<CommandEntity> Commands { get; set; }
 
           public FightTimelineDataContext(DbContextOptions options) : base(options)
           {

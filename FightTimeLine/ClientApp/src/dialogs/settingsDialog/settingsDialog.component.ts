@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormC
 import { SettingsFilterComponent } from "./filter/settingsFilter.component"
 import { SettingsViewComponent } from "./view/settingsView.component"
 import { SettingsService, ISettings } from "../../services/SettingsService";
+import { ScreenNotificationsService } from "../../services/ScreenNotificationsService";
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NzModalRef } from "ng-zorro-antd";
 
@@ -38,7 +39,8 @@ export class SettingsDialog {
   constructor(
     private dialogRef: NzModalRef,
     private formBuilder: FormBuilder,
-    private settingsService: SettingsService) {
+    private settingsService: SettingsService,
+    private notifications: ScreenNotificationsService) {
 
   }
 
@@ -94,5 +96,12 @@ export class SettingsDialog {
 
   onNoClick(): void {
     this.dialogRef.destroy();
+  }
+
+  onClearCachesClick(): void {
+    localStorage.removeItem("events_cache");
+    localStorage.removeItem("zones_cache");
+    localStorage.removeItem("fights_cache");
+    this.notifications.info("Caches have been cleared.");
   }
 }

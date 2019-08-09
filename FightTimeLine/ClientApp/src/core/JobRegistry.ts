@@ -1,4 +1,4 @@
-import { IJob, IAbility, IStance, byName, byBuffApply, byBuffRemove } from "./Models"
+import { IJob, IAbility, IStance, byName, byBuffApply, byBuffRemove, BaseOverlapStrategy } from "./Models"
 import { abilitySortFn } from "./Jobs/shared"
 import { PLD, WAR, DRK, WHM, SCH, AST, BRD, MCH, DRG, MNK, NIN, SAM, BLM, RDM, SMN, DNC, GNB } from "./Jobs/index"
 
@@ -46,7 +46,9 @@ export class JobRegistry {
       settings: a.settings,
       xivDbId: a.xivDbId,
       xivDbType: a.xivDbType,
-      detectStrategy: a.detectStrategy || byName(a.xivDbId, a.name)
+      charges: a.charges,
+      detectStrategy: a.detectStrategy || byName([a.xivDbId], [a.name]),
+      overlapStrategy: a.overlapStrategy || new BaseOverlapStrategy()
     }
   }
 

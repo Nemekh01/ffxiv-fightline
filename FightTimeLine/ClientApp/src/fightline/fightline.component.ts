@@ -404,7 +404,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     const items = this.visTimelineItems.getAll();
     items.forEach((it) => {
       const b = new ClassNameBuilder(it.className);
-      const have = !!ids && ids.some((e: string) => "bossAttack_" + e === it.id);
+      const have = !!ids && ids.some((e => "bossAttack_" + e === it.id) as any);
       b.set({ "selected": have });
       if (b.isChanged()) {
         it.className = b.build();
@@ -451,7 +451,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.authenticationService.logout();
   }
 
-  updateFilter($data: M.IFilter): void {
+  updateFilter($data?: M.IFilter): void {
     this.fightLineController.applyFilter($data);
     setTimeout(() => this.refresh());
   }

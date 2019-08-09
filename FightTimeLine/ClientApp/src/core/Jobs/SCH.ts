@@ -110,16 +110,15 @@ export const SCH: IJob = {
       name: "Recitation",
       duration: 0,
       cooldown: 90,
-      xivDbId: "",
+      xivDbId: "16542",
       icon: ("Scholar/icon_27"),
       abilityType: AbilityType.Utility,
     },
-
     {
       name: "Fey Blessing",
       duration: 0,
       cooldown: 60,
-      xivDbId: "804",
+      xivDbId: "16543",
       icon: ("Scholar/icon_28"),
       abilityType: AbilityType.Healing,
     },
@@ -127,7 +126,7 @@ export const SCH: IJob = {
       name: "Summon Seraph",
       duration: 20,
       cooldown: 120,
-      xivDbId: "804",
+      xivDbId: "16545",
       icon: ("Scholar/icon_29"),
       abilityType: AbilityType.Utility,
     },
@@ -135,9 +134,14 @@ export const SCH: IJob = {
       name: "Consolation",
       duration: 0,
       cooldown: 20,
-      xivDbId: "804",
+      xivDbId: "16546",
       icon: ("Scholar/icon_30"),
       abilityType: AbilityType.Healing,
+      charges: {
+        count: 2,
+        cooldown: 20
+      },
+//      detectStrategy: byName()
     },
    
     ...getAbilitiesFrom(healerSharedAbilities),

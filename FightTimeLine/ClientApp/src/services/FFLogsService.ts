@@ -67,7 +67,7 @@ export class FFLogsService {
 
     const jobs =
       fight.friendlies
-        .filter((it) => it.fights.some((it1) => it1.id === instance))
+        .filter((it) => it.fights.some(((it1) => it1.id === instance) as any))
         .map((it) => {
           const ji = this.mapJob(it.type);
           return <IJobInfo>{
@@ -110,7 +110,7 @@ export class FFLogsService {
 
     const enemyIds = fight.enemies.map(e => e.guid).join();
 
-    const js = new JobRegistry().getJobs().filter(j => jobs.some(j1 => j1.job === j.name));
+    const js = new JobRegistry().getJobs().filter(j => jobs.some((j1 => j1.job === j.name) as any));
 
     const abilityIds = _.uniq(_.flattenDeep(_.concat([], js.map(j => j.abilities.map(a => a.detectStrategy.deps.abilities))))).filter(a => !!a).join();
     const abilityByBuffIds = _.concat([], js.map(j => j.abilities.map(a => a.detectStrategy.deps.buffs)));
@@ -166,6 +166,10 @@ export class FFLogsService {
         return { jobName: "BLM", order: 2 };
       case "RedMage":
         return { jobName: "RDM", order: 2 };
+      case "Gunbreaker":
+        return { jobName: "GNB", order: 0 };
+      case "Dancer":
+        return { jobName: "DNC", order: 2 };
     }
     return null;
   }

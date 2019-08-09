@@ -1,5 +1,5 @@
 import { Command, ICommandExecutionContext, ICommandData } from "./UndoRedo"
-import { IAbility, IBossAbility, IJob, IFilter, IAbilitySettingData, IAbilityFilter,Role } from "./Models"
+import { IAbility, IBossAbility, IJob, IFilter, IAbilitySettingData, IAbilityFilter, Role } from "./Models"
 import * as H from "./DataHolders"
 import { Utils } from "./Utils"
 import { Guid } from "guid-typescript"
@@ -418,7 +418,15 @@ export class AddAbilityCommand implements Command {
         ogcdAsPoints: context.ogcdAttacksAsPoints(abilityMap.ability)
       });
 
-    if (context.checkDatesOverlap(abilityMap.id, item.start as Date, item.end as Date))
+    if (abilityMap.ability.overlapStrategy.check({
+      ability: abilityMap.ability,
+      holders: context.holders,
+      id: this.id,
+      group: abilityMap.id,
+      start: item.start,
+      end: item.end,
+      selectionRegistry: context.holders.selectionRegistry
+    }))
       return;
 
     context.holders.itemUsages.add(item);
@@ -602,12 +610,9 @@ export class ChangeDowntimeCommand implements Command {
   reverse(context: ICommandExecutionContext): void {
     const value = context.holders.bossDownTime.get(this.id);
 
-    value.start = this.prevStartDate;
-
-    value.end = this.prevEndDate;
+    value.applyData({ start: this.prevStartDate, end: this.prevEndDate });
 
     context.holders.bossDownTime.update([value]);
-
 
     context.update({ updateDowntimeMarkers: true });
   }
@@ -616,11 +621,9 @@ export class ChangeDowntimeCommand implements Command {
     const value = context.holders.bossDownTime.get(this.id);
 
     this.prevStartDate = value.start;
-    value.start = this.start;
-
     this.prevEndDate = value.end;
-    value.end = this.end;
 
+    value.applyData({ start: this.start, end: this.end });
 
     context.holders.bossDownTime.update([value]);
 

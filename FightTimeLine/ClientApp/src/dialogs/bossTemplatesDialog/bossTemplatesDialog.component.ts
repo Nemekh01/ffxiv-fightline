@@ -131,7 +131,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
         this.zones = (val as any);
         this.filteredZones = val as any;
         if (this.data.boss) {
-          const zone = this.zones.find((z) => z.encounters.some(y => y.id === this.data.boss.ref));
+          const zone = this.zones.find((z) => z.encounters.some((y => y.id === this.data.boss.ref) as any));
           if (zone) {
             const enc = zone.encounters.find(y => y.id === this.data.boss.ref);
             this.onEncounterSelected(zone.id, enc, true);
@@ -151,7 +151,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
       this.zones.
         filter(
           (zone: Zone) => {
-            return (!this.searchString || zone.encounters.some(x => x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0) && (!this.data.boss || zone.encounters.some(x => x.id === this.data.boss.ref)));
+            return (!this.searchString || zone.encounters.some((x => x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0) as any) && (!this.data.boss || zone.encounters.some((x => x.id === this.data.boss.ref) as any)));
           }
         );
   }
@@ -275,7 +275,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.dispatcher.dispatch({
       name: "BossTemplates Save",
       payload: {
-        name: this.data.boss && this.data.boss.name || this.selectedEncounter.name,
+        name: this.data.boss && this.data.boss.name || this.selectedEncounter && this.selectedEncounter.name || "", 
         reference: this.selectedEncounter && this.selectedEncounter.id || 0,
         isPrivate: false,
         close: () => this.dialogRef.destroy()
@@ -287,7 +287,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
     this.dispatcher.dispatch({
       name: "BossTemplates Save as new",
       payload: {
-        name: this.selectedEncounter.name,
+        name: this.selectedEncounter && this.selectedEncounter.name || "",
         reference: this.selectedEncounter && this.selectedEncounter.id || 0,
         isPrivate: false,
         close: () => this.dialogRef.destroy()

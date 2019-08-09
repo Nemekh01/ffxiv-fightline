@@ -1,4 +1,5 @@
 import * as FF from "./FFLogs"
+import * as H from "./DataHolders"
 
 export enum Role {
   Tank,
@@ -14,7 +15,7 @@ export interface IJob {
   role: Role;
   pets?: IPet[];
   defaultPet?: string;
-  stances?: Array<IStance>;
+  stances?: IStance[];
 }
 
 export interface IPet {
@@ -77,8 +78,8 @@ export interface IContextMenuData {
   hidden?: any[];
 }
 
-export const byName = (id: string, ...names: string[]) => {
-  return new ByNameDetecor(id, ...names);
+export const byName = (ids: string[], names: string[]) => {
+  return new ByNameDetecor(ids, names);
 }
 
 export const byBuffApply = (id: number, abilityName?: string) => {
@@ -111,15 +112,30 @@ export interface IDetectionStrategy {
   deps: IDetectionDependencies;
 }
 
+export interface IOverlapCheckContext {
+  holders: H.Holders;
+  id: string;
+  ability: IAbility;
+  group: string;
+  start: Date;
+  end: Date;
+  selectionRegistry: H.AbilitySelectionHolder;
+}
+
+export interface IOverlapStrategy {
+  check(context: IOverlapCheckContext): boolean;
+  getDependencies(): string[];
+}
+
+
 class ByNameDetecor implements IDetectionStrategy {
-  private names: string[];
-  constructor(private id: string, ...names: string[]) {
+  constructor(private ids: string[], private names: string[]) {
     this.names = names;
   }
 
   process(ev: FF.Event): { offset: number; name: string } {
     if (isAbility(ev)) {
-      if (this.names.some(n => n === ev.ability.name)) {
+      if (this.names.some((n => n === ev.ability.name) as any)) {
         return { offset: ev.timestamp, name: this.names[0] }
       }
     }
@@ -128,9 +144,69 @@ class ByNameDetecor implements IDetectionStrategy {
 
   get deps(): IDetectionDependencies {
     return {
-      abilities: [parseInt(this.id)],
+      abilities: this.ids.map(it => parseInt(it)),
       buffs: []
     }
+  }
+}
+
+export class BaseOverlapStrategy implements IOverlapStrategy {
+  getDependencies(): string[] {
+    return null;
+  }
+
+  check(context: IOverlapCheckContext): boolean {
+
+    const result = context.holders.itemUsages.getByAbility(context.group).some((x: H.AbilityUsageMap) => {
+      const chargesBased = !!x.ability.ability.charges;
+      if (chargesBased) return false;
+
+      const idCheck = (context.id === undefined || x.id !== context.id);
+      const timeCheck = x.start < context.end && x.end > context.start;
+      const selectionCheck = (!context.selectionRegistry || !context.selectionRegistry.get(x.id));
+      const result = idCheck && timeCheck && selectionCheck;
+      return result as any;
+    });
+    return result;
+  }
+}
+
+export class SharedOverlapStrategy implements IOverlapStrategy {
+  getDependencies(): string[] {
+    return this.sharesWith;
+  }
+
+  constructor(private sharesWith: string[]) {
+
+  }
+  check(context: IOverlapCheckContext): boolean {
+    const map = context.holders.abilities.get(context.group);
+    const items = context.holders.itemUsages.getByAbility(context.group);
+    const sharedAbility = context.holders.abilities.getByParentAndAbility(map.job.id, this.sharesWith[0]);
+    const sharedItems = context.holders.itemUsages.getByAbility(sharedAbility.id);
+    
+
+    const result = [...items,...sharedItems].some((x: H.AbilityUsageMap) => {
+      const chargesBased = !!x.ability.ability.charges;
+      if (chargesBased) return false;
+
+      const idCheck = (context.id === undefined || x.id !== context.id);
+      const timeCheck = x.start < context.end && x.end > context.start;
+      const selectionCheck = (!context.selectionRegistry || !context.selectionRegistry.get(x.id));
+      const result = idCheck && timeCheck && selectionCheck;
+      return result as any;
+    });
+    return result;
+  }
+}
+
+class ChargesBasedOverlapStrategy implements IOverlapStrategy {
+  getDependencies(): string[] {
+    return null;
+  }
+
+  check(): boolean {
+    return false;
   }
 }
 
@@ -190,6 +266,7 @@ export interface IAbility {
   abilityType: AbilityType;
   pet?: string;
   detectStrategy?: IDetectionStrategy;
+  overlapStrategy?: IOverlapStrategy;
   charges?: IAbilityCharges;
 }
 

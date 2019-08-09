@@ -106,7 +106,7 @@ export const BRD: IJob = {
       name: "Shadowbite",
       duration: 0,
       cooldown: 60,
-      xivDbId: "7408",
+      xivDbId: "16494",
       icon: ("41_Bard/icon_25 (1)"),
       abilityType: AbilityType.Damage
     },

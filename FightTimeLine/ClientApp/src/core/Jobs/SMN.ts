@@ -7,16 +7,17 @@ export const SMN: IJob = {
   icon: ("JobIcons/Summoner_Icon_10"),
   abilities: [
     {
-      name: "Egi Assault I",
+      name: "Egi Assault",
       duration: 0,
       cooldown: 30,
-      xivDbId: "",
+      xivDbId: "16509",
       icon: ("52_Summoner/icon_07"),
       abilityType: AbilityType.Damage,
       charges: {
         count: 2,
         cooldown: 30
-      }
+      },
+      detectStrategy: byName(["16797", "16799", "16795", "797"], ["Egi Assault","Aerial Slash","Crimson Cyclone", "Earthen Armor"])
     },
     {
       name: "Energy Drain",
@@ -30,13 +31,14 @@ export const SMN: IJob = {
       name: "Egi Assault II",
       duration: 0,
       cooldown: 30,
-      xivDbId: "176",
+      xivDbId: "16512",
       icon: ("52_Summoner/icon_13"),
       abilityType: AbilityType.Damage,
       charges: {
         count: 2,
         cooldown: 30
-      }
+      },
+      detectStrategy: byName(["16798", "16800", "16796", "800"], ["Egi Assault II","Slipstream", "Flaming Crush", "Mountain Buster"])
     },
     {
       name: "Enkindle",

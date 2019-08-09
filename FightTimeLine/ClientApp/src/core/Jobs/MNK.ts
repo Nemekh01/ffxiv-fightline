@@ -26,7 +26,7 @@ export const MNK: IJob = {
       name: "Shoulder Tackle",
       duration: 0,
       cooldown: 30,
-      xivDbId: "0071",
+      xivDbId: "71",
       icon: ("31_Monk/0071_Shoulder Tackle"),
       abilityType: AbilityType.Damage | AbilityType.Utility,
       charges: {
@@ -78,7 +78,7 @@ export const MNK: IJob = {
       name: "Anatman",
       duration: 0,
       cooldown: 60,
-      xivDbId: "",
+      xivDbId: "16475",
       icon: ("31_Monk/icon_24"),
       abilityType: AbilityType.Utility,
     },

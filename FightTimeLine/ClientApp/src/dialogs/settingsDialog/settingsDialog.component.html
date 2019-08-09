@@ -24,6 +24,14 @@
             <settingsView #view></settingsView>
           </div>
         </div>
+        <div class="settings-container">
+          <div class="settings-title">
+            Caches
+          </div>
+          <div class="settings-body">
+            <button nz-button nzType="danger" (click)="onClearCachesClick()">Clear Caches</button>
+          </div>
+        </div>
       </form>
     </nz-tab>
     <nz-tab nzTitle="FFLogs">

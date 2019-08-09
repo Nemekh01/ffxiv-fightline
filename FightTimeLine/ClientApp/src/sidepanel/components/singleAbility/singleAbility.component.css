@@ -12,7 +12,14 @@
 }
 
 .abilityDescription {
-  padding: 2px;
+}
+
+.abilityDescriptionContainer {
+  background-color: #403d3d;
+  border-radius: 8px;
+  margin-top: 3px;
+  padding: 3px;
+  color: white;
 }
 
 .usedTime {
@@ -21,4 +28,8 @@
 
 .usedTarget {
   margin-left: 3px;
+}
+
+.similarLink {
+  margin-left: 2px;
 }

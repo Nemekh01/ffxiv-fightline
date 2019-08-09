@@ -1,4 +1,4 @@
-import { IJob,  Role, AbilityType,  byName } from "../Models"
+import { IJob,  Role, AbilityType,  byName, SharedOverlapStrategy } from "../Models"
 import { abilitySortFn, getAbilitiesFrom, settings, tankSharedAbilities, medicine } from "./shared"
 
 export const WAR: IJob = {
@@ -16,7 +16,7 @@ export const WAR: IJob = {
       abilityType: AbilityType.Utility,
       charges: {
         count: 2,
-        cooldown: 30
+        cooldown: 60
       }
     },
     {
@@ -85,7 +85,6 @@ export const WAR: IJob = {
       xivDbId: "40",
       icon: ("12_Warrior/0040_Thrill Of Battle"),
       abilityType: AbilityType.SelfDefense,
-      detectStrategy: byName("Thrill of Battle"),
       relatedAbilities: { affectedBy: ["Shake It Off"], parentOnly: true }
     },
     {
@@ -95,7 +94,8 @@ export const WAR: IJob = {
       xivDbId: "3551",
       icon: ("12_Warrior/3551_Raw Intuition"),
       abilityType: AbilityType.SelfDefense,
-      relatedAbilities: { affectedBy: ["Shake It Off"], parentOnly: true }
+      relatedAbilities: { affectedBy: ["Shake It Off"], parentOnly: true },
+      overlapStrategy: new SharedOverlapStrategy(["Nascent Flash"])
     },
     {
       name: "Equilibrium",
@@ -109,10 +109,11 @@ export const WAR: IJob = {
       name: "Nascent Flash",
       duration: 6,
       cooldown: 25,
-      xivDbId: "",
+      xivDbId: "16464",
       icon: ("12_Warrior/icon_24 (1)"),
-      abilityType: AbilityType.Utility,
-      settings:[settings.target]
+      abilityType: AbilityType.SelfDefense,
+      settings: [settings.target],
+      overlapStrategy: new SharedOverlapStrategy(["Raw Intuition"])
     },
     ...getAbilitiesFrom(tankSharedAbilities),
     medicine["Strength"]
