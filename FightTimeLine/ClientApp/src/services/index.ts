@@ -8,11 +8,11 @@ import { FFLogsStorageService } from "./FFLogsStorageService"
 import { RecentActivityService } from "./RecentActivitiesService"
 import { SettingsService } from "./SettingsService"
 import { SpreadSheetsService } from "./SpreadSheetsService"
-import { TeamWorkService, IConnectToSessionHandlers, IStartSessionHandlers } from "./TeamWorkService"
 import { UserService } from "./UserService"
 import { ScreenNotificationsService } from "./ScreenNotificationsService"
 import { LocalStorageService } from "./LocalStorageService"
 import { DispatcherService } from "./dispatcher.service"
+import { FightHubService, IConnectToSessionHandlers, IStartSessionHandlers } from "./FightHubService"
 
 export {
   IAuthenticationService,
@@ -23,7 +23,6 @@ export {
   RecentActivityService,
   SettingsService,
   SpreadSheetsService,
-  TeamWorkService,
   UserService,
   ScreenNotificationsService,
   LocalStorageService,
@@ -33,7 +32,8 @@ export {
   authenticationServiceProvider,
   authenticationServiceToken,
   fightServiceProvider,
-  fightServiceToken
+  fightServiceToken,
+  FightHubService
 }
 
 export const ServicesModuleComponents =
@@ -44,11 +44,11 @@ export const ServicesModuleComponents =
     RecentActivityService,
     SettingsService,
     SpreadSheetsService,
-    TeamWorkService,
     UserService,
     ScreenNotificationsService,
     LocalStorageService,
     DispatcherService,
+    FightHubService,
     authenticationServiceProvider,
     fightServiceProvider
   ];

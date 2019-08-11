@@ -4,14 +4,16 @@ using FightTimeLine.DataLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FightTimeLine.Migrations
 {
     [DbContext(typeof(FightTimelineDataContext))]
-    partial class FightTimelineDataContextModelSnapshot : ModelSnapshot
+    [Migration("20190809234513_FightDraft")]
+    partial class FightDraft
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,23 +90,6 @@ namespace FightTimeLine.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Fights");
-                });
-
-            modelBuilder.Entity("FightTimeLine.DataLayer.SessionEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<Guid>("Fight");
-
-                    b.Property<string>("UserId");
-
-                    b.Property<string>("UserName");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("FightTimeLine.DataLayer.UserEntity", b =>

@@ -157,6 +157,13 @@ export class ChangeNotes {
         items: [
           "FFLogs integration fix"
         ]
+      },
+      {
+        revision: 25,
+        date: "8/11/2019",
+        items: [
+          "TeamWork is deprecated now and integrated into editor by default. You can now share link of saved project and openning of this link automatically enables TeamWork."
+        ]
       }
 
     ].sort((a, b) => b.revision - a.revision);

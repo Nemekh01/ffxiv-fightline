@@ -49,8 +49,6 @@ export class FightsService implements IFightService {
       });
   }
 
-  
-
   saveFight(fight: IFight): Observable<IFight> {
     return this.httpClient.post<IFight>(this.basePath + "api/data/saveFight", fight,
       {
@@ -68,6 +66,32 @@ export class FightsService implements IFightService {
   removeFights(map: any[]): Observable<any> {
     return this.httpClient.post<any[]>(this.basePath + "api/data/removeFights",
       map,
+      {
+        headers: this.headers
+      });
+  }
+
+  newFight(): Observable<IFight> {
+    return this.httpClient.post<IFight>(this.basePath + "api/data/newFight",
+      null,
+      {
+        headers: this.headers
+      });
+  }
+
+  addCommand(fight: string, data: any): Observable<any> {
+    return this.httpClient.post<any>(this.basePath + "api/data/addCommand",
+      {
+        fight: fight,
+        data: data
+      },
+      {
+        headers: this.headers
+      });
+  }
+
+  getCommands(fight: string, timestamp: number): Observable<any[]> {
+    return this.httpClient.get<any[]>(this.basePath + `api/data/loadCommands/${fight}/${timestamp}`,
       {
         headers: this.headers
       });

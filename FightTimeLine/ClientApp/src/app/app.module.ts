@@ -39,6 +39,7 @@ import { FFLogsMatcherDirective } from "../heplers/FFLogsMatchDirective"
 import { CustomScrollDirective } from "../heplers/customScroll.directive"
 import { KeyHandlerDirective } from "../heplers/keyHandler.directive"
 import { KillsOnlyPipe } from "../heplers/KillsPipe"
+import { NoDraftsPipe } from "../heplers/NoDraftsPipe"
 import { PingComponent } from "../fightline/ping/ping.component";
 import * as Sentry from "@sentry/browser";
 import { AngularSplitModule } from 'angular-split';
@@ -108,6 +109,7 @@ export function getBaseUrl() {
     FFLogsMatcherDirective,
     CustomScrollDirective,
     KillsOnlyPipe,
+    NoDraftsPipe,
     SidepanelComponent,
     SingleAbilityComponent,
     SingleAttackComponent,

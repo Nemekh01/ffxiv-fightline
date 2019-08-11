@@ -5,7 +5,8 @@ import { fightServiceToken } from "../../services/fight.service-provider"
 import { ScreenNotificationsService } from "../../services/ScreenNotificationsService"
 import "rxjs/add/observable/merge";
 import "rxjs/add/observable/empty";
-import { NzModalRef, NzListComponent } from "ng-zorro-antd"
+import { NzModalRef, NzListComponent, NzSwitchComponent } from "ng-zorro-antd"
+import * as M from "../../core/Models"
 
 
 @Component({
@@ -18,13 +19,14 @@ export class FightLoadDialog {
 
   ngOnInit(): void {
     this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
+    this.dialogRef.getInstance().nzTitle = this.headerTemplate;
     this.load();
   }
 
   load() {
     this.loading = true;
     this.service.getFightsForUser()
-      .subscribe((it: any) => {
+      .subscribe((it: M.IFight[]) => {
         this.container.fights = it;
         this.loading = false;
       }, (error) => {
@@ -35,8 +37,10 @@ export class FightLoadDialog {
 
 
   @Input("data") data: any;
-  @ViewChild("buttonsTempalte") public buttonsTemplate: TemplateRef<any>;
-  container: any = { fights: [] };
+  @ViewChild("buttonsTemplate") public buttonsTemplate: TemplateRef<any>;
+  @ViewChild("headerTemplate") public headerTemplate: TemplateRef<any>;
+  @ViewChild("showDrafts") public fg: NzSwitchComponent;
+  container: { fights : M.IFight[] } = { fights: [] };
   loading = true;
   selectedRowsChecked = [];
 

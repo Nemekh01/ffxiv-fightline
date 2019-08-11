@@ -9,6 +9,7 @@ import { PingComponent } from "../fightline/ping/ping.component"
 import { ScreenNotificationsService } from "../services/ScreenNotificationsService"
 import { LocalStorageService } from "../services/LocalStorageService"
 import { IAuthenticationService, authenticationServiceToken } from "../services/index"
+import * as M from "../core/Models"
 
 @Component({
   selector: "toolbar",
@@ -36,7 +37,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   @Input("canUndo") canUndo: boolean;
   @Input("canRedo") canRedo: boolean;
-  @Input("connectedUsers") connectedUsers: any[];
+  @Input("connectedUsers") connectedUsers: M.IHubUser[];
   @Input("connected") connected: boolean;
   @Input("availableTools") availableTools: string[];
 
@@ -62,9 +63,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
 
   @ViewChild("filter")
-  filter: FilterComponent;
+  public filter: FilterComponent;
   @ViewChild("view")
-  view: ViewComponent;
+  public view: ViewComponent;
   @ViewChildren(PingComponent)
   pings: QueryList<PingComponent>;
 

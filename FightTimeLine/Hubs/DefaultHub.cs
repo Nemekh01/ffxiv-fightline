@@ -6,9 +6,14 @@ namespace FightTimeLine.Hubs
 {
      public class DefaultHub : Hub
      {
-          public void Command(string code, object data)
+          public async Task Command(string code, object data)
           {
-               Clients.OthersInGroup(code).SendAsync("command", data, new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString(), owner = Convert.ToBoolean(Context.Items["owner"] ?? false) });
+               await Clients.OthersInGroup(code).SendAsync("command", data, new User()
+               {
+                    id = Context.ConnectionId,
+                    name = Context.Items["username"]?.ToString(),
+                    owner = Convert.ToBoolean(Context.Items["owner"] ?? false)
+               });
           }
 
           public async Task<string> StartSession(string username)
@@ -22,7 +27,7 @@ namespace FightTimeLine.Hubs
 
           public async Task Disconnect(string code)
           {
-               await Clients.OthersInGroup(code).SendAsync("disconnected", new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString(), owner  = Convert.ToBoolean(Context.Items["owner"] ?? false) });
+               await Clients.OthersInGroup(code).SendAsync("disconnected", new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString(), owner = Convert.ToBoolean(Context.Items["owner"] ?? false) });
                await Groups.RemoveFromGroupAsync(Context.ConnectionId, code);
           }
 
@@ -30,7 +35,7 @@ namespace FightTimeLine.Hubs
           {
                this.Context.Items.Add("username", username);
                await Groups.AddToGroupAsync(Context.ConnectionId, code);
-               await Clients.OthersInGroup(code).SendAsync("connected", new User() { id = Context.ConnectionId, name = username, owner = false});
+               await Clients.OthersInGroup(code).SendAsync("connected", new User() { id = Context.ConnectionId, name = username, owner = false });
                await Clients.OthersInGroup(code).SendAsync("sync");
           }
 

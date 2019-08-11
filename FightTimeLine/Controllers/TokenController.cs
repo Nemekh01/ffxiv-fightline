@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using FightTimeLine.DataLayer;
+using FightTimeLine.DataModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -67,9 +68,5 @@ namespace FightTimeLine.Controllers
     }
 
 
-    public class LoginModel
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
+   
 }

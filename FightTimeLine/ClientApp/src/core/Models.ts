@@ -62,6 +62,26 @@ export interface IFight {
   name: string;
   userName: string;
   data: string;
+  isDraft?: boolean;
+  dateModified?: Date;
+  dateCreated?: Date;
+}
+
+export interface ICommandEntry {
+  userName: string;
+  fight: string;
+  data: string;
+  timeStamp: Date;
+}
+
+export interface IHubCommand {
+  body: string;
+  userId: string;
+}
+
+export interface IHubUser {
+  id: string;
+  name: string;
 }
 
 export interface IContextMenuData {

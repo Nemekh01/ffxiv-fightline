@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,10 @@ namespace FightTimeLine.DataLayer
           public string Name { get; set; }
           public string UserName { get; set; }
           public string Data { get; set; }
+          [DefaultValue(true)]
+          public bool? IsDraft { get; set; }
+          public DateTimeOffset? CreateDate { get; set; }
+          public DateTimeOffset? ModifiedDate { get; set; }
      }
 
      [Table("Users")]
@@ -51,12 +56,23 @@ namespace FightTimeLine.DataLayer
           public string Body { get; set; }
      }
 
+     [Table("Sessions")]
+     public class SessionEntity
+     {
+          [Key]
+          public int Id { get; set; }
+          public Guid Fight { get; set; }
+          public string UserName { get; set; }
+          public string UserId { get; set; }
+     }
+
      public interface IFightTimelineDbContext
      {
           DbSet<BossEntity> Bosses { get; set; }
           DbSet<FightEntity> Fights { get; set; }
           DbSet<UserEntity> Users { get; set; }
           DbSet<CommandEntity> Commands { get; set; }
+          DbSet<SessionEntity> Sessions { get; set; }
      }
 
 
@@ -66,6 +82,7 @@ namespace FightTimeLine.DataLayer
           public DbSet<FightEntity> Fights { get; set; }
           public DbSet<UserEntity> Users { get; set; }
           public DbSet<CommandEntity> Commands { get; set; }
+          public DbSet<SessionEntity> Sessions { get; set; }
 
           public FightTimelineDataContext(DbContextOptions options) : base(options)
           {

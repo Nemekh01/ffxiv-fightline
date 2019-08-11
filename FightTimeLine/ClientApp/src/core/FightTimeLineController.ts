@@ -812,6 +812,46 @@ export class FightTimeLineController {
   }
 
   serializeFight(): M.IFight {
+    const abilitymaps = this.holders.abilities
+      .getNonStancesAbilities()
+      .map((it) => {
+        return {
+          name: it.ability.name,
+          job: it.job.id,
+          compact: it.isCompact,
+          hidden: it.hidden
+        };
+      });
+    const abilities = this.holders.itemUsages
+      .getAll()
+      .map((value) => {
+        const a = value.ability;
+        if (a) {
+          return <IAbilityUsageData>{
+            id: value.id,
+            job: a.job.id,
+            ability: a.ability.name,
+            start: Utils.formatTime(value.start),
+            settings: JSON.stringify(value.settings),
+          };
+        }
+        return null;
+      });
+    const stances = this.holders.stances
+      .getAll()
+      .map((value) => {
+        const a = value.ability;
+        if (a) {
+          return {
+            id: value.id,
+            job: a.job.id,
+            ability: value.ability.ability.name,
+            start: Utils.formatTime(value.start),
+            end: Utils.formatTime(value.end),
+          };
+        }
+        return null;
+      });
     return <M.IFight>{
       id: this.data.fight && this.data.fight.id || "",
       name: this.data.fight && this.data.fight.name || "",
@@ -824,46 +864,9 @@ export class FightTimeLineController {
         importedFrom: this.data.importedFrom,
         view: this.view,
         jobs: this.holders.jobs.serialize(),
-        abilityMaps: this.holders.abilities
-          .getNonStancesAbilities()
-          .map((it) => {
-            return {
-              name: it.ability.name,
-              job: it.job.id,
-              compact: it.isCompact,
-              hidden: it.hidden
-            };
-          }),
-        abilities: this.holders.itemUsages
-          .getAll()
-          .map((value) => {
-            const a = value.ability;
-            if (a) {
-              return <IAbilityUsageData>{
-                id: value.id,
-                job: a.job.id,
-                ability: a.ability.name,
-                start: Utils.formatTime(value.start),
-                settings: JSON.stringify(value.settings),
-              };
-            }
-            return null;
-          }),
-        stances: this.holders.stances
-          .getAll()
-          .map((value) => {
-            const a = value.ability;
-            if (a) {
-              return {
-                id: value.id,
-                job: a.job.id,
-                ability: value.ability.ability.name,
-                start: Utils.formatTime(value.start),
-                end: Utils.formatTime(value.end),
-              };
-            }
-            return null;
-          })
+        abilityMaps: abilitymaps,
+        abilities: abilities,
+        stances: stances
       })
     };
   }
@@ -880,7 +883,7 @@ export class FightTimeLineController {
 
 
   loadFight(fight: M.IFight): void {
-    if (fight === null || fight === undefined) return;
+    if (fight === null || fight === undefined || !fight.data) return;
     const data = JSON.parse(fight.data) as IFightSerializeData;
     try {
 

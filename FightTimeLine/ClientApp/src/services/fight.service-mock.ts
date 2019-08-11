@@ -1,11 +1,17 @@
 import { Injectable, Inject } from "@angular/core"
 import { Observable } from "rxjs"
 import { expand, take, concatMap, concat, toArray, map, delay } from "rxjs/operators"
-import { IBoss, IFight, IBossSearchEntry,ISyncData, SyncOperation } from "../core/Models"
+import { IBoss, IFight, IBossSearchEntry,ISyncData, SyncOperation,ICommandEntry } from "../core/Models"
 import { IFightService } from "./fight.service-interface"
 
 @Injectable()
 export class FightsMockService implements IFightService {
+  newFight(): Observable<IFight> { return Observable.empty(); }
+
+  addCommand(fight: string, data): Observable<any> { return Observable.empty(); }
+
+  getCommands(fight: string, timestamp: number): Observable<ICommandEntry[]> { return Observable.empty() }
+
   getBosses(reference: number, searchString: string, privateOnly: boolean): Observable<IBossSearchEntry[]> {
 
     const source = Observable.of(1);
@@ -80,57 +86,68 @@ export class FightsMockService implements IFightService {
       <IFight>{
         id: "1",
         name: "dummy fight 1",
-        data: ""
+        data: "",
+        isDraft: true
       },
       <IFight>{
         id: "2",
         name: "dummy fight 2",
-        data: ""
+        data: "",
+        isDraft: true
       },
       <IFight>{
         id: "3",
         name: "dummy fight 3",
-        data: ""
+        data: "",
+        isDraft: false
       },
       <IFight>{
         id: "4",
         name: "dummy fight 4",
-        data: ""
+        data: "",
+        isDraft: true
       },
       <IFight>{
         id: "5",
         name: "dummy fight 5",
-        data: ""
-      },
+        data: "",
+        isDraft: false
+  },
       <IFight>{
         id: "6",
         name: "dummy fight 6",
-        data: ""
+        data: "",
+        isDraft: true
       },
       <IFight>{
         id: "7",
         name: "dummy fight 7",
-        data: ""
+        data: "",
+        isDraft: false
       },
       <IFight>{
         id: "8",
         name: "dummy fight 8",
-        data: ""
+        data: "",
+        isDraft: true
       }
       , <IFight>{
         id: "9",
         name: "dummy fight 9",
-        data: ""
+        data: "",
+        isDraft: false
       }
       , <IFight>{
         id: "10",
         name: "dummy fight 10",
-        data: ""
+        data: "",
+        isDraft: true
       }
       , <IFight>{
         id: "11",
         name: "dummy fight 11",
-        data: ""
+        data: "",
+        isDraft: true
       }
 
     ]);

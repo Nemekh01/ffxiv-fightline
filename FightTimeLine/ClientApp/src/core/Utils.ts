@@ -52,6 +52,45 @@ export class Utils {
     });
     return group;
   }
+
+  static format(startDate: Date) {
+    return {
+      minorLabels: (date: Date, scale: string, step: Number) => {
+        const diff = (date.valueOf() as number) - (startDate.valueOf() as number);
+        var cd = new Date(Math.abs(diff) +
+          (startDate.valueOf() as number));
+        var result;
+        switch (scale) {
+        case 'second':
+          result = (diff < 0 ? -1 : 1) * cd.getSeconds();
+          break;
+        case 'minute':
+          result = (diff < 0 ? -1 : 1) * cd.getMinutes();
+          break;
+        default:
+          return new Date(date);
+        }
+        return result;
+      },
+      majorLabels: (date: Date, scale: string, step: Number) => {
+        const diff = (date.valueOf() as number) - (startDate.valueOf() as number);
+        var cd = new Date(Math.abs(diff) + (startDate.valueOf() as number));
+        var result;
+        switch (scale) {
+        case 'second':
+          result = (diff < 0 ? -1 : 1) * cd.getMinutes();
+          break;
+        case 'minute':
+          result = 0;
+          break;
+        default:
+          return new Date(date);
+        }
+        return result;
+      }
+    };
+  }
+
 }
 
 // From Tom Gruner @ http://stackoverflow.com/a/12034334/1660815

@@ -1,4 +1,5 @@
 using System.Text;
+using FightTimeLine.Contracts;
 using FightTimeLine.DataLayer;
 using FightTimeLine.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,6 +42,8 @@ namespace FightTimeLine
                         };
                    });
 
+               services.AddScoped<IHubUsersStorage, SqlServerHubUsersStorage>();
+
                services.AddMemoryCache();
 
                services.AddEntityFrameworkSqlServer();
@@ -51,13 +54,14 @@ namespace FightTimeLine
                {
                     options.AddPolicy("CorsPolicy", cb =>
                  {
-                        cb
-                         .AllowAnyMethod()
-                         .AllowAnyHeader()
-                         .AllowAnyOrigin();
-                   });
+                      cb
+                       .AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .AllowAnyOrigin();
+                 });
                });
 
+               
                services.AddDbContext<FightTimelineDataContext>(builder =>
                    builder.UseSqlServer(Configuration.GetConnectionString("Default")));
 
@@ -81,9 +85,8 @@ namespace FightTimeLine
                {
                     app.UseExceptionHandler("/Error");
                     app.UseHsts();
+                    app.UseHttpsRedirection();
                }
-
-
 
                app.UseCors("CorsPolicy");
 
@@ -91,11 +94,14 @@ namespace FightTimeLine
 
                app.UseSignalR(builder =>
                {
-                    builder.MapHub<DefaultHub>("/hub", options =>
-                     options.ApplicationMaxBufferSize = 4 * 1024 * 1024);
+                    builder.MapHub<DefaultHub>("/hub",
+                         options => { options.ApplicationMaxBufferSize = 4 * 1024 * 1024; });
+
+                    builder.MapHub<FightHub>("/fightHub",
+                         options => { options.ApplicationMaxBufferSize = 4 * 1024 * 1024; });
                });
 
-               app.UseHttpsRedirection();
+               
                app.UseStaticFiles();
                app.UseSpaStaticFiles();
 
@@ -111,10 +117,10 @@ namespace FightTimeLine
 
                app.UseSpa(spa =>
                {
-                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                 // see https://go.microsoft.com/fwlink/?linkid=864501
+                    // To learn more about options for serving an Angular SPA from ASP.NET Core,
+                    // see https://go.microsoft.com/fwlink/?linkid=864501
 
-                 spa.Options.SourcePath = "ClientApp";
+                    spa.Options.SourcePath = "ClientApp";
 
                     if (env.IsDevelopment())
                     {

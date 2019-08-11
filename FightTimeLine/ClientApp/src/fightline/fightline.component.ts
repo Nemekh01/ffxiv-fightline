@@ -3,13 +3,13 @@ import { Location } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
 import * as _ from "lodash";
 
-
 import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineOptions } from "ngx-vis";
 import { FightTimeLineController, IFightSerializeData, IBossSerializeData, IBossAbilityUsageData } from "../core/FightTimeLineController"
 import * as M from "../core/Models";
 import * as FF from "../core/FFLogs";
 import { NgProgress } from "ngx-progressbar"
 import { ChangeNotes } from "../changeNotes"
+import { Utils } from "../core/Utils"
 
 import * as S from "../services/index"
 import { process } from "../core/BossAttackProcessors"
@@ -33,6 +33,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
   startDate = new Date(946677600000);
   visTimeline: string = "timeLineMain";
   visTimelineBoss: string = "timeLineBoss";
+  fightId: string;
   private fflogsCode: string = null;
 
   @ViewChild("contextMenu")
@@ -66,43 +67,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
   isInBossDownTimeMode = false;
   sideNavOpened: boolean;
 
-  format() {
-    return {
-      minorLabels: (date: Date, scale: string, step: Number) => {
-        const diff = (date.valueOf() as number) - (this.startDate.valueOf() as number);
-        var cd = new Date(Math.abs(diff) +
-          (this.startDate.valueOf() as number));
-        var result;
-        switch (scale) {
-          case 'second':
-            result = (diff < 0 ? -1 : 1) * cd.getSeconds();
-            break;
-          case 'minute':
-            result = (diff < 0 ? -1 : 1) * cd.getMinutes();
-            break;
-          default:
-            return new Date(date);
-        }
-        return result;
-      },
-      majorLabels: (date: Date, scale: string, step: Number) => {
-        const diff = (date.valueOf() as number) - (this.startDate.valueOf() as number);
-        var cd = new Date(Math.abs(diff) + (this.startDate.valueOf() as number));
-        var result;
-        switch (scale) {
-          case 'second':
-            result = (diff < 0 ? -1 : 1) * cd.getMinutes();
-            break;
-          case 'minute':
-            result = 0;
-            break;
-          default:
-            return new Date(date);
-        }
-        return result;
-      }
-    };
-  }
+  public tool: string;
 
   options = <VisTimelineOptions>{
     width: "100%",
@@ -121,7 +86,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     type: "range",
     multiselect: true,
     multiselectPerGroup: true,
-    format: this.format(),
+    format: Utils.format(this.startDate),
     stack: true,
     showCurrentTime: false,
     stackSubgroups: true,
@@ -243,8 +208,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
     @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
     private settingsService: S.SettingsService,
     private storage: S.LocalStorageService,
-    public teamWorkService: S.TeamWorkService,
+    public fightHubService: S.FightHubService,
     private dispatcher: S.DispatcherService) {
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = "reload";
     this.downTimesController = new DownTimesController(
       this.idgen,
       this.visTimelineService,
@@ -254,7 +221,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.downTimesController.modeChanged(this.isInBossDownTimeMode);
     });
     this.fightLineController.commandExecuted.subscribe((data: ICommandData) => {
-      this.teamWorkService.sendCommand(data);
+      this.fightHubService.sendCommand(this.fightId, "", data);
+    });
+    this.fightHubService.usersChanged.subscribe(e => {
+      console.log(this.fightHubService.users);
     });
     this.subscribeToDispatcher(this.dispatcher);
   }
@@ -351,8 +321,6 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   }
 
-  public tool: string;
-
   useTool(tool: string) {
     this.tool = tool;
     const tools: M.ITools = {
@@ -382,8 +350,6 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.setSelectionOfBossAttacks(eventData[1].items);
       this.fightLineController.notifySelect("boss", eventData[1].items);
     }
-
-
 
     if (eventData[1].items && eventData[1].items.length > 0) {
       const items = this.fightLineController.getItems(eventData[1].items);
@@ -434,23 +400,6 @@ export class FightLineComponent implements OnInit, OnDestroy {
     }
   }
 
-  login() {
-    this.dialogService.openLogin();
-  }
-
-  register() {
-    return this.dialogService.openRegister()
-      .then(result => {
-        if (result)
-          this.authenticationService.login(result.username, result.password).subscribe((): void => {
-          });
-      });
-  }
-
-  logout() {
-    this.authenticationService.logout();
-  }
-
   updateFilter($data?: M.IFilter): void {
     this.fightLineController.applyFilter($data);
     setTimeout(() => this.refresh());
@@ -478,7 +427,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   load(): void {
     if (!this.authenticationService.authenticated) {
-      this.notification.showSignInRequired(() => this.login());
+      this.notification.showSignInRequired(() => { });
       return;
     }
 
@@ -527,13 +476,15 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   onNew() {
-    this.location.replaceState("/new");
-    this.fightLineController.new();
+    this.router.navigateByUrl("/new",
+      {
+        
+      });
   }
 
   private setInitialWindow(date: Date, mins: number): void {
 
-    let eDate = (date || this.startDate).getMinutes() + mins;
+    const eDate = (date || this.startDate).getMinutes() + mins;
 
     setTimeout(() => {
       const endDate = new Date(this.startDate.valueOf() as number + Math.max(eDate, 3) * 60 * 1000);
@@ -557,7 +508,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   saveFight(): void {
     if (!this.authenticationService.authenticated) {
-      this.notification.showSignInRequired(() => this.login());
+      this.notification.showSignInRequired(() => { });
       return;
     }
 
@@ -597,13 +548,13 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   undo(): void {
     this.fightLineController.undo();
-    this.teamWorkService.sendCommand({ name: "undo" });
+    this.fightHubService.sendCommand(this.fightId, "", { name: "undo" });
     this.refresh();
   }
 
   redo(): void {
     this.fightLineController.redo();
-    this.teamWorkService.sendCommand({ name: "redo" });
+    this.fightHubService.sendCommand(this.fightId, "", { name: "redo" });
     this.refresh();
   }
 
@@ -616,32 +567,59 @@ export class FightLineComponent implements OnInit, OnDestroy {
           const settings = this.settingsService.load();
           this.onBossDownTimeChanged(false);
           if (settings && settings.main && settings.main.defaultView) {
-            this.toolbar.view.set(settings.main.defaultView);
+            if (this.toolbar.view)
+              this.toolbar.view.set(settings.main.defaultView);
             this.fightLineController.applyView(settings.main.defaultView);
           }
           if (settings && settings.main && settings.main.defaultFilter) {
-            this.toolbar.filter.set(settings.main.defaultFilter);
+            if (this.toolbar.filter)
+              this.toolbar.filter.set(settings.main.defaultFilter);
             this.fightLineController.applyFilter(settings.main.defaultFilter);
           }
+          this.fightService.newFight()
+            .subscribe(value => {
+              this.fightId = value.id;
+              this.location.replaceState("/" + value.id);
+              this.startSession();
+            },
+              error => {
+                console.log((error));
+                this.notification.error("Unable to start");
+              });
           return;
         }
         if (id) {
+          this.fightId = id;
           this.dialogService.executeWithLoading(ref => {
             this.fightService
               .getFight(id)
               .subscribe((fight: M.IFight) => {
                 if (fight) {
                   this.recent.register(fight.name, "/" + id.toLowerCase());
-                  const data = JSON.parse(fight.data) as IFightSerializeData;
-                  if (data.view)
-                    this.toolbar.view.set(data.view);
-                  if (data.filter)
-                    this.toolbar.filter.set(data.filter);
+                  if (fight.data) {
+                    const data = JSON.parse(fight.data) as IFightSerializeData;
+                    if (data.view)
+                      this.toolbar.view.set(data.view);
+                    if (data.filter)
+                      this.toolbar.filter.set(data.filter);
+                  }
                   this.fightLineController.loadFight(fight);
-                  this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
-                  this.refresh();
+                  this.fightService.getCommands(this.fightId, new Date(fight.dateModified).valueOf())
+                    .subscribe(value => {
+                      for (var cmd of value) {
+                        this.handleRemoteCommand(JSON.parse(cmd.data),"");
+                      }
+                      this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
+                      this.connectToSession();
+                      this.refresh();
+                      ref.close();
+                    }, error => {
+                        this.notification.error("Unable to load data");
+                        ref.close();
+                    });
+                } else {
+                  ref.close();
                 }
-                ref.close();
               },
                 () => {
                   this.notification.showUnableToLoadFight(() => this.router.navigateByUrl("/"));
@@ -675,7 +653,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
           } else {
             const sessionId = r["sessionCode"];
             if (sessionId) {
-              this.connectToSession(sessionId);
+              this.connectToSession();
             }
           }
 
@@ -693,10 +671,9 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   startSession() {
     const handlers: S.IStartSessionHandlers = {
-      onSync: (() => JSON.stringify(this.fightLineController.serializeFight())).bind(this),
-      onCommand: this.handleRemoteCommand.bind(this),
-      onConnected: ((data: any) => this.notification.showUserConnected(data)).bind(this),
-      onDisconnected: ((data: any) => this.notification.showUserDisonnected(data)).bind(this)
+      onCommand: ((data: M.IHubCommand) => this.handleRemoteCommand(JSON.parse(data.body), data.userId)).bind(this),
+      onConnected: ((data:M.IHubUser) => this.notification.showUserConnected(data)).bind(this),
+      onDisconnected: ((data:M.IHubUser) => this.notification.showUserDisonnected(data)).bind(this)
     };
 
     const settings = this.settingsService.load();
@@ -704,10 +681,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.authenticationService.username ||
       "Anonymous";
 
-    this.teamWorkService.startSession(name, handlers)
+    this.fightHubService.startSession(this.fightId, name, handlers)
       .then((result: string) => {
         this.notification.showSessionStarted();
-        this.dialogService.openSessionUrl(result);
+        //        this.dialogService.openSessionUrl(result);
       })
       .catch(() => {
         this.notification.showUnableToStartSession();
@@ -715,11 +692,11 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   stopSession() {
-    this.teamWorkService.disconnect();
+    this.fightHubService.disconnect(this.fightId);
   }
 
-  handleRemoteCommand(data: ICommandData, user: any) {
-    this.toolbar.ping(user.id, user.owner);
+  handleRemoteCommand(data: ICommandData, userId: string) {
+    this.toolbar.ping(userId, false);
 
     if (data.name === "undo") {
       this.fightLineController.undo();
@@ -732,21 +709,16 @@ export class FightLineComponent implements OnInit, OnDestroy {
     }
   }
 
-  connectToSession(sessionId?: string) {
+  connectToSession() {
     const handlers: S.IConnectToSessionHandlers = {
-      onDataSync: ((data: any) => {
-        this.onBossDownTimeChanged(false);
-        this.fightLineController.new();
-        this.fightLineController.loadFight(JSON.parse(data));
-      }).bind(this),
-      onCommand: this.handleRemoteCommand.bind(this),
-      onConnected: ((data: any) => this.notification.showUserConnected(data)).bind(this),
-      onDisconnected: ((data: any) => this.notification.showUserDisonnected(data)).bind(this)
+      onCommand: ((data: M.IHubCommand) => this.handleRemoteCommand(JSON.parse(data.body), data.userId)).bind(this),
+      onConnected: ((data: M.IHubUser) => this.notification.showUserConnected(data)).bind(this),
+      onDisconnected: ((data: M.IHubUser) => this.notification.showUserDisonnected(data)).bind(this)
     };
 
     const settings = this.settingsService.load();
     const name = settings.teamwork.displayName || this.authenticationService.username || "Anonymous";
-    this.teamWorkService.connectToSession(sessionId, name, handlers)
+    this.fightHubService.connect(this.fightId, name, handlers)
       .then(() => {
         this.notification.showConnectedToSession();
       })
@@ -773,7 +745,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   @HostListener("window:unload", ["$event"])
   unloadHandler(event: any) {
-    this.teamWorkService.disconnect();
+    this.stopSession();
   }
 
   public get hasChanges(): boolean {
@@ -792,16 +764,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.visTimelineService.off(this.visTimeline, "rangechange");
     this.visTimelineService.off(this.visTimelineBoss, "rangechange");
 
-    this.teamWorkService.disconnect();
+    this.stopSession();
     this.subs.forEach(e => e.unsubscribe());
-  }
-
-  privacy() {
-    window.open("/privacy", "_blank");
-  }
-
-  gotoDiscord() {
-    window.open("https://discord.gg/xRppKj4", "_blank");
   }
 
   showAsTable() {
@@ -950,8 +914,8 @@ export class FightLineComponent implements OnInit, OnDestroy {
           const bossData = JSON.parse(value.boss.data) as IBossSerializeData;
           const result = process(attacks, data.start_time, bossData.attacks.map(it => it.ability));
           bossData.attacks = result.map(it => <IBossAbilityUsageData>{
-            ability : it,
-            id:this.idgen.getNextId(M.EntryType.BossAttack)
+            ability: it,
+            id: this.idgen.getNextId(M.EntryType.BossAttack)
           });
           value.boss.data = JSON.stringify(bossData);
           this.fightLineController.loadBoss(value.boss);

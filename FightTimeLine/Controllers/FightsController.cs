@@ -4,10 +4,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using FightTimeLine.DataLayer;
+using FightTimeLine.DataModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace FightTimeLine.Controllers
 {
@@ -20,8 +20,7 @@ namespace FightTimeLine.Controllers
           {
                get
                {
-                    return HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)
-                         ?.Value;
+                    return HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
                }
           }
 
@@ -39,7 +38,7 @@ namespace FightTimeLine.Controllers
                     .Where(s => (string.IsNullOrEmpty(value) || s.Name.IndexOf(value, StringComparison.OrdinalIgnoreCase)>=0) && s.Reference == reference && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
                     .Select(s => new BossSearchResult()
                     {
-                         Id = s.Identifier.ToString(),
+                         Id = s.Identifier.ToString("N"),
                          Name = s.Name,
                          Owner = s.UserName,
                          CanRemove = !string.IsNullOrWhiteSpace(name) && string.Equals(name, s.UserName,StringComparison.OrdinalIgnoreCase),
@@ -51,7 +50,8 @@ namespace FightTimeLine.Controllers
           [HttpGet("[action]/{id?}")]
           public async Task<IActionResult> Boss(string id)
           {
-               if (!Guid.TryParse(id, out var guid)) guid = Guid.Empty;
+               if (!Guid.TryParse(id, out var guid) && !Guid.TryParseExact(id, "N", out guid))
+                    return BadRequest("Boss id is not provided");
 
                var data = await _dataContext.Bosses.FirstOrDefaultAsync(entity => entity.Identifier == guid);
                if (data == null) return StatusCode(404);
@@ -63,7 +63,7 @@ namespace FightTimeLine.Controllers
 
                return Json(new BossData()
                {
-                    Id = data.Identifier.ToString(),
+                    Id = data.Identifier.ToString("N"),
                     Name = data.Name,
                     UserName = name,
                     Data = data.Data,
@@ -108,7 +108,7 @@ namespace FightTimeLine.Controllers
 
                return Json(new BossData()
                {
-                    Id = boss.Identifier.ToString(),
+                    Id = boss.Identifier.ToString("N"),
                     Name = boss.Name,
                     UserName = boss.UserName,
                     Data = "",
@@ -126,7 +126,14 @@ namespace FightTimeLine.Controllers
                if (nameClaim == null)
                     return Unauthorized();
 
-               var data = _dataContext.Bosses.Where(entity => ids.Contains(entity.Identifier.ToString()) && entity.UserName == nameClaim);
+               var guids = ids.Select(s =>
+               {
+                    if (!Guid.TryParse(s, out var guid) && !Guid.TryParseExact(s, "N", out guid))
+                         return Guid.Empty;
+                    return guid;
+               }).ToArray();
+               
+               var data = _dataContext.Bosses.Where(entity => guids.Contains(entity.Identifier) && entity.UserName == nameClaim);
 
                _dataContext.RemoveRange(data);
                await _dataContext.SaveChangesAsync();
@@ -137,16 +144,50 @@ namespace FightTimeLine.Controllers
           [HttpGet("[action]/{id?}")]
           public async Task<IActionResult> Fight(string id)
           {
-               if (!Guid.TryParse(id, out var guid)) guid = Guid.Empty;
+               if (!Guid.TryParse(id, out var guid) && !Guid.TryParseExact(id, "N", out guid))
+                    return BadRequest("Fight is not provided");
+               
                var data = await _dataContext.Fights.FirstOrDefaultAsync(entity => entity.Identifier == guid);
-               if (data == null) return null;
+               if (data == null) return Json(null);
 
                return Json(new FightData
                {
-                    Id = data.Identifier.ToString(),
+                    Id = data.Identifier.ToString("N"),
                     Name = data.Name,
                     UserName = data.UserName,
-                    Data = data.Data
+                    Data = data.Data,
+                    IsDraft = data.IsDraft.GetValueOrDefault(true),
+                    DateModified = data.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)
+               });
+          }
+
+          [HttpPost("[action]")]
+          [AllowAnonymous]
+          public async Task<IActionResult> NewFight()
+          {
+               var nameClaim = CurrentUserName;
+
+               var entityEntry = await _dataContext.Fights.AddAsync(new FightEntity()
+               {
+                    IsDraft = true,
+                    Name = "new",
+                    CreateDate = DateTimeOffset.UtcNow,
+                    ModifiedDate = DateTimeOffset.UtcNow,
+                    Data = "",
+                    Identifier = Guid.NewGuid(),
+                    UserName = nameClaim ?? "anonymous"
+               });
+
+               await _dataContext.SaveChangesAsync();
+
+               return Json(new FightData()
+               {
+                    Id = entityEntry.Entity.Identifier.ToString("N"),
+                    Name = entityEntry.Entity.Name,
+                    IsDraft = entityEntry.Entity.IsDraft.GetValueOrDefault(true),
+                    UserName = entityEntry.Entity.UserName,
+                    Data = entityEntry.Entity.Data,
+                    DateModified = entityEntry.Entity.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)    
                });
           }
 
@@ -167,6 +208,8 @@ namespace FightTimeLine.Controllers
 
                     fight.Name = request.Name;
                     fight.Data = request.Data;
+                    fight.IsDraft = false;
+                    fight.ModifiedDate = DateTimeOffset.UtcNow;
                }
                else
                {
@@ -175,7 +218,10 @@ namespace FightTimeLine.Controllers
                          Identifier = Guid.NewGuid(),
                          Name = request.Name,
                          UserName = nameClaim,
-                         Data = request.Data
+                         Data = request.Data,
+                         IsDraft = false,
+                         CreateDate = DateTimeOffset.UtcNow,
+                         ModifiedDate = DateTimeOffset.UtcNow
                     };
                     _dataContext.Fights.Add(fight);
                }
@@ -184,10 +230,13 @@ namespace FightTimeLine.Controllers
 
                return Json(new FightData
                {
-                    Id = fight.Identifier.ToString(),
+                    Id = fight.Identifier.ToString("N"),
                     Name = fight.Name,
                     UserName = fight.UserName,
-                    Data = ""
+                    Data = "",
+                    IsDraft = fight.IsDraft.GetValueOrDefault(true),
+                    DateModified = fight.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)
+                    
                });
           }
 
@@ -203,8 +252,12 @@ namespace FightTimeLine.Controllers
                    .Where(s => s.UserName == nameClaim)
                    .Select(entity => new FightSearchResult()
                    {
-                        Id = entity.Identifier.ToString(),
+                        Id = entity.Identifier.ToString("N"),
                         Name = entity.Name,
+                        IsDraft = entity.IsDraft.GetValueOrDefault(false),
+                        DateModified = entity.ModifiedDate,
+                        DateCreated = entity.CreateDate
+                        
                    }).ToArrayAsync();
                return Json(data);
           }
@@ -213,11 +266,18 @@ namespace FightTimeLine.Controllers
           [Authorize]
           public async Task<IActionResult> RemoveFights([FromBody] string[] ids)
           {
-               var nameClaim = HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Sub)?.Value;
+               var nameClaim = CurrentUserName;
                if (nameClaim == null)
                     return Unauthorized();
 
-               var data = _dataContext.Fights.Where(entity => ids.Contains(entity.Identifier.ToString()) && entity.UserName == nameClaim);
+               var guids = ids.Select(s =>
+               {
+                    if (!Guid.TryParse(s, out var guid) && !Guid.TryParseExact(s, "N", out guid))
+                         return Guid.Empty;
+                    return guid;
+               }).ToArray();
+
+               var data = _dataContext.Fights.Where(entity => guids.Contains(entity.Identifier) && entity.UserName == nameClaim);
 
                _dataContext.RemoveRange(data);
                await _dataContext.SaveChangesAsync();
@@ -225,54 +285,65 @@ namespace FightTimeLine.Controllers
                return Ok();
           }
 
-          public class BossData
+          [HttpPost("[action]")]
+          [AllowAnonymous]
+          public async Task<IActionResult> AddCommand([FromBody] AddCommandData data)
           {
-               [JsonProperty("id")]
-               public string Id { get; set; }
-               [JsonProperty("name")]
-               public string Name { get; set; }
-               [JsonProperty("userName")]
-               public string UserName { get; set; }
-               [JsonProperty("data")]
-               public string Data { get; set; }
-               [JsonProperty("isPrivate")]
-               public bool IsPrivate { get; set; }
-               [JsonProperty("ref")]
-               public long Reference { get; set; }
-               [JsonProperty("createDate")]
-               public DateTimeOffset CreateDate { get; set; }
-               [JsonProperty("modifiedDate")]
-               public DateTimeOffset ModifiedDate { get; set; }
+               if (data == null)
+                    return BadRequest("Request is not provided");
+               if (!Guid.TryParse(data.Fight, out var id))
+                    return BadRequest("Fight is not provided");
+               if (string.IsNullOrWhiteSpace(data.Data))
+                    return BadRequest("Data is empty");
+
+
+               var userName = CurrentUserName;
+
+               await _dataContext.Commands.AddAsync(new CommandEntity()
+               {
+                    UserName = userName ?? "anonymous",
+                    Body = data.Data,
+                    DateCreated = DateTimeOffset.UtcNow,
+                    Fight = id
+               });
+               await _dataContext.SaveChangesAsync();
+               return Ok();
           }
 
-          public class FightData
+          [HttpGet("[action]/{fight}/{timestamp?}")]
+          [AllowAnonymous]
+          public async Task<IActionResult> LoadCommands([FromRoute] string fight, [FromRoute] long? timestamp)
           {
-               [JsonProperty("id")]
-               public string Id { get; set; }
-               [JsonProperty("name")]
-               public string Name { get; set; }
-               [JsonProperty("userName")]
-               public string UserName { get; set; }
-               [JsonProperty("data")]
-               public string Data { get; set; }
+               if (string.IsNullOrWhiteSpace(fight))
+                    return BadRequest("Fight is not provided");
+               if (!Guid.TryParse(fight, out var fightValue))
+                    return BadRequest("Fight value is not recognized");
+
+               DateTimeOffset? timeOffset = null;
+
+               if (timestamp.HasValue)
+               {
+                    timeOffset = DateTimeOffset.FromUnixTimeMilliseconds(timestamp.Value);
+               }
+
+               var query = _dataContext.Commands.Where(entity => entity.Fight == fightValue);
+               if (timeOffset.HasValue)
+                    query = query.Where(entity => entity.DateCreated > timeOffset.Value);
+
+               var arrayAsync = await query.OrderBy(entity => entity.DateCreated).ToArrayAsync();
+
+               var commandDatas = arrayAsync.Select(entity => new CommandData()
+               {
+                    UserName = entity.UserName,
+                    Fight = entity.Fight.ToString("N"),
+                    Data = entity.Body,
+                    Timestamp = entity.DateCreated
+               }).ToArray();
+
+               return Json(commandDatas);
           }
 
-          public class BossSearchResult
-          {
-               public string Id { get; set; }
-               public string Name { get; set; }
-               public string Owner { get; set; }
-               public bool CanRemove { get; set; }
-               [JsonProperty("createDate")]
-               public DateTimeOffset CreateDate { get; set; }
-               [JsonProperty("modifiedDate")]
-               public DateTimeOffset ModifiedDate { get; set; }
-          }
 
-          public class FightSearchResult
-          {
-               public string Id { get; set; }
-               public string Name { get; set; }
-          }
+      
      }
 }

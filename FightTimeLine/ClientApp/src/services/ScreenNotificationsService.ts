@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Injectable } from "@angular/core";
 import { NzNotificationService, NzMessageService, NzMessageType } from "ng-zorro-antd"
+import * as M from "../core/Models"
 @Injectable({
   providedIn: "root"
 })
@@ -45,7 +46,7 @@ export class ScreenNotificationsService {
   }
 
   public showConnectedToSession() {
-    this.success("Connected");
+    //this.success("Connected");
   }
 
   public showConnectedToSessionError() {
@@ -58,19 +59,19 @@ export class ScreenNotificationsService {
 
 
   public showSessionStarted() {
-    this.success("Session successfuly started");
+    //this.success("Session successfuly started");
   }
 
   public showUnableToImport() {
     this.error("Unable to import from FFLogs");
   }
 
-  public showUserConnected(username: string) {
-    this.info(`${username} connected`);
+  public showUserConnected(user: M.IHubUser) {
+    this.info(`${user.name} connected`);
   }
 
-  public showUserDisonnected(username: string) {
-    this.info(`${username} disconnected`);
+  public showUserDisonnected(user: M.IHubUser) {
+    this.info(`${user.name} disconnected`);
   }
 
   error(text: string) {
