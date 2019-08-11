@@ -7,8 +7,9 @@ branches:
   only:
   - master
 before_script:
+  - cd FightTimeLine
+  - cd ClientApp
   - npm install -g @angular/cli
 script:
-- cd FightTimeLine
-- cd ClientApp
+- npm install
 - ng build --prod
