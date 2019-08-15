@@ -94,9 +94,6 @@ namespace FightTimeLine
 
                app.UseSignalR(builder =>
                {
-                    builder.MapHub<DefaultHub>("/hub",
-                         options => { options.ApplicationMaxBufferSize = 4 * 1024 * 1024; });
-
                     builder.MapHub<FightHub>("/fightHub",
                          options => { options.ApplicationMaxBufferSize = 4 * 1024 * 1024; });
                });

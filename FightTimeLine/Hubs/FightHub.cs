@@ -37,18 +37,22 @@ namespace FightTimeLine.Hubs
                     Name = userName,
                     Id = Context.ConnectionId
                });
-               Context.Items.Add("fight", fight);
+               Context.Items.Add("fight", fightGuid);
                Context.Items.Add("username", userName);
                await Groups.AddToGroupAsync(Context.ConnectionId, fight);
           }
 
           public async Task Command(string fight, string userName, string command)
           {
+               if (!Guid.TryParseExact(fight, "N", out var fightGuid) && !Guid.TryParse(fight, out fightGuid))
+                    return;
+
+               await _usersStorage.TouchAsync(fightGuid, Context.ConnectionId);
                await _dataContext.Commands.AddAsync(new CommandEntity()
                {
                     UserName = userName,
                     DateCreated = DateTimeOffset.UtcNow,
-                    Fight = Guid.Parse(fight),
+                    Fight = fightGuid,
                     Body = command
                });
 
@@ -59,7 +63,6 @@ namespace FightTimeLine.Hubs
                     Body = command,
                     UserId = Context.ConnectionId
                });
-
           }
 
           public async Task Connect(string fight, string userName)
@@ -74,7 +77,7 @@ namespace FightTimeLine.Hubs
                     Name = userName
                });
 
-               Context.Items.Add("fight", fight);
+               Context.Items.Add("fight", fightGuid);
                Context.Items.Add("username", userName);
                await Groups.AddToGroupAsync(Context.ConnectionId, fight);
                await Clients.OthersInGroup(fight).SendAsync("connected", new User() { id = Context.ConnectionId, name = userName });
@@ -83,12 +86,7 @@ namespace FightTimeLine.Hubs
 
           public async Task Disconnect(string fight)
           {
-               if (!Guid.TryParseExact(fight, "N", out var fightGuid) && !Guid.TryParse(fight, out fightGuid))
-                    return;
-
-               await _usersStorage.RemoveUserAsync(fightGuid, Context.ConnectionId);
-               //await Clients.OthersInGroup(fight).SendAsync("disconnected", new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString() });
-               await Groups.RemoveFromGroupAsync(Context.ConnectionId, fight);
+               
           }
 
           private async Task SendActiveUsers(string fight)
@@ -104,9 +102,15 @@ namespace FightTimeLine.Hubs
                await Clients.Caller.SendAsync("activeUsers", array);
           }
 
+
+
           public override async Task OnDisconnectedAsync(Exception exception)
           {
-               await Clients.OthersInGroup(Context.Items["fight"]?.ToString()).SendAsync("disconnected", new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString() });
+               var fight = (Guid)Context.Items["fight"];
+
+               await _usersStorage.RemoveUserAsync(fight, Context.ConnectionId);
+               await Clients.OthersInGroup(fight.ToString("N")).SendAsync("disconnected", new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString() });
+               await Groups.RemoveFromGroupAsync(Context.ConnectionId, fight.ToString("N"));
                await base.OnDisconnectedAsync(exception);
           }
      }

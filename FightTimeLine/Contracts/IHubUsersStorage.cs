@@ -16,7 +16,8 @@ namespace FightTimeLine.Contracts
      public interface IHubUsersStorage
      {
           Task AddUserAsync(UserContainer user);
-          Task RemoveUserAsync(Guid fight, string id);
+          Task RemoveUserAsync(Guid fight, string userId);
           Task<IEnumerable<UserContainer>> GetUsersForFightAsync(Guid fight);
+          Task TouchAsync(Guid fight, string usedId);
      }
 }

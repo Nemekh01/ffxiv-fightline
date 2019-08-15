@@ -204,7 +204,8 @@ namespace FightTimeLine.Controllers
                var fight = await _dataContext.Fights.FirstOrDefaultAsync(entity => entity.Identifier == guid);
                if (fight != null)
                {
-                    if (fight.UserName.Trim() != nameClaim) return Unauthorized();
+                    if (fight.UserName.Trim() != nameClaim && !string.Equals(fight.UserName, "anonymous", StringComparison.OrdinalIgnoreCase))
+                         return Unauthorized();
 
                     fight.Name = request.Name;
                     fight.Data = request.Data;

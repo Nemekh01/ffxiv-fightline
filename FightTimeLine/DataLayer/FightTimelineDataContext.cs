@@ -64,6 +64,7 @@ namespace FightTimeLine.DataLayer
           public Guid Fight { get; set; }
           public string UserName { get; set; }
           public string UserId { get; set; }
+          public DateTimeOffset? LastTouched { get; set; }
      }
 
      public interface IFightTimelineDbContext

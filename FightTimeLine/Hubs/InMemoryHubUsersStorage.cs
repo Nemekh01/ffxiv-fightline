@@ -22,6 +22,7 @@ namespace FightTimeLine.Hubs
           public string Name { get; set; }
           public string Id { get; set; }
           public Guid Fight { get; set; }
+          public DateTimeOffset? LastTouched { get; set; }
      }
 
      public class SqlServerHubUsersStorage : IHubUsersStorage
@@ -39,7 +40,8 @@ namespace FightTimeLine.Hubs
                {
                     Fight = user.Fight,
                     UserId = user.Id,
-                    UserName = user.Name
+                    UserName = user.Name,
+                    LastTouched = DateTimeOffset.UtcNow
                });
                await _dataContext.SaveChangesAsync();
           }
@@ -53,13 +55,24 @@ namespace FightTimeLine.Hubs
 
           public async Task<IEnumerable<UserContainer>> GetUsersForFightAsync(Guid fight)
           {
-               var entities = await _dataContext.Sessions.Where(entity => entity.Fight == fight).ToArrayAsync();
+               var entities = await _dataContext.Sessions.Where(entity => entity.Fight == fight && entity.LastTouched != null && EF.Functions.DateDiffHour(entity.LastTouched, DateTimeOffset.Now) < 2).ToArrayAsync();
                return entities.Select(entity => new UserContainer()
                {
                     Fight = entity.Fight,
                     Id = entity.UserId,
                     Name = entity.UserName
                }).ToArray();
+          }
+
+          public async Task TouchAsync(Guid fight, string usedId)
+          {
+               var entities = await _dataContext.Sessions.Where(entity => entity.Fight == fight && entity.UserId == usedId).ToArrayAsync();
+               foreach (var entity in entities)
+               {
+                    entity.LastTouched = DateTimeOffset.UtcNow;
+               }
+               _dataContext.Sessions.UpdateRange(entities);
+               await _dataContext.SaveChangesAsync();
           }
      }
 
@@ -88,6 +101,18 @@ namespace FightTimeLine.Hubs
                lock (_list)
                {
                     return _list.Where(container => container.Fight == fight).ToArray();
+               }
+          }
+
+          public async Task TouchAsync(Guid fight, string usedId)
+          {
+               lock (_list)
+               {
+                    var array = _list.Where(container => container.Fight == fight).ToArray();
+                    foreach (var u in array)
+                    {
+                         u.LastTouched = DateTimeOffset.UtcNow;
+                    }
                }
           }
      }
