@@ -13,9 +13,16 @@ export interface IJob {
   icon?: string;
   abilities: IAbility[];
   role: Role;
+  baseClass?: string;
   pets?: IPet[];
   defaultPet?: string;
   stances?: IStance[];
+  fraction?: IFraction;
+}
+
+export interface IFraction {
+  name: string;
+  icon: string;
 }
 
 export interface IPet {
@@ -47,6 +54,7 @@ export interface IBoss {
   data: string;
   isPrivate: boolean;
   ref: number;
+  game: string;
 }
 
 export interface IBossSearchEntry {
@@ -65,6 +73,7 @@ export interface IFight {
   isDraft?: boolean;
   dateModified?: Date;
   dateCreated?: Date;
+  game: string;
 }
 
 export interface ICommandEntry {

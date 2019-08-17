@@ -22,7 +22,8 @@ import { ClassNameBuilder } from "../core/ClassNameBuilder"
 import { IdGenerator } from "../core/Generators"
 import { DownTimesController } from "../core/DownTimesController"
 import { ICommandData } from "../core/UndoRedo"
-
+import * as Gameserviceprovider from "../services/game.service-provider";
+import * as Gameserviceinterface from "../services/game.service-interface";
 
 @Component({
   selector: "fightline",
@@ -61,8 +62,9 @@ export class FightLineComponent implements OnInit, OnDestroy {
       openAbilityEditDialog: this.openAbilityEditDialog.bind(this),
       openStanceSelector: this.openStanceSelector.bind(this)
     },
+    this.gameService,
     this.settingsService);
-  jobs = this.fightLineController.getJobs();
+  jobs = this.gameService.jobRegistry.getJobs();
 
   isInBossDownTimeMode = false;
   sideNavOpened: boolean;
@@ -198,6 +200,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     private recent: S.RecentActivityService,
     private visTimelineService: VisTimelineService,
     @Inject(S.fightServiceToken) private fightService: S.IFightService,
+    @Inject(Gameserviceprovider.gameServiceToken) private gameService : Gameserviceinterface.IGameService,
     private ffLogsService: S.FFLogsService,
     private notification: S.ScreenNotificationsService,
     private progressService: NgProgress,

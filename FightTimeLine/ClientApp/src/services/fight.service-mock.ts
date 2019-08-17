@@ -87,66 +87,77 @@ export class FightsMockService implements IFightService {
         id: "1",
         name: "dummy fight 1",
         data: "",
+        userName: "user",
         isDraft: true
       },
       <IFight>{
         id: "2",
         name: "dummy fight 2",
         data: "",
+        userName: "user",
         isDraft: true
       },
       <IFight>{
         id: "3",
         name: "dummy fight 3",
         data: "",
+        userName: "user",
         isDraft: false
       },
       <IFight>{
         id: "4",
         name: "dummy fight 4",
         data: "",
+        userName: "user",
         isDraft: true
       },
       <IFight>{
         id: "5",
         name: "dummy fight 5",
         data: "",
+        userName: "user",
         isDraft: false
   },
       <IFight>{
         id: "6",
         name: "dummy fight 6",
         data: "",
+        userName: "user",
         isDraft: true
       },
       <IFight>{
         id: "7",
         name: "dummy fight 7",
         data: "",
+        userName: "user",
         isDraft: false
       },
       <IFight>{
         id: "8",
         name: "dummy fight 8",
         data: "",
+        userName: "user",
         isDraft: true
       }
       , <IFight>{
         id: "9",
         name: "dummy fight 9",
         data: "",
+        userName: "user",
         isDraft: false
       }
       , <IFight>{
         id: "10",
         name: "dummy fight 10",
         data: "",
+        userName: "user",
         isDraft: true
       }
       , <IFight>{
         id: "11",
         name: "dummy fight 11",
         data: "",
+        userName: "user",
         isDraft: true
       }
 

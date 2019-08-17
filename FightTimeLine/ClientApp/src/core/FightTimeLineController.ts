@@ -1,6 +1,5 @@
 import { EventEmitter } from "@angular/core"
 import { VisTimelineItem } from "ngx-vis";
-import { JobRegistry } from "./JobRegistry"
 import * as M from "./Models"
 import { UndoRedoController, IUpdateOptions, ICommandData, Command } from "./UndoRedo"
 import * as C from "./Commands"
@@ -13,12 +12,13 @@ import { ExportData } from "./BaseExportTemplate"
 import *  as FF from "./FFLogs"
 import { AbilityUsagesCollector, BossAttacksCollector, JobPetCollector, StancesCollector } from "./FflogsCollectors/FFLogsCollectors"
 import { SettingsService } from "../services/SettingsService"
-import { settings } from "./Jobs/index"
 import * as _ from "lodash";
+import * as Jobregistryserviceinterface from "../services/jobregistry.service-interface";
+import * as Shared from "./Jobs/FFXIV/shared";
+import * as Gameserviceinterface from "../services/game.service-interface";
 
 
 export class FightTimeLineController {
-  private jobRegistry = new JobRegistry();
   data: IFightData = {};
   private holders: H.Holders;
   private bossGroup: string = "boss";
@@ -58,13 +58,20 @@ export class FightTimeLineController {
   public downtimeChanged = new EventEmitter<void>();
   public commandExecuted = new EventEmitter<ICommandData>();
 
-  constructor(private startDate: Date, private idgen: IdGenerator, mainTimeLine: H.ITimelineContainer, bossTimeLine: H.ITimelineContainer, private dialogCallBacks: IDialogs, private settingsService: SettingsService) {
+  constructor(
+    private startDate: Date,
+    private idgen: IdGenerator,
+    mainTimeLine: H.ITimelineContainer,
+    bossTimeLine: H.ITimelineContainer,
+    private dialogCallBacks: IDialogs,
+    private gameService: Gameserviceinterface.IGameService,
+    private settingsService: SettingsService) {
     this.holders = new H.Holders(mainTimeLine, bossTimeLine);
 
     this.commandStorage = new UndoRedoController({
       idGen: this.idgen,
       holders: this.holders,
-      jobRegistry: this.jobRegistry,
+      jobRegistry: this.gameService.jobRegistry,
       update: this.update.bind(this),
       ogcdAttacksAsPoints: (ability: M.IAbility) => (ability.duration === 0 && ability.cooldown === 1) || ((ability.abilityType & M.AbilityType.Damage) === M.AbilityType.Damage && (ability.duration === 0 ? this.view.ogcdAsPoints : false)),
       verticalBossAttacks: () => this.view.verticalBossAttacks,
@@ -118,7 +125,7 @@ export class FightTimeLineController {
   }
 
   public getJobs(): M.IJob[] {
-    return this.jobRegistry.getJobs();
+    return this.gameService.jobRegistry.getJobs();
   }
 
   public undo() {
@@ -348,7 +355,7 @@ export class FightTimeLineController {
 
     for (let i = 0; i < bossTargetChangeAbilities.length + 1; i++) {
       if (i < bossTargetChangeAbilities.length) {
-        const setting = bossTargetChangeAbilities[i].getSettingData(settings.changesTarget.name);
+        const setting = bossTargetChangeAbilities[i].getSettingData(Shared.settings.changesTarget.name);
         if (setting !== null && setting !== undefined && !setting.value) continue;
       }
 
@@ -856,6 +863,7 @@ export class FightTimeLineController {
       id: this.data.fight && this.data.fight.id || "",
       name: this.data.fight && this.data.fight.name || "",
       userName: this.data.fight && this.data.fight.userName || "",
+      game: this.gameService.name,
       isPrivate: false,
       data: JSON.stringify(<IFightSerializeData>{
         boss: this.serializeBoss(),

@@ -29,6 +29,8 @@ namespace FightTimeLine.Migrations
 
                     b.Property<string>("Data");
 
+                    b.Property<string>("Game");
+
                     b.Property<Guid>("Identifier");
 
                     b.Property<bool>("IsPrivate");
@@ -74,6 +76,8 @@ namespace FightTimeLine.Migrations
                     b.Property<DateTimeOffset?>("CreateDate");
 
                     b.Property<string>("Data");
+
+                    b.Property<string>("Game");
 
                     b.Property<Guid>("Identifier");
 

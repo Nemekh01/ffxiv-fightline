@@ -17,6 +17,8 @@ namespace FightTimeLine.DataLayer
           public bool IsPrivate { get; set; }
           public string Data { get; set; }
           public long? Reference { get; set; }
+          [DefaultValue("ffxiv")]
+          public string Game { get; set; }
           public DateTimeOffset? CreateDate { get; set; }
           public DateTimeOffset? ModifiedDate { get; set; }
      }
@@ -30,6 +32,8 @@ namespace FightTimeLine.DataLayer
           public string Name { get; set; }
           public string UserName { get; set; }
           public string Data { get; set; }
+          [DefaultValue("ffxiv")]
+          public string Game { get; set; }
           [DefaultValue(true)]
           public bool? IsDraft { get; set; }
           public DateTimeOffset? CreateDate { get; set; }

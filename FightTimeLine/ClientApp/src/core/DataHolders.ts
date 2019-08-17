@@ -2,8 +2,8 @@ import * as M from "./Models";
 import { ClassNameBuilder } from "./ClassNameBuilder";
 import { VisTimelineItems, VisTimelineItem, VisTimelineGroup, VisTimelineGroups } from "ngx-vis"
 import { Utils } from "./Utils";
-import { settings } from "./Jobs/index";
 import * as lod from "lodash";
+import * as Shared from "./Jobs/FFXIV/shared";
 
 
 interface IItemHolder<TI> {
@@ -798,7 +798,7 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
   }
 
   isBossTargetForGroup(group: string): boolean {
-    return this.values.find((b: AbilityMap) => group === b.id && b.ability.settings && b.ability.settings.some((s => s.name === settings.changesTarget.name) as any) && b.job.id !== "boss") !== undefined;
+    return this.values.find((b: AbilityMap) => group === b.id && b.ability.settings && b.ability.settings.some((s => s.name === Shared.settings.changesTarget.name) as any) && b.job.id !== "boss") !== undefined;
   }
 
   getParent(group: string): string {

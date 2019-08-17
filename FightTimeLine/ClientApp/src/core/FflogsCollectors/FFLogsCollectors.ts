@@ -6,8 +6,7 @@ import * as S from "../../services/SettingsService"
 import { Utils } from "../Utils"
 import { AddAbilityCommand, AddStanceCommand, AddBossAttackCommand } from "../Commands"
 import * as FF from "../FFLogs"
-import * as T from "../BossAttackProcessors"
-import { settings } from "../Jobs/index";
+
 
 export interface IFFLogsCollector {
   collect(data: FF.AbilityEvent, jobs: FF.IJobInfo[], startTime: number): void;

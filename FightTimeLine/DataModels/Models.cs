@@ -49,6 +49,8 @@ namespace FightTimeLine.DataModels
           public DateTimeOffset CreateDate { get; set; }
           [JsonProperty("modifiedDate")]
           public DateTimeOffset ModifiedDate { get; set; }
+          [JsonProperty("game")]
+          public string Game { get; set; }
      }
 
      public class FightData
@@ -65,6 +67,8 @@ namespace FightTimeLine.DataModels
           public bool IsDraft { get; set; }
           [JsonProperty("dateModified")]
           public DateTimeOffset DateModified { get; set; }
+          [JsonProperty("game")]
+          public string Game { get; set; }
      }
 
      public class BossSearchResult

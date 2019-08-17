@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\dist\" />
+    <Folder Include="ClientApp\src\assets\swtor\images\roles\" />
     <Folder Include="Controllers\" />
   </ItemGroup>
 

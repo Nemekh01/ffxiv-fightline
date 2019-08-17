@@ -1,19 +1,20 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener,Inject } from "@angular/core";
+import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { IBossAbility, IFight, IAbilitySetting, IAbilitySettingData } from "../core/Models";
+import { IFight } from "../core/Models";
 
 
 import { IFightService, fightServiceToken } from "../services/index"
 import { SettingsService } from "../services/SettingsService"
 import { LocalStorageService } from "../services/LocalStorageService"
-import { JobRegistry } from "../core/JobRegistry"
 
 import { FirstTemplate } from "../core/ExportTemplates/FirstTemplate"
 import { EachRowOneSecondTemplate } from "../core/ExportTemplates/EachRowOneSecondTemplate"
 import { BossAttackDefensiveTemplate } from "../core/ExportTemplates/BossAttackDefensiveTemplate"
-import { ExportTemplate, ExportData, IExportResultItem } from "../core/BaseExportTemplate"
+import { ExportTemplate, ExportData } from "../core/BaseExportTemplate"
 import { IExportResultSet } from "../core/BaseExportTemplate"
 import { IFightSerializeData, IBossAbilityUsageData } from "../core/FightTimeLineController";
+import * as Gameserviceprovider from "../services/game.service-provider";
+import * as Gameserviceinterface from "../services/game.service-interface";
 
 
 @Component({
@@ -24,16 +25,17 @@ import { IFightSerializeData, IBossAbilityUsageData } from "../core/FightTimeLin
 export class TableViewComponent implements OnInit, OnDestroy {
   startDate = new Date(946677600000);
 
-  public set: IExportResultSet;
-  public columnNames: string[];
-  templates: ExportTemplate[] = [new FirstTemplate(), new EachRowOneSecondTemplate(), new BossAttackDefensiveTemplate()];
-  jobRegistry = new JobRegistry();
+  set: IExportResultSet;
+  columnNames: string[];
+  templates: ExportTemplate[] =
+    [new FirstTemplate(), new EachRowOneSecondTemplate(), new BossAttackDefensiveTemplate()];
 
   public constructor(
     @Inject(fightServiceToken) private fightService: IFightService,
     private route: ActivatedRoute,
     private router: Router,
     private storage: LocalStorageService,
+    @Inject(Gameserviceprovider.gameServiceToken) private gameService: Gameserviceinterface.IGameService,
     private settingsService: SettingsService) {
   }
 
@@ -46,7 +48,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
       const id = r["fightId"] as string;
       const template = r["template"] as string;
       if (id && template) {
-        const settings = this.settingsService.load();
+//        const settings = this.settingsService.load();
         this.fightService
           .getFight(id)
           .subscribe(fight => {
@@ -69,34 +71,34 @@ export class TableViewComponent implements OnInit, OnDestroy {
       data: {
         boss: {
           attacks: bossAttacks.map((it) => <any>{
-              name: it.ability.name,
-              type: it.ability.type,
-              isAoe: it.ability.isAoe,
-              isShareDamage: it.ability.isShareDamage,
-              isTankBuster: it.ability.isTankBuster,
-              offset: it.ability.offset
+            name: it.ability.name,
+            type: it.ability.type,
+            isAoe: it.ability.isAoe,
+            isShareDamage: it.ability.isShareDamage,
+            isTankBuster: it.ability.isTankBuster,
+            offset: it.ability.offset
           }),
           downTimes: bossData.downTimes.map(it => <any>{
             start: it.start,
             end: it.end
           })
         },
-        initialTarget:data.initialTarget,
+        initialTarget: data.initialTarget,
         bossTargets: [], //todo: parse boss targets
         jobs: data.jobs.map(it => {
-          const jb = this.jobRegistry.getJob(it.name);
+          const jb = this.gameService.jobRegistry.getJob(it.name);
           return <any>{
             id: it.id,
             name: it.name,
-            role: jb.role, 
+            role: jb.role,
             order: it.order,
             pet: it.pet,
             icon: jb.icon
-          }
+          };
         }),
         abilities: data.abilities.map(it => {
           const jb = data.jobs.find(j => j.id === it.job);
-          const ab = this.jobRegistry.getAbilityForJob(jb.name, it.ability);
+          const ab = this.gameService.jobRegistry.getAbilityForJob(jb.name, it.ability);
           return <any>{
             job: it.job,
             ability: it.ability,
@@ -104,7 +106,7 @@ export class TableViewComponent implements OnInit, OnDestroy {
             duration: ab.duration,
             start: it.start,
             icon: ab.icon
-          }
+          };
         })
       }
     };
@@ -114,6 +116,3 @@ export class TableViewComponent implements OnInit, OnDestroy {
 
   }
 }
-
-
-

@@ -4,9 +4,9 @@ import * as H from "../../../core/DataHolders"
 import * as M from "../../../core/Models"
 import * as X from "@xivapi/angular-client"
 import { Utils } from "../../../core/Utils"
-import { settings } from "../../../core/Jobs/index"
 import { DomSanitizer } from "@angular/platform-browser";
 import * as S from "../../../services/index"
+import * as Shared from "../../../core/Jobs/FFXIV/shared";
 
 @Component({
   selector: "singleAbility",
@@ -49,7 +49,7 @@ export class SingleAbilityComponent implements OnInit, OnDestroy, ISidePanelComp
       });
     }
 
-    const setting = !this.it.ability.isStance && this.it.getSetting(settings.target.name);
+    const setting = !this.it.ability.isStance && this.it.getSetting(Shared.settings.target.name);
     if (setting) {
       this.ptyMemUsages = holders.itemUsages.getByAbility(this.it.ability.id).map(it => {
         const data = it.getSettingData(setting.name);

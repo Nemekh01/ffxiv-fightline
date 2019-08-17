@@ -2,12 +2,12 @@ import { EventEmitter } from "@angular/core"
 import { Holders } from "./DataHolders"
 import { IdGenerator } from "./Generators"
 import { IAbility } from "./Models"
-import { JobRegistry } from "./JobRegistry"
+import * as Jobregistryserviceinterface from "../services/jobregistry.service-interface";
 
 export interface ICommandExecutionContext {
   idGen: IdGenerator;
   holders: Holders,
-  jobRegistry: JobRegistry;
+  jobRegistry: Jobregistryserviceinterface.IJobRegistryService;
   update: (options: IUpdateOptions) => void;
   ogcdAttacksAsPoints: (ability: IAbility) => boolean;
   verticalBossAttacks: () => boolean;

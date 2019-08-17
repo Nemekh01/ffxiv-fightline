@@ -29,13 +29,13 @@ namespace FightTimeLine.Controllers
                _dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
           }
 
-          [HttpGet("[action]/{reference}/{value?}")]
-          public async Task<IEnumerable<BossSearchResult>> Bosses(long reference, string value, [FromQuery]bool privateOnly)
+          [HttpGet("[action]/{reference}/{game}/{value?}")]
+          public async Task<IEnumerable<BossSearchResult>> Bosses([FromRoute]long reference, [FromRoute]string value, [FromQuery]bool privateOnly, [FromRoute]string game)
           {
                var name = CurrentUserName;
 
                return await _dataContext.Bosses
-                    .Where(s => (string.IsNullOrEmpty(value) || s.Name.IndexOf(value, StringComparison.OrdinalIgnoreCase)>=0) && s.Reference == reference && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
+                    .Where(s => (string.IsNullOrEmpty(value) || s.Name.IndexOf(value, StringComparison.OrdinalIgnoreCase)>=0) && s.Reference == reference && s.Game == game && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
                     .Select(s => new BossSearchResult()
                     {
                          Id = s.Identifier.ToString("N"),
@@ -98,7 +98,8 @@ namespace FightTimeLine.Controllers
                          IsPrivate = request.IsPrivate,
                          Data = request.Data,
                          Reference = request.Reference,
-                         CreateDate = DateTimeOffset.UtcNow
+                         CreateDate = DateTimeOffset.UtcNow,
+                         Game = request.Game
                     };
                     _dataContext.Bosses.Add(boss);
                }
@@ -115,7 +116,8 @@ namespace FightTimeLine.Controllers
                     IsPrivate = boss.IsPrivate,
                     Reference = boss.Reference.GetValueOrDefault(),
                     CreateDate = boss.CreateDate.GetValueOrDefault(),
-                    ModifiedDate = boss.ModifiedDate.GetValueOrDefault()
+                    ModifiedDate = boss.ModifiedDate.GetValueOrDefault(),
+                    Game = boss.Game
                });
           }
 
@@ -157,13 +159,14 @@ namespace FightTimeLine.Controllers
                     UserName = data.UserName,
                     Data = data.Data,
                     IsDraft = data.IsDraft.GetValueOrDefault(true),
-                    DateModified = data.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)
+                    DateModified = data.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow),
+                    Game = data.Game
                });
           }
 
-          [HttpPost("[action]")]
+          [HttpPost("[action]/{game}")]
           [AllowAnonymous]
-          public async Task<IActionResult> NewFight()
+          public async Task<IActionResult> NewFight([FromRoute]string game)
           {
                var nameClaim = CurrentUserName;
 
@@ -175,6 +178,7 @@ namespace FightTimeLine.Controllers
                     ModifiedDate = DateTimeOffset.UtcNow,
                     Data = "",
                     Identifier = Guid.NewGuid(),
+                    Game = game,
                     UserName = nameClaim ?? "anonymous"
                });
 
@@ -187,7 +191,8 @@ namespace FightTimeLine.Controllers
                     IsDraft = entityEntry.Entity.IsDraft.GetValueOrDefault(true),
                     UserName = entityEntry.Entity.UserName,
                     Data = entityEntry.Entity.Data,
-                    DateModified = entityEntry.Entity.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)    
+                    DateModified = entityEntry.Entity.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)   ,
+                    Game = entityEntry.Entity.Game
                });
           }
 
@@ -222,7 +227,8 @@ namespace FightTimeLine.Controllers
                          Data = request.Data,
                          IsDraft = false,
                          CreateDate = DateTimeOffset.UtcNow,
-                         ModifiedDate = DateTimeOffset.UtcNow
+                         ModifiedDate = DateTimeOffset.UtcNow,
+                         Game = request.Game
                     };
                     _dataContext.Fights.Add(fight);
                }
@@ -236,29 +242,29 @@ namespace FightTimeLine.Controllers
                     UserName = fight.UserName,
                     Data = "",
                     IsDraft = fight.IsDraft.GetValueOrDefault(true),
-                    DateModified = fight.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)
+                    DateModified = fight.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow),
+                    Game = fight.Game
                     
                });
           }
 
-          [HttpGet("[action]")]
+          [HttpGet("[action]/{game}")]
           [Authorize]
-          public async Task<IActionResult> Fights()
+          public async Task<IActionResult> Fights([FromRoute]string game)
           {
                var nameClaim = CurrentUserName;
                if (nameClaim == null)
                     return Unauthorized();
 
                var data = await _dataContext.Fights
-                   .Where(s => s.UserName == nameClaim)
+                   .Where(s => s.UserName == nameClaim && s.Game == game)
                    .Select(entity => new FightSearchResult()
                    {
                         Id = entity.Identifier.ToString("N"),
                         Name = entity.Name,
                         IsDraft = entity.IsDraft.GetValueOrDefault(false),
                         DateModified = entity.ModifiedDate,
-                        DateCreated = entity.CreateDate
-                        
+                        DateCreated = entity.CreateDate,
                    }).ToArrayAsync();
                return Json(data);
           }

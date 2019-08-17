@@ -10,6 +10,9 @@ import { ScreenNotificationsService } from "../services/ScreenNotificationsServi
 import { LocalStorageService } from "../services/LocalStorageService"
 import { IAuthenticationService, authenticationServiceToken } from "../services/index"
 import * as M from "../core/Models"
+import * as Gameserviceprovider from "../services/game.service-provider";
+import * as Gameserviceinterface from "../services/game.service-interface";
+import * as _ from "lodash";
 
 @Component({
   selector: "toolbar",
@@ -32,9 +35,6 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   @Input("authenticated") authenticated: boolean;
   @Input("username") username: string;
-
-  @Input("jobs") jobs: IJob[];
-
   @Input("canUndo") canUndo: boolean;
   @Input("canRedo") canRedo: boolean;
   @Input("connectedUsers") connectedUsers: M.IHubUser[];
@@ -74,15 +74,19 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   toolToUse: string = null;
 
+  swtorMenu:any;
 
   public constructor(
     private dialogService: DialogService,
     @Inject(authenticationServiceToken) private authenticationService: IAuthenticationService,
+    @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService,
     private notification: ScreenNotificationsService,
     private router: Router,
     private storage: LocalStorageService
   ) {
-
+    const jobs = this.gameService.jobRegistry.getJobs();
+    const grouped = _.groupBy(jobs, (it: IJob) => it.baseClass);
+    this.swtorMenu = grouped;
   }
 
   onHome() {

@@ -13,6 +13,7 @@ import { ScreenNotificationsService } from "./ScreenNotificationsService"
 import { LocalStorageService } from "./LocalStorageService"
 import { DispatcherService } from "./dispatcher.service"
 import { FightHubService, IConnectToSessionHandlers, IStartSessionHandlers } from "./FightHubService"
+import * as Gameserviceprovider from "./game.service-provider";
 
 export {
   IAuthenticationService,
@@ -50,6 +51,7 @@ export const ServicesModuleComponents =
     DispatcherService,
     FightHubService,
     authenticationServiceProvider,
-    fightServiceProvider
+    fightServiceProvider,
+    Gameserviceprovider.gameServiceProvider
   ];
 
