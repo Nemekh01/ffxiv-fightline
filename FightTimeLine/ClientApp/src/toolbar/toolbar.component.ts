@@ -13,6 +13,7 @@ import * as M from "../core/Models"
 import * as Gameserviceprovider from "../services/game.service-provider";
 import * as Gameserviceinterface from "../services/game.service-interface";
 import * as _ from "lodash";
+import * as SettingsService from "../services/SettingsService";
 
 @Component({
   selector: "toolbar",
@@ -74,7 +75,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   toolToUse: string = null;
 
-  swtorMenu:any;
+  menu: any;
 
   public constructor(
     private dialogService: DialogService,
@@ -85,8 +86,21 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     private storage: LocalStorageService
   ) {
     const jobs = this.gameService.jobRegistry.getJobs();
-    const grouped = _.groupBy(jobs, (it: IJob) => it.baseClass);
-    this.swtorMenu = grouped;
+    if (this.gameService.name === 'swtor') {
+      const grouped = _.groupBy(jobs, (it: IJob) => it.baseClass);
+      this.menu = grouped;
+    } else {
+      this.menu = jobs;
+    }
+  }
+
+  setSettings(settings: SettingsService.ISettings) {
+    if (settings) {
+      if (settings.main && settings.main.defaultView)
+        this.view.set(settings.main.defaultView);
+      if (settings.main && settings.main.defaultFilter)
+        this.filter.set(settings.main.defaultFilter);
+    }
   }
 
   onHome() {

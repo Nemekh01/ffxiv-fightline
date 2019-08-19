@@ -6,6 +6,8 @@ import { SettingsService, ISettings } from "../../services/SettingsService";
 import { ScreenNotificationsService } from "../../services/ScreenNotificationsService";
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NzModalRef } from "ng-zorro-antd";
+import * as Gameserviceinterface from "../../services/game.service-interface";
+import * as Gameserviceprovider from "../../services/game.service-provider";
 
 
 @Component({
@@ -40,6 +42,7 @@ export class SettingsDialog {
     private dialogRef: NzModalRef,
     private formBuilder: FormBuilder,
     private settingsService: SettingsService,
+    @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService,
     private notifications: ScreenNotificationsService) {
 
   }

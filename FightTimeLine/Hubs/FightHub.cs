@@ -86,7 +86,7 @@ namespace FightTimeLine.Hubs
 
           public async Task Disconnect(string fight)
           {
-               
+               await Task.Yield();
           }
 
           private async Task SendActiveUsers(string fight)
@@ -108,8 +108,8 @@ namespace FightTimeLine.Hubs
           {
                var fight = (Guid)Context.Items["fight"];
 
-               await _usersStorage.RemoveUserAsync(fight, Context.ConnectionId);
-               await Clients.OthersInGroup(fight.ToString("N")).SendAsync("disconnected", new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString() });
+               await _usersStorage.RemoveUserAsync(fight, Context.ConnectionId).ConfigureAwait(false);
+               await Clients.OthersInGroup(fight.ToString("N")).SendAsync("disconnected", new User() { id = Context.ConnectionId, name = Context.Items["username"]?.ToString() }).ConfigureAwait(false);
                await Groups.RemoveFromGroupAsync(Context.ConnectionId, fight.ToString("N"));
                await base.OnDisconnectedAsync(exception);
           }

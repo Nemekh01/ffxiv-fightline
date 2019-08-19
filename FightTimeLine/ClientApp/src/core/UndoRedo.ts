@@ -1,5 +1,5 @@
 import { EventEmitter } from "@angular/core"
-import { Holders } from "./DataHolders"
+import { Holders, AbilityMap } from "./DataHolders"
 import { IdGenerator } from "./Generators"
 import { IAbility } from "./Models"
 import * as Jobregistryserviceinterface from "../services/jobregistry.service-interface";
@@ -16,7 +16,7 @@ export interface ICommandExecutionContext {
 }
 
 export interface IUpdateOptions {
-  abilityChanged?: IAbility;
+  abilityChanged?: AbilityMap;
   updateIntersectedWithBossAttackAtDate?: Date | null;
   updateBossAttacks?: string[] | boolean;
   updateBossTargets?: boolean;
@@ -46,13 +46,18 @@ export class UndoRedoController {
   }
 
   public execute(command: Command, fireExecuted: boolean = true) {
-    command.execute(this.getContext());
-    this.undoCommands.push(command);
-    delete this.redoCommands;
-    this.redoCommands = new Array<Command>();
-    this.changed.emit();
-    if (fireExecuted && this.fireExecuted)
-      this.commandExecuted.emit(command.serialize());
+    try {
+      command.execute(this.getContext());
+      this.undoCommands.push(command);
+      delete this.redoCommands;
+      this.redoCommands = new Array<Command>();
+      this.changed.emit();
+      if (fireExecuted && this.fireExecuted)
+        this.commandExecuted.emit(command.serialize());
+    } catch (error) {
+      console.error(error);
+      console.log("Unable to execute command " + JSON.stringify(command.serialize()));
+    }
   }
 
   public clear() {

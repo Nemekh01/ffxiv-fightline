@@ -34,7 +34,7 @@
         </div>
       </form>
     </nz-tab>
-    <nz-tab nzTitle="FFLogs">
+    <nz-tab nzTitle="FFLogs" *ngIf="gameService.showImport">
       <form [formGroup]="fflogsForm" class="settings-tab">
         <div  class="settings-container">
           <div class="settings-title">

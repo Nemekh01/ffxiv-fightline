@@ -2,6 +2,7 @@
   "name": "client-app",
   "version": "0.0.0",
   "scripts": {
+    "ng-high-memory": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng build",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
@@ -33,7 +34,7 @@
     "lodash": "^4.17.15",
     "ng-gapi": "0.0.51",
     "ng-recaptcha": "4.2.1",
-    "ng-zorro-antd": "^7.3.3",
+    "ng-zorro-antd": "^7.5.1",
     "ngx-clipboard": "11.1.9",
     "ngx-contextmenu": "^5.1.1",
     "ngx-disqus": "2.4.3",

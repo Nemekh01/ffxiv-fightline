@@ -47,7 +47,7 @@ import { environment } from "../environments/environment"
 import { XivapiClientModule } from "@xivapi/angular-client";
 import { en_US, NgZorroAntdModule, NZ_I18N } from 'ng-zorro-antd';
 import { registerLocaleData } from '@angular/common';
-import { DisqusModule } from "ngx-disqus"
+import { DisqusModule, DISQUS_SHORTNAME } from "ngx-disqus"
 import en from '@angular/common/locales/en'
 
 registerLocaleData(en);
@@ -136,7 +136,7 @@ export function getBaseUrl() {
     ClipboardModule,
     SocialLoginModule,
     AngularSplitModule,
-    DisqusModule.forRoot("ffxiv-fightline")
+    DisqusModule
   ],
   providers: [
     ContextMenuService,
@@ -153,6 +153,7 @@ export function getBaseUrl() {
       useValue: { siteKey: '6LfToGAUAAAAAKcp3joBgzcqJ3sK_s_WCltAL7Tn' } as RecaptchaSettings,
     },
     { provide: NZ_I18N, useValue: en_US },
+    { provide: DISQUS_SHORTNAME, useFactory: () => location.hostname.toLowerCase().indexOf("swtor") >= 0 ? "swtor-fightline" : "ffxiv-fightline" },
     ...Services.ServicesModuleComponents
 
   ],

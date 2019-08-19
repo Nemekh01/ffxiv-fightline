@@ -1,8 +1,5 @@
 import { Component, Inject, ViewChild, Input, OnInit, TemplateRef } from "@angular/core";
 import { Router } from "@angular/router";
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
-
-import { FFLogsService } from "../../services/FFLogsService"
 import { RecentActivityService } from "../../services/RecentActivitiesService"
 import { Utils } from "../../core/Utils"
 import { ReportFightsResponse } from "../../core/FFLogs"
@@ -10,6 +7,8 @@ import { ReportFightsResponse } from "../../core/FFLogs"
 import "rxjs/add/observable/merge";
 import "rxjs/add/observable/empty";
 import { NzModalRef } from "ng-zorro-antd";
+import * as Gameserviceprovider from "../../services/game.service-provider";
+import * as Gameserviceinterface from "../../services/game.service-interface";
 
 @Component({
   selector: "ffLogsImportDialog",
@@ -38,7 +37,7 @@ export class FFLogsImportDialog implements OnInit {
 
   constructor(
     public dialogRef: NzModalRef,
-    public service: FFLogsService,
+    @Inject(Gameserviceprovider.gameServiceToken) public service: Gameserviceinterface.IGameService,
     public recentService: RecentActivityService,
     private router: Router) {
 
@@ -58,7 +57,7 @@ export class FFLogsImportDialog implements OnInit {
             this.dialogRef.close();
             return;
           } else {
-            this.service.getFight(res[1])
+            this.service.dataService.getFight(res[1])
               .then((it: ReportFightsResponse) => {
                 const id = it.fights[it.fights.length - 1].id;
                 this.onClick("" + id);
@@ -66,7 +65,7 @@ export class FFLogsImportDialog implements OnInit {
               });
           }
         } else {
-          this.service.getFight(res[1])
+          this.service.dataService.getFight(res[1])
             .then((it: ReportFightsResponse) => {
               this.dialogContentHeight = "360px";
               this.searchAreaDisplay = "block";

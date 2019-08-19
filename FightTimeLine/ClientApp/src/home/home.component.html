@@ -48,7 +48,7 @@
               <div>
                 <button nz-button class="action-button" (click)="showHelp()">Open help</button>
               </div>
-              <div>
+              <div *ngIf="gameService.showImport">
                 <button nz-button color="primary" class="action-button" (click)="importFromFFLogs()">Import from FFLogs</button>
               </div>
               <div>

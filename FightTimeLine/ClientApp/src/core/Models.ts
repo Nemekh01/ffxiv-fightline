@@ -338,6 +338,11 @@ export enum EntryType {
   AbilityAvailability
 }
 
+export interface IFightData {
+  fight?: IFight;
+  boss?: IBoss;
+  importedFrom?: string;
+}
 
 export interface IBossAbility {
   name?: string;
@@ -420,6 +425,31 @@ export interface IFilter {
   attacks?: IBossAttackFilter;
 }
 
+export const defaultFilter: IFilter = {
+  abilities: {
+    damage: true,
+    selfDefence: true,
+    partyDefence: true,
+    healing: true,
+    healingBuff: true,
+    partyDamageBuff: true,
+    selfDamageBuff: true,
+    pet: true,
+    unused: true,
+    utility: true,
+  },
+  attacks: {
+    isAoe: true,
+    isShareDamage: true,
+    isTankBuster: true,
+    isOther: true,
+    isMagical: true,
+    isPhysical: true,
+    isUnaspected: true,
+    keywords: []
+  }
+};
+
 export interface IView {
   buffmap: boolean;
   ogcdAsPoints: boolean;
@@ -429,6 +459,16 @@ export interface IView {
   highlightLoaded: boolean;
   showAbilityAvailablity: boolean;
 }
+
+export const defaultView: IView = {
+  buffmap: false,
+  ogcdAsPoints: false,
+  showDowntimesInPartyArea: false,
+  verticalBossAttacks: false,
+  compactView: false,
+  highlightLoaded: false,
+  showAbilityAvailablity: false
+};
 
 export interface ITools {
   downtime: boolean;

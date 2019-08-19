@@ -34,7 +34,7 @@ export const RDM: IJob = {
     },
     {
       name: "Manafication",
-      duration: 0,
+      duration: 10,
       cooldown: 110,
       xivDbId: "7521",
       requiresBossTarget: true,

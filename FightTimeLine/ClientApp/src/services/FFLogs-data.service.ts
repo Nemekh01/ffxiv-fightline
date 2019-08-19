@@ -1,4 +1,3 @@
-import { Injectable, Inject } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
 import { tap, debounceTime, flatMap, map, merge, concatMap } from "rxjs/operators";
 import { Observable, of } from "rxjs"
@@ -8,24 +7,22 @@ import "rxjs/add/observable/from";
 import "rxjs/add/observable/of";
 import { Event, ReportEventsResponse, ReportFightsResponse, IJobInfo, Events, Zone, ReportFightsResponse as IReportFightsResponse,
   ReportEventsResponse as IReportEventsResponse,
-  Events as IEvents,
   ReportFightsResponse as IReportFightsResponse1,
   IJobInfo as IJobInfo1,
-  Zone as IZone
 } from "../core/FFLogs"
 import * as _ from "lodash"
-import * as Gameserviceprovider from "./game.service-provider";
-import * as Gameserviceinterface from "./game.service-interface";
+import * as Dataserviceinterface from "./data.service-interface";
+import * as Jobregistryserviceinterface from "./jobregistry.service-interface";
 
-
-@Injectable()
-export class FFLogsService {
+export class FFLogsService implements Dataserviceinterface.IDataService {
 
   constructor(
-    @Inject(Gameserviceprovider.gameServiceToken) private gameService: Gameserviceinterface.IGameService,
+    private jobRegistry: Jobregistryserviceinterface.IJobRegistryService,
     private httpClient: HttpClient,
-    @Inject("FFLogs_URL") private fflogsUrl: string,
-    @Inject("FFLogs_API_KEY") private apiKey: string,
+    //@Inject("FFLogs_URL")
+    private fflogsUrl: string,
+    //@Inject("FFLogs_API_KEY")
+    private apiKey: string,
     private settings: SettingsService,
     private storage: LocalStorageService) {
 
@@ -53,11 +50,11 @@ export class FFLogsService {
       })).toPromise();
   }
 
-  private loadFightChunk(code: string, instance: number, start: number, end: number, filter: string): Observable<IReportEventsResponse> {
-    return this.httpClient.get(`${this.fflogsUrl}v1/report/events/${code}?translate=true&api_key=${this.apiKey}&start=${start}&end=${end}&actorinstance=${instance}&filter=${filter}`).pipe(tap((val: any) => { }));
+  private loadFightChunk(code: string, instance: number, start: number, end: number, filter: string): Observable<ReportEventsResponse> {
+    return this.httpClient.get<ReportEventsResponse>(`${this.fflogsUrl}v1/report/events/${code}?translate=true&api_key=${this.apiKey}&start=${start}&end=${end}&actorinstance=${instance}&filter=${filter}`).pipe(tap(() => { }));
   }
 
-  async getEvents(code: string, instance: number, callBack: (percentage: number) => void): Promise<IEvents> {
+  async getEvents(code: string, instance: number, callBack: (percentage: number) => void): Promise<Events> {
 
     let cache = this.storage.getObject<ICacheItem[]>("events_cache");
     if (cache) {
@@ -118,7 +115,7 @@ export class FFLogsService {
 
     const enemyIds = fight.enemies.map(e => e.guid).join();
 
-    const js = this.gameService.jobRegistry.getJobs().filter(j => jobs.some((j1 => j1.job === j.name) as any));
+    const js = this.jobRegistry.getJobs().filter(j => jobs.some((j1 => j1.job === j.name) as any));
 
     const abilityIds = _.uniq(_.flattenDeep(_.concat([], js.map(j => j.abilities.map(a => a.detectStrategy.deps.abilities))))).filter(a => !!a).join();
     const abilityByBuffIds = _.concat([], js.map(j => j.abilities.map(a => a.detectStrategy.deps.buffs)));
@@ -182,7 +179,7 @@ export class FFLogsService {
     return null;
   }
 
-  getZones(): Observable<IZone[]> {
+  getZones(): Observable<Zone[]> {
     const cache = this.storage.getObject<ICacheItem>("zones_cache");
     if (cache) {
       if ((new Date().valueOf() - cache.timestamp.valueOf()) < 1000 * 60 * 60 * 24) {

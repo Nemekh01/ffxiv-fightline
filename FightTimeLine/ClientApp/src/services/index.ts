@@ -3,7 +3,6 @@ import { authenticationServiceProvider, authenticationServiceToken } from "./aut
 import { IFightService } from "./fight.service-interface"
 import { fightServiceToken, fightServiceProvider } from "./fight.service-provider"
 import { DialogService } from "./DialogService"
-import { FFLogsService } from "./FFLogsService"
 import { FFLogsStorageService } from "./FFLogsStorageService"
 import { RecentActivityService } from "./RecentActivitiesService"
 import { SettingsService } from "./SettingsService"
@@ -18,7 +17,6 @@ import * as Gameserviceprovider from "./game.service-provider";
 export {
   IAuthenticationService,
   DialogService,
-  FFLogsService,
   FFLogsStorageService,
   IFightService,
   RecentActivityService,
@@ -40,7 +38,6 @@ export {
 export const ServicesModuleComponents =
   [
     DialogService,
-    FFLogsService,
     FFLogsStorageService,
     RecentActivityService,
     SettingsService,

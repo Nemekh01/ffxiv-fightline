@@ -12,87 +12,91 @@ export const Powertech_ShieldTech: IJob = {
   icon: ("EMPIRE/Powertech/Shield Tech/!!!SpecIcon.jpg"),
   abilities: [
     {
-      name: "Force Shroud",
-      duration: 3,
+      name: "Energy Shield",
+      duration: 15,
+      cooldown: 110,
+      icon: ("EMPIRE/Powertech/energy shield"),
+      abilityType: AbilityType.SelfDefense,
+    },
+    {
+      name: "Oil Slick",
+      duration: 10,
       cooldown: 60,
-      icon: ("11_SinTank/force_shroud"),
+      icon: ("EMPIRE/Powertech/Shield Tech/oil slick"),
       abilityType: AbilityType.SelfDefense,
     },
     {
-      name: "Force Speed",
-      duration: 2,
-      cooldown: 15,
-      icon: ("11_SinTank/force_speed"),
-      abilityType: AbilityType.SelfDefense,
-    },
-    {
-      name: "Force Cloak",
-      duration: 3,
-      cooldown: 75,
-      icon: ("11_SinTank/force_cloak"),
-      abilityType: AbilityType.SelfDefense,
-    },
-    {
-      name: "Deflection",
-      duration: 12,
-      cooldown: 120,
-      icon: ("11_SinTank/deflection"),
-      abilityType: AbilityType.SelfDefense,
-    },
-    {
-      name: "Overcharge Saber",
+      name: "Explosive Fuel",
       duration: 15,
       cooldown: 120,
-      icon: ("11_SinTank/overcharge"),
+      icon: ("EMPIRE/Powertech/Shield Tech/explosive_fuel"),
+      abilityType: AbilityType.SelfDamageBuff
+    },
+    {
+      name: "Shoulder Cannon",
+      duration: 15,
+      cooldown: 90,
+      icon: ("EMPIRE/Powertech/Shield Tech/shoulder_cannon"),
+      abilityType: AbilityType.SelfDamageBuff
+    },
+    {
+      name: "Sonic Missile",
+      duration: 6,
+      cooldown: 45,
+      icon: ("EMPIRE/Powertech/Shield Tech/sonicmissle"),
+      abilityType: AbilityType.PartyDamageBuff
+    },
+    {
+      name: "Kolto Overload",
+      duration: 60,
+      cooldown: 180,
+      icon: ("EMPIRE/Powertech/kolto overload"),
       abilityType: AbilityType.SelfDefense,
-
+    },
+    {
+      name: "Hydraulic Overrides",
+      duration: 2,
+      cooldown: 35,
+      icon: ("EMPIRE/Powertech/hydraulic overrides"),
+      abilityType: AbilityType.Utility,
     },
     {
       name: "Medpac",
-      duration: 15,
+      duration: 30,
       cooldown: 90,
-      icon: ("CrossRole/05medpac.jpg"),
-      abilityType: AbilityType.SelfDefense,
+      icon: ("CrossRole/05medpac"),
+      abilityType: AbilityType.Healing,
     },
     {
-      name: "DPS Adrenal",
+      name: "Shield Adrenal",
       duration: 15,
       cooldown: 180,
-      icon: ("CrossRole/07_dps_adrenal"),
+      icon: ("CrossRole/06shield_adrenal"),
       abilityType: AbilityType.SelfDefense,
     },
     {
-      name: "Recklesness",
-      duration: 20,
-      cooldown: 90,
-      icon: ("11_SinTank/recklessness"),
-      abilityType: AbilityType.SelfDamageBuff,
-      settings: [settings.target],
-    },
-    {
-      name: "Stun Breaker",
+      name: "Carbonize",
       duration: 3,
-      cooldown: 90,
-      icon: ("11_SinTank/09_stun_breaker"),
-      abilityType: AbilityType.SelfDefense,
-    },
-    {
-      name: "Jolt",
-      duration: 4,
-      cooldown: 16,
-      requiresBossTarget: true,
-      icon: ("11_SinTank/jolt"),
-      abilityType: AbilityType.PartyDefense,
-      settings: [settings.target],
-    },
-    {
-      name: "Mas Taunt",
-      duration: 6,
       cooldown: 45,
-      icon: "11_SinTank/11mass_taunt",
+      icon: ("EMPIRE/Powertech/Shield Tech/carbonize"),
       abilityType: AbilityType.Utility,
+    },
+    {
+      name: "Determination",
+      duration: 4,
+      cooldown: 120,
+      icon: ("EMPIRE/Powertech/determination"),
+      abilityType: AbilityType.Utility,
+    },
+    {
+      name: "Quell",
+      duration: 4,
+      cooldown: 12,
+      requiresBossTarget: true,
+      icon: ("EMPIRE/Powertech/Shield Tech/quell"),
+      abilityType: AbilityType.Utility
     }
-  ].sort(abilitySortFn)
+  ]
 };
 
 

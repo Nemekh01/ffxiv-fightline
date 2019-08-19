@@ -1,11 +1,10 @@
 import { Component, Inject, OnInit, ViewChild, ElementRef, OnDestroy, TemplateRef, Input } from "@angular/core";
-import { finalize, filter, map } from "rxjs/operators"
-import { Observable, BehaviorSubject } from "rxjs"
+import { map } from "rxjs/operators/"
+import 'rxjs/add/operator/first';
 import { NzModalRef } from "ng-zorro-antd"
 import { Zone, Encounter } from "../../core/FFLogs"
 import * as M from "../../core/Models"
 import { Utils } from "../../core/Utils"
-import { FFLogsService } from "../../services/FFLogsService"
 import { ScreenNotificationsService } from "../../services/ScreenNotificationsService"
 import { DispatcherService } from "../../services/dispatcher.service"
 import { fightServiceToken } from "../../services/fight.service-provider"
@@ -13,6 +12,8 @@ import { IFightService } from "../../services/fight.service-interface"
 import { IAuthenticationService } from "../../services/authentication.service-interface"
 import { authenticationServiceToken } from "../../services/authentication.service-provider"
 import { VisTimelineService, VisTimelineItems, VisTimelineGroups, VisTimelineItem, VisTimelineOptions } from "ngx-vis";
+import * as Gameserviceprovider from "../../services/game.service-provider";
+import * as Gameserviceinterface from "../../services/game.service-interface";
 
 @Component({
   selector: "bossTemplatesDialog",
@@ -110,7 +111,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
 
   constructor(
     private dialogRef: NzModalRef,
-    private ffLogsService: FFLogsService,
+    @Inject(Gameserviceprovider.gameServiceToken) private gameService: Gameserviceinterface.IGameService,
     @Inject(fightServiceToken) private fightService: IFightService,
     private visTimelineService: VisTimelineService,
     private dispatcher: DispatcherService,
@@ -122,15 +123,16 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.dialogRef.getInstance().nzFooter = this.buttonsTemplate;
-    this.ffLogsService.getZones()
+    this.gameService.dataService.getZones()
       .pipe(
-        map((v, i) => {
+        map((v) => {
           return v.filter(x => x.brackets && x.brackets.min >= 4 && x.name.indexOf("Dungeons") !== 0 && x.name.indexOf("(Story)") < 0);
         }))
+      .first()
       .subscribe(val => {
         this.zones = (val as any);
         this.filteredZones = val as any;
-        if (this.data.boss) {
+        if (this.data && this.data.boss && this.zones) {
           const zone = this.zones.find((z) => z.encounters.some((y => y.id === this.data.boss.ref) as any));
           if (zone) {
             const enc = zone.encounters.find(y => y.id === this.data.boss.ref);
@@ -138,7 +140,6 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
             this.onSearchChange(null);
           }
         }
-
       }, null, () => {
         this.isSpinning = false;
       });
@@ -171,8 +172,8 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   }
 
   filterEncounters(items: any[]) {
-
-    return items.filter(x => (!this.searchString || x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0) && (!this.data.boss || x.id === this.data.boss.ref));
+    if (!items) return [];
+    return items.filter(x => (!this.searchString || x.name.toLowerCase().indexOf(this.searchString.toLowerCase()) >= 0) && (!this.data || !this.data.boss || x.id === this.data.boss.ref));
 
   }
 
@@ -205,7 +206,7 @@ export class BossTemplatesDialog implements OnInit, OnDestroy {
   }
 
   remove(item: any, event: any) {
-    this.fightService.removeBosses([item.id]).subscribe((data) => {
+    this.fightService.removeBosses([item.id]).subscribe(() => {
       this.notification.success("Template has been removed.");
       this.selectedTemplate = null;
     }, (error) => {

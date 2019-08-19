@@ -5,6 +5,8 @@ import { DialogService } from "../services/index"
 import { ChangeNotes } from "../changeNotes"
 
 import * as S from "../services/index"
+import * as Gameserviceprovider from "../services/game.service-provider";
+import * as Gameserviceinterface from "../services/game.service-interface";
 
 @Component({
   selector: "home",
@@ -22,7 +24,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private recentService: S.RecentActivityService,
     private storage: S.LocalStorageService,
-    private dispatcher: S.DispatcherService
+    private dispatcher: S.DispatcherService,
+    @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService
   ) {
     this.subs.push(
       dispatcher.on("BossTemplates Load").subscribe(value => {

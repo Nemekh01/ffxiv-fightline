@@ -17,7 +17,22 @@ export class SWTORJobRegistryService implements Jobregistryserviceinterface.IJob
       Index.Sith_Juggernaut_Vengeance,
       Index.Powertech_ShieldTech,
       Index.Powertech_AdvancedPrototype,
-      Index.Powertech_Pyrotech
+      Index.Powertech_Pyrotech,
+      Index.Mercenary_Arsenal,
+      Index.Mercenary_Bodyguard,
+      Index.Mercenary_InnovativeOrdnance,
+      Index.Operative_Concealment,
+      Index.Operative_Lethality,
+      Index.Operative_Medicine,
+      Index.Sith_Marauder_Annihilation,
+      Index.Sith_Marauder_Carnage,
+      Index.Sith_Marauder_Fury,
+      Index.Sith_Sorcerer_Lightning,
+      Index.Sith_Sorcerer_Corruption,
+      Index.Sith_Sorcerer_Madness,
+      Index.Sniper_Engineering,
+      Index.Sniper_Marksmanship,
+      Index.Sniper_Virulence
     ].map(j => this.build(j)));
   }
 
@@ -34,7 +49,7 @@ export class SWTORJobRegistryService implements Jobregistryserviceinterface.IJob
   }
 
   private getIcon(id: string) {
-    return `/assets/swtor/images/${id}${id.endsWith(".jpg") ? "" : ".png"}`;
+    return `/assets/swtor/images/${id}${id.endsWith(".jpg") || id.endsWith(".png")?"":".jpg"}`;
   }
 
   private buildAbility(a: Models.IAbility): Models.IAbility {

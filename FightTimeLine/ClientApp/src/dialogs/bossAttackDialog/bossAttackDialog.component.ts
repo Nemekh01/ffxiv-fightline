@@ -1,9 +1,11 @@
-import { Component, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, Input, OnInit, ViewChild, Inject } from "@angular/core";
 import { SyncSettingsComponent } from "./syncSettings/syncSettings.component"
 import { FormBuilder, FormGroup, Validators, FormControl } from "@angular/forms"
 import * as M from "../../core/Models";
 import { Time } from "../../heplers/TimeValidator";
 import { NzModalRef } from "ng-zorro-antd";
+import * as Gameserviceprovider from "../../services/game.service-provider";
+import * as Gameserviceinterface from "../../services/game.service-interface";
 
 @Component({
   selector: "bossAttackDialog",
@@ -24,6 +26,7 @@ export class BossAttackDialog implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
+    @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService,
     public dialogRef: NzModalRef) {
   }
 
@@ -74,7 +77,8 @@ export class BossAttackDialog implements OnInit {
     this.data.isShareDamage = this.f.share.value;
     this.data.description = this.f.description.value;
 
-    this.data.syncSettings = this.syncSettings.buildSyncSettings();
+    if (this.syncSettings)
+      this.data.syncSettings = this.syncSettings.buildSyncSettings();
   }
 
   onSaveClick(): void {

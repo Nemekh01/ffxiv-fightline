@@ -35,7 +35,7 @@ namespace FightTimeLine.Controllers
                var name = CurrentUserName;
 
                return await _dataContext.Bosses
-                    .Where(s => (string.IsNullOrEmpty(value) || s.Name.IndexOf(value, StringComparison.OrdinalIgnoreCase)>=0) && s.Reference == reference && s.Game == game && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
+                    .Where(s => (string.IsNullOrEmpty(value) || EF.Functions.Like(s.Name,value)) && s.Reference == reference && s.Game == game && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
                     .Select(s => new BossSearchResult()
                     {
                          Id = s.Identifier.ToString("N"),
@@ -335,7 +335,7 @@ namespace FightTimeLine.Controllers
 
                var query = _dataContext.Commands.Where(entity => entity.Fight == fightValue);
                if (timeOffset.HasValue)
-                    query = query.Where(entity => entity.DateCreated > timeOffset.Value);
+                    query = query.Where(entity => entity.DateCreated > timeOffset.Value.ToUniversalTime());
 
                var arrayAsync = await query.OrderBy(entity => entity.DateCreated).ToArrayAsync();
 

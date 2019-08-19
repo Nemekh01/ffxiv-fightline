@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { IFight } from "../core/Models";
 
-
 import { IFightService, fightServiceToken } from "../services/index"
 import { SettingsService } from "../services/SettingsService"
 import { LocalStorageService } from "../services/LocalStorageService"
@@ -12,9 +11,9 @@ import { EachRowOneSecondTemplate } from "../core/ExportTemplates/EachRowOneSeco
 import { BossAttackDefensiveTemplate } from "../core/ExportTemplates/BossAttackDefensiveTemplate"
 import { ExportTemplate, ExportData } from "../core/BaseExportTemplate"
 import { IExportResultSet } from "../core/BaseExportTemplate"
-import { IFightSerializeData, IBossAbilityUsageData } from "../core/FightTimeLineController";
 import * as Gameserviceprovider from "../services/game.service-provider";
 import * as Gameserviceinterface from "../services/game.service-interface";
+import * as SerializeController from "../core/SerializeController";
 
 
 @Component({
@@ -62,9 +61,9 @@ export class TableViewComponent implements OnInit, OnDestroy {
   }
 
   getExportData(fight: IFight): ExportData {
-    const data = JSON.parse(fight.data) as IFightSerializeData;
+    const data = JSON.parse(fight.data) as SerializeController.IFightSerializeData;
     const bossData = JSON.parse(data.boss.data);
-    const bossAttacks = bossData.attacks as IBossAbilityUsageData[];
+    const bossAttacks = bossData.attacks as SerializeController.IBossAbilityUsageData[];
     return {
       userName: fight.userName,
       name: fight.name,

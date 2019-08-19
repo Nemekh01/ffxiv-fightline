@@ -51,7 +51,7 @@
         </nz-form-item>
       </form>
     </nz-tab>
-    <nz-tab nzTitle="FFLogs Sync">
+    <nz-tab nzTitle="FFLogs Sync" *ngIf="gameService.showImport" >
       <syncSettings #syncSettings [data]="data"></syncSettings>
     </nz-tab>
   </nz-tabset>

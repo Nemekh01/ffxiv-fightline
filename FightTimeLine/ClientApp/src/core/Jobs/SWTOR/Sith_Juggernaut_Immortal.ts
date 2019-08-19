@@ -1,5 +1,3 @@
-
-
 import { IJob, DamageType, IAbility, IAbilitySetting, Role, AbilityType, IStance, byName, byBuffApply, byBuffRemove } from "../../Models"
 import { settings, IAbilities, getAbilitiesFrom, meleeSharedAbilities, medicine, abilitySortFn } from "../FFXIV/shared"
 import * as Fractions from "./fractions";
@@ -12,87 +10,92 @@ export const Sith_Juggernaut_Immortal: IJob = {
   icon: ("EMPIRE/SITH Juggernaut/Immortal/!!!SpecIcon.jpg"),
   abilities: [
     {
-      name: "Force Shroud",
-      duration: 3,
+      name: "Saber Reflect",
+      duration: 5,
       cooldown: 60,
-      icon: ("11_SinTank/force_shroud"),
+      icon: ("EMPIRE/SITH Juggernaut/Immortal/saber_reflect.jpg"),
       abilityType: AbilityType.SelfDefense,
     },
     {
-      name: "Force Speed",
-      duration: 2,
-      cooldown: 15,
-      icon: ("11_SinTank/force_speed"),
+      name: "Endure Pain",
+      duration: 20,
+      cooldown: 60,
+      icon: ("EMPIRE/SITH Juggernaut/Immortal/endure_pain.jpg"),
       abilityType: AbilityType.SelfDefense,
     },
     {
-      name: "Force Cloak",
-      duration: 3,
-      cooldown: 75,
-      icon: ("11_SinTank/force_cloak"),
-      abilityType: AbilityType.SelfDefense,
-    },
-    {
-      name: "Deflection",
+      name: "Saber Ward",
       duration: 12,
-      cooldown: 120,
-      icon: ("11_SinTank/deflection"),
+      cooldown: 150,
+      icon: ("EMPIRE/SITH Juggernaut/saber ward"),
       abilityType: AbilityType.SelfDefense,
     },
     {
-      name: "Overcharge Saber",
-      duration: 15,
-      cooldown: 120,
-      icon: ("11_SinTank/overcharge"),
+      name: "Invincible",
+      duration: 10,
+      cooldown: 150,
+      icon: ("EMPIRE/SITH Juggernaut/Immortal/invincible"),
       abilityType: AbilityType.SelfDefense,
-
+    },
+    {
+      name: "Enraged Defense",
+      duration: 15,
+      cooldown: 90,
+      icon: ("EMPIRE/SITH Juggernaut/Through Passion"),
+      abilityType: AbilityType.SelfDefense,
+    },
+    {
+      name: "Mad Dash",
+      duration: 2,
+      cooldown: 45,
+      icon: ("EMPIRE/SITH Juggernaut/mad dash"),
+      abilityType: AbilityType.SelfDefense,
     },
     {
       name: "Medpac",
-      duration: 15,
+      duration: 30,
       cooldown: 90,
-      icon: ("CrossRole/05medpac.jpg"),
-      abilityType: AbilityType.SelfDefense,
+      icon: ("CrossRole/05medpac"),
+      abilityType: AbilityType.Healing,
     },
     {
-      name: "DPS Adrenal",
+      name: "Shield Adrenal",
       duration: 15,
       cooldown: 180,
-      icon: ("CrossRole/07_dps_adrenal"),
+      icon: ("CrossRole/06shield_adrenal"),
       abilityType: AbilityType.SelfDefense,
     },
     {
-      name: "Recklesness",
-      duration: 20,
-      cooldown: 90,
-      icon: ("11_SinTank/recklessness"),
-      abilityType: AbilityType.SelfDamageBuff,
+      name: "Intimidating Roar",
+      duration: 6,
+      cooldown: 60,
+      icon: ("EMPIRE/SITH Juggernaut/intimidating roar"),
+      abilityType: AbilityType.Utility,
       settings: [settings.target],
     },
     {
-      name: "Stun Breaker",
-      duration: 3,
-      cooldown: 90,
-      icon: ("11_SinTank/09_stun_breaker"),
-      abilityType: AbilityType.SelfDefense,
-    },
-    {
-      name: "Jolt",
+      name: "Unleash",
       duration: 4,
-      cooldown: 16,
-      requiresBossTarget: true,
-      icon: ("11_SinTank/jolt"),
-      abilityType: AbilityType.PartyDefense,
-      settings: [settings.target],
+      cooldown: 120,
+      icon: ("EMPIRE/SITH Juggernaut/unleash"),
+      abilityType: AbilityType.Utility,
     },
     {
-      name: "Mas Taunt",
+      name: "Disruption",
+      duration: 4,
+      cooldown: 12,
+      requiresBossTarget: true,
+      icon: ("EMPIRE/SITH Juggernaut/disruption"),
+      abilityType: AbilityType.Utility,
+    },
+    {
+      name: "Mass Taunt",
       duration: 6,
       cooldown: 45,
-      icon: "11_SinTank/11mass_taunt",
+      icon: "EMPIRE/SITH Juggernaut/Immortal/11mass_taunt.png",
       abilityType: AbilityType.Utility,
     }
-  ].sort(abilitySortFn)
+  ]
 };
 
 

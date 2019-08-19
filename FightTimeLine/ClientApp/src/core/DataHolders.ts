@@ -261,6 +261,10 @@ export class JobMap extends BaseMap<string, VisTimelineGroup, IJobMapData> {
   }
 
   getShowNested() { return this.item.showNested; }
+
+  get order(): string {
+    return (this.item as any).value;
+  }
 }
 
 export interface IBossAttackMapData {
@@ -645,6 +649,10 @@ class BaseHolder<TK, TI, T extends IBaseHolderItem<TK>> {
     this.items[i.id as any] = i;
   }
 
+  addRange(i: T[]): void {
+    i.forEach(it => this.items[it.id as any] = it);
+  }
+
   get(id: TK): T {
     return this.items[id as any];
   }
@@ -851,12 +859,12 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
       } else {
         visible = filterUnit(value.ability.abilityType, M.AbilityType.SelfDefense, filter.selfDefence, jobFilter.selfDefence);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDefense, filter.partyDefence, jobFilter.partyDefence);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.SelfDamageBuff, filter.selfDamageBuff,jobFilter.selfDamageBuff);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.SelfDamageBuff, filter.selfDamageBuff, jobFilter.selfDamageBuff);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDamageBuff, filter.partyDamageBuff, jobFilter.partyDamageBuff);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Damage, filter.damage, jobFilter.damage);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.HealingBuff, filter.healingBuff,  jobFilter.healingBuff);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Healing, filter.healing,  jobFilter.healing);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Pet, filter.pet,  jobFilter.pet);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.HealingBuff, filter.healingBuff, jobFilter.healingBuff);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Healing, filter.healing, jobFilter.healing);
+        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Pet, filter.pet, jobFilter.pet);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Utility, filter.utility, jobFilter.utility);
         visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Enmity, filter.enmity, jobFilter.enmity);
 
@@ -888,6 +896,12 @@ export class JobsMapHolder extends BaseHolder<string, VisTimelineGroup, JobMap> 
     this.removeEmpty();
   }
 
+  addRange(i: JobMap[]): void {
+    super.addRange(i);
+    this.visItems.add(this.itemsOf(i));
+    this.removeEmpty();
+  }
+
   remove(ids: string[]): void {
     super.remove(ids);
     this.visItems.removeItems(ids);
@@ -912,17 +926,8 @@ export class JobsMapHolder extends BaseHolder<string, VisTimelineGroup, JobMap> 
     return this.values.find((b: JobMap) => b.job.name === name && (!actorName || actorName === b.actorName));
   }
 
-  serialize(): { id: string, name: string, order: number, pet: string, filter: M.IAbilityFilter, compact: boolean, collapsed: boolean }[] {
-    const map = this.values.map((value: JobMap) => <any>{
-      id: value.id,
-      name: value.job.name,
-      order: (this.visItems.get(value.id) as any).value,
-      pet: value.pet,
-      filter: value.filter,
-      compact: value.isCompact,
-      collapsed: !value.getShowNested()
-    });
-    return map;
+  getByActor(actorName: string): JobMap {
+    return this.values.find((b: JobMap) => actorName === b.actorName);
   }
 
   private addEmpty(): void {
@@ -949,6 +954,11 @@ export class BossAttacksHolder extends BaseHolder<string, VisTimelineItem, BossA
     this.addToBoard(i);
   }
 
+  addRange(i: BossAttackMap[]): void {
+    super.addRange(i);
+    this.addRangeToBoard(i);
+  }
+
   private addToBoard(i: BossAttackMap) {
     this.visBossItems.add(this.itemOf(i));
     this.visMainItems.add({
@@ -960,6 +970,21 @@ export class BossAttacksHolder extends BaseHolder<string, VisTimelineItem, BossA
       className: "bossAttack",
       title: i.attack.name
     });
+  }
+
+  private addRangeToBoard(i: BossAttackMap[]) {
+    this.visBossItems.add(this.itemsOf(i));
+    this.visMainItems.add(i.map(it => {
+      return {
+        id: this.prefix + it.id,
+        start: it.start,
+        end: new Date(it.startAsNumber + 10),
+        type: 'background',
+        content: "",
+        className: "bossAttack",
+        title: it.attack.name
+      }
+    }));
   }
 
   private removeFromBoard(i: BossAttackMap) {
@@ -1130,6 +1155,11 @@ export class AbilityUsageHolder extends BaseHolder<string, VisTimelineItem, Abil
   add(i: AbilityUsageMap): void {
     super.add(i);
     this.visItems.add(this.itemOf(i));
+  }
+
+  addRange(i: AbilityUsageMap[]): void {
+    super.addRange(i);
+    this.visItems.add(this.itemsOf(i));
   }
 
   clear(): void {
