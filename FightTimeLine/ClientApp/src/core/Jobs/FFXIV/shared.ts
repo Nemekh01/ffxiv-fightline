@@ -76,9 +76,9 @@ export const healerSharedAbilities: IAbilities = {
 
 export const medicine: IAbilities  = {
   Mind: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22451", icon: ("Medicine/22451_Mind.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
-  Intelligence: { name: "Medicine", duration: 40, cooldown: 270, xivDbId: "22450", icon: ("Medicine/22450_Intelligence.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
-  Dexterity: { name: "Medicine", duration: 40, cooldown: 270, xivDbId: "22448", icon: ("Medicine/22448_Dexterity.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
-  Strength: { name: "Medicine", duration: 40, cooldown: 270, xivDbId: "22447", icon: ("Medicine/22447_Strength.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
+  Intelligence: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22450", icon: ("Medicine/22450_Intelligence.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
+  Dexterity: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22448", icon: ("Medicine/22448_Dexterity.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
+  Strength: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22447", icon: ("Medicine/22447_Strength.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
 
 };
 
