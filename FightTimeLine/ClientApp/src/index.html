@@ -27,6 +27,8 @@
     gtag('js', new Date());
 
     gtag('config', 'UA-96549107-2');
+    var user = localStorage.getItem("currentUser");
+    gtag('set', { 'user_id': user && JSON.parse(user).username || "anonynous" }); 
     gtag()
   </script>
 </body>

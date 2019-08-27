@@ -72,7 +72,7 @@ export const DRG: IJob = {
       name: "Spineshatter Dive",
       duration: 0,
       cooldown: 60,
-      xivDbId: "8802",
+      xivDbId: "95",
       requiresBossTarget: true,
       icon: ("32_Dragoon/8802_Spineshatter Dive"),
       abilityType: AbilityType.Damage,

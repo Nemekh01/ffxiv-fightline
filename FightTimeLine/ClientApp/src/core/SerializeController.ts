@@ -5,9 +5,9 @@ import * as DataHolders from "./DataHolders";
 
 export class SerializeController {
 
-  
-  
-  constructor(private holders: DataHolders.Holders, private gameName: string, private data: Models.IFightData, private filter: Models.IFilter, private view: Models.IView) {
+
+
+  constructor(private holders: DataHolders.Holders, private gameName: string, private fraction, private data: Models.IFightData, private filter: Models.IFilter, private view: Models.IView) {
 
   }
 
@@ -52,11 +52,14 @@ export class SerializeController {
         }
         return null;
       });
+
+    const fractionPart = this.fraction ? ":" + this.fraction.name : "";
+
     return <Models.IFight>{
       id: this.data.fight && this.data.fight.id || "",
       name: this.data.fight && this.data.fight.name || "",
       userName: this.data.fight && this.data.fight.userName || "",
-      game: this.gameName,
+      game: this.gameName+fractionPart,
       isPrivate: false,
       data: JSON.stringify(<IFightSerializeData>{
         boss: this.serializeBoss(),

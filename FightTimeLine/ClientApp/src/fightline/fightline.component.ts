@@ -8,7 +8,6 @@ import { FightTimeLineController } from "../core/FightTimeLineController"
 import * as M from "../core/Models";
 import * as FF from "../core/FFLogs";
 import { NgProgress } from "ngx-progressbar"
-import { ChangeNotes } from "../changeNotes"
 import { Utils } from "../core/Utils"
 
 import * as S from "../services/index"
@@ -208,6 +207,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
     private location: Location,
     private router: Router,
     private dialogService: S.DialogService,
+    private changeNotesService: S.ChangeNotesService,
     @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
     private settingsService: S.SettingsService,
     private storage: S.LocalStorageService,
@@ -456,7 +456,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.progressService.start();
       this.gameService.dataService.getEvents(code, enc, percentage => this.progressService.set(percentage))
         .then((ev) => {
-          this.fightService.newFight()
+          this.fightService.newFight("")
             .subscribe(value => {
               this.fightId = value.id;
               this.location.replaceState("/" + value.id);
@@ -488,7 +488,15 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   onNew() {
-    this.router.navigateByUrl("/new");
+    if (this.gameService.fractions) {
+      this.dialogService.showFractionSelection(this.gameService.fractions)
+        .subscribe(fraction => {
+          if (fraction)
+            this.router.navigateByUrl("/new/" + fraction.name);
+        });
+    } else {
+      this.router.navigateByUrl("/new");
+    }
   }
 
   private setInitialWindow(date: Date, mins: number): void {
@@ -581,6 +589,12 @@ export class FightLineComponent implements OnInit, OnDestroy {
       this.showWhatsNew().then(() => {
         const id = r["fightId"];
         if (id === "new") {
+          let fraction = null;
+          if (this.gameService.fractions) {
+            fraction = this.gameService.fractions.find(it => it.name === r["fraction"]);
+          }
+          this.fightLineController.fraction = fraction;
+          this.toolbar.fraction = fraction;
           const settings = this.settingsService.load();
           this.onBossDownTimeChanged(false);
 
@@ -590,7 +604,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
           if (settings && settings.main && settings.main.defaultFilter)
             this.fightLineController.applyFilter(settings.main.defaultFilter);
 
-          this.fightService.newFight()
+          this.fightService.newFight(this.fightLineController.fraction ? this.fightLineController.fraction.name : "")
             .subscribe(value => {
               this.fightId = value.id;
               this.location.replaceState("/" + value.id);
@@ -617,6 +631,11 @@ export class FightLineComponent implements OnInit, OnDestroy {
                     if (data.filter)
                       this.toolbar.filter.set(data.filter);
                   }
+
+                  const fraction = this.gameService.extractFraction(fight.game);
+
+                  this.fightLineController.fraction = fraction;
+                  this.toolbar.fraction = fraction;
                   this.fightLineController.loadFight(fight);
                   this.fightService.getCommands(this.fightId, new Date(fight.dateModified).valueOf())
                     .subscribe(value => {
@@ -667,20 +686,23 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   loadBoss(bossId: string) {
     this.dialogService.executeWithLoading(ref => {
-      this.fightService.getBoss(bossId).subscribe((data) => {
-        this.fightService.newFight()
+
+      const func = (fraction: M.IFraction, bossData: M.IBoss) => {
+        this.fightService.newFight(fraction ? fraction.name : "")
           .subscribe(value => {
             this.fightId = value.id;
             this.location.replaceState("/" + value.id);
             this.startSession().then(() => {
               const settings = this.settingsService.load();
 
-              this.toolbar.view.set(settings.main.defaultView);
+              this.toolbar.setSettings(settings);
+
+              this.fightLineController.fraction = fraction;
+              this.toolbar.fraction = fraction;
               this.fightLineController.applyView(settings.main.defaultView);
-              this.toolbar.filter.set(settings.main.defaultFilter);
               this.fightLineController.applyFilter(settings.main.defaultFilter);
 
-              this.fightLineController.loadBoss(data);
+              this.fightLineController.loadBoss(bossData);
               this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
               this.refresh();
               ref.close();
@@ -690,6 +712,22 @@ export class FightLineComponent implements OnInit, OnDestroy {
             this.notification.error("Unable to start");
             ref.close();
           });
+      };
+
+      this.fightService.getBoss(bossId).subscribe((data) => {
+        if (this.gameService.fractions) {
+          this.dialogService.showFractionSelection(this.gameService.fractions)
+            .subscribe(fraction => {
+              if (fraction)
+                func(fraction, data);
+              else {
+                this.router.navigateByUrl("/");
+                ref.close();
+              }
+            });
+        } else {
+          func(null, data);
+        }
       });
     });
   }
@@ -771,10 +809,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   @HostListener("window:beforeunload", ["$event"])
   beforeUnloadHandler(event: any) {
-//    if (this.hasChanges && Environment.environment.showDialogOnUnload) {
-//      event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
-//      return event.returnValue;
-//    }
+    //    if (this.hasChanges && Environment.environment.showDialogOnUnload) {
+    //      event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+    //      return event.returnValue;
+    //    }
     return null;
   }
 
@@ -814,22 +852,17 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
   showWhatsNew() {
     const promise = new Promise<void>((resolve) => {
-      const changes = ChangeNotes.changes;
-      const latestRev = changes[0];
-      const value = this.storage.getString("whatsnew_shown");
-      if (value) {
 
-        if (Number.parseInt(value) >= latestRev.revision) {
+      this.changeNotesService.load()
+        .then(value => {
+          this.dialogService.openWhatsNew(value)
+            .finally(() => {
+              resolve();
+            });
+        })
+        .finally(() => {
           resolve();
-          return;
-        }
-      }
-
-      const ref = this.dialogService.openWhatsNew(ChangeNotes.changes);
-      ref.then(() => {
-        this.storage.setString("whatsnew_shown", latestRev.revision.toString());
-        resolve();
-      });
+        });
     });
     return promise;
   }

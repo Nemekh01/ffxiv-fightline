@@ -1,11 +1,11 @@
-import { IJob, DamageType, Role, AbilityType } from "../../Models"
+import { IJob, DamageType, Role, AbilityType,IAbility } from "../../Models"
 import { settings, abilitySortFn, getAbilitiesFrom, tankSharedAbilities, medicine } from "./shared"
 
 export const DRK: IJob = {
   name: "DRK",
   role: Role.Tank,
   icon: ("JobIcons/Dark_Knight_Icon_10"),
-  abilities: [
+  abilities: <IAbility[]>[
     {
       name: "Blood Weapon",
       duration: 10,

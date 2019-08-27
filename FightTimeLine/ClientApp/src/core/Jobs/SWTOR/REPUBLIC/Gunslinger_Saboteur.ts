@@ -1,0 +1,12 @@
+import { IJob, DamageType, IAbility, IAbilitySetting, Role, AbilityType, IStance, byName, byBuffApply, byBuffRemove } from "../../../Models"
+import { settings, IAbilities, abilitySortFn, getAbilitiesFrom, tankSharedAbilities, medicine } from "../../FFXIV/shared"
+import * as Fractions from "../fractions";
+
+export const Gunslinger_Saboteur: IJob = {
+  name: "Saboteur",
+  role: Role.Range,
+  fraction: Fractions.SWTORFractions.Republic,
+  baseClass: "Gunslinger",
+  icon: ("REPUBLIC/Gunslinger/Saboteur/!!!SpecIcon.jpg"),
+  abilities: []
+};

@@ -35,13 +35,13 @@ namespace FightTimeLine.Controllers
                var name = CurrentUserName;
 
                return await _dataContext.Bosses
-                    .Where(s => (string.IsNullOrEmpty(value) || EF.Functions.Like(s.Name,value)) && s.Reference == reference && s.Game == game && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
+                    .Where(s => (string.IsNullOrEmpty(value) || EF.Functions.Like(s.Name, value)) && s.Reference == reference && s.Game == game && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
                     .Select(s => new BossSearchResult()
                     {
                          Id = s.Identifier.ToString("N"),
                          Name = s.Name,
                          Owner = s.UserName,
-                         CanRemove = !string.IsNullOrWhiteSpace(name) && string.Equals(name, s.UserName,StringComparison.OrdinalIgnoreCase),
+                         CanRemove = !string.IsNullOrWhiteSpace(name) && string.Equals(name, s.UserName, StringComparison.OrdinalIgnoreCase),
                          CreateDate = s.CreateDate.GetValueOrDefault(),
                          ModifiedDate = s.ModifiedDate.GetValueOrDefault()
                     }).ToArrayAsync();
@@ -134,7 +134,7 @@ namespace FightTimeLine.Controllers
                          return Guid.Empty;
                     return guid;
                }).ToArray();
-               
+
                var data = _dataContext.Bosses.Where(entity => guids.Contains(entity.Identifier) && entity.UserName == nameClaim);
 
                _dataContext.RemoveRange(data);
@@ -148,7 +148,7 @@ namespace FightTimeLine.Controllers
           {
                if (!Guid.TryParse(id, out var guid) && !Guid.TryParseExact(id, "N", out guid))
                     return BadRequest("Fight is not provided");
-               
+
                var data = await _dataContext.Fights.FirstOrDefaultAsync(entity => entity.Identifier == guid);
                if (data == null) return Json(null);
 
@@ -191,7 +191,7 @@ namespace FightTimeLine.Controllers
                     IsDraft = entityEntry.Entity.IsDraft.GetValueOrDefault(true),
                     UserName = entityEntry.Entity.UserName,
                     Data = entityEntry.Entity.Data,
-                    DateModified = entityEntry.Entity.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow)   ,
+                    DateModified = entityEntry.Entity.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow),
                     Game = entityEntry.Entity.Game
                });
           }
@@ -200,7 +200,7 @@ namespace FightTimeLine.Controllers
           [Authorize]
           public async Task<IActionResult> SaveFight([FromBody]FightData request)
           {
-              var nameClaim = CurrentUserName;
+               var nameClaim = CurrentUserName;
                if (nameClaim == null)
                     return Unauthorized();
 
@@ -244,7 +244,7 @@ namespace FightTimeLine.Controllers
                     IsDraft = fight.IsDraft.GetValueOrDefault(true),
                     DateModified = fight.ModifiedDate.GetValueOrDefault(DateTimeOffset.UtcNow),
                     Game = fight.Game
-                    
+
                });
           }
 
@@ -257,7 +257,7 @@ namespace FightTimeLine.Controllers
                     return Unauthorized();
 
                var data = await _dataContext.Fights
-                   .Where(s => s.UserName == nameClaim && s.Game == game)
+                   .Where(s => s.UserName == nameClaim && EF.Functions.Like(s.Game, game + ":%"))
                    .Select(entity => new FightSearchResult()
                    {
                         Id = entity.Identifier.ToString("N"),
@@ -351,6 +351,6 @@ namespace FightTimeLine.Controllers
           }
 
 
-      
+
      }
 }

@@ -23,7 +23,7 @@ export const SMN: IJob = {
       name: "Energy Drain",
       duration: 0,
       cooldown: 30,
-      xivDbId: "167",
+      xivDbId: "16508",
       icon: ("52_Summoner/0167_Energy Drain"),
       abilityType: AbilityType.Damage
     },
@@ -48,6 +48,7 @@ export const SMN: IJob = {
       icon: ("61_PetsEgi/0184_Enkindle"),
       requiresBossTarget: true,
       abilityType: AbilityType.Damage,
+      detectStrategy: byName(["120", "16803"], ["Enkindle","Enkindle: Inferno"])
     },
     {
       name: "Tri-disaster",

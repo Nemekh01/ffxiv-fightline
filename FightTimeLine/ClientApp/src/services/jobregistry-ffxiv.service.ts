@@ -40,6 +40,7 @@ export class FFXIVJobRegistryService implements Jobregistryserviceinterface.IJob
       cooldown: a.cooldown,
       duration: a.duration,
       icon: this.getIcon(a.icon),
+      activationOffset: a.activationOffset,
       pet: a.pet,
       requiresBossTarget: a.requiresBossTarget,
       extendDurationOnNextAbility: a.extendDurationOnNextAbility,

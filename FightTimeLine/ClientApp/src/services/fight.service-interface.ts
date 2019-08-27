@@ -10,7 +10,7 @@ export interface IFightService {
   getFight(id: string): Observable<IFight>;
   getFightsForUser(): Observable<IFight[]>;
   removeFights(map: any[]): Observable<any>;
-  newFight(): Observable<IFight>;
+  newFight(fraction: string): Observable<IFight>;
   addCommand(fight: string, data: any): Observable<any>;
   getCommands(fight: string, timestamp: number): Observable<ICommandEntry[]>;
 }

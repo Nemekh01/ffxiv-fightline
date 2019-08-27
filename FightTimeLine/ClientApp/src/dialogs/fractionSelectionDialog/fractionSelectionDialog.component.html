@@ -1,0 +1,21 @@
+<div style="height: 114px">
+  <nz-list [nzDataSource]="data" [nzRenderItem]="item" [nzGrid]="{gutter: 16, span : 12, justify:'space-around' }">
+    <ng-template #item let-item>
+      <nz-list-item [nzContent]="nzContent">
+        <ng-template #nzContent>
+          <button nz-button (click)="onClick(item)" style="height: 110px; width: 150px;">
+            <nz-card style="width: 120px" [nzCover]="coverTemplate" [nzHoverable]="true" nzSize="small" [nzBordered]="false">
+              <nz-card-meta style="text-align: center"
+                            [nzTitle]="item.name"></nz-card-meta>
+            </nz-card>
+          </button>
+          <ng-template #coverTemplate>
+            <div style="text-align: center">
+              <img style="width: 60px; height: 60px; margin: 2px" [alt]="item.name" [src]="item.icon" />
+            </div>
+          </ng-template>
+        </ng-template>
+      </nz-list-item>
+    </ng-template>
+  </nz-list>
+</div>

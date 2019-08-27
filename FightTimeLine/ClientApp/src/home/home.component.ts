@@ -1,9 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-
-import { DialogService } from "../services/index"
-import { ChangeNotes } from "../changeNotes"
-
 import * as S from "../services/index"
 import * as Gameserviceprovider from "../services/game.service-provider";
 import * as Gameserviceinterface from "../services/game.service-interface";
@@ -19,10 +15,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   private subs = [];
   public constructor(
     private notification: S.ScreenNotificationsService,
-    private dialogService: DialogService,
+    private dialogService: S.DialogService,
     @Inject(S.authenticationServiceToken) public authenticationService: S.IAuthenticationService,
     private router: Router,
     private recentService: S.RecentActivityService,
+    private changeNotesService: S.ChangeNotesService,
     private storage: S.LocalStorageService,
     private dispatcher: S.DispatcherService,
     @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService
@@ -49,26 +46,22 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   showWhatsNew() {
-    const promise = new Promise<void>((resolve, reject) => {
-      const changes = ChangeNotes.changes;
-      const latestRev = changes[0];
-      const value = this.storage.getString("whatsnew_shown");
-      if (value) {
+    const promise = new Promise<void>((resolve) => {
 
-        if (Number.parseInt(value) >= latestRev.revision) {
-          resolve();
-          return;
-        }
-      }
-
-      this.dialogService.openWhatsNew(changes, ChangeNotes.changes)
-        .then(() => {
-          this.storage.setString("whatsnew_shown", latestRev.revision.toString());
+      this.changeNotesService.load()
+        .then(value => {
+          this.dialogService.openWhatsNew(value)
+            .finally(() => {
+              resolve();
+            });
+        })
+        .finally(() => {
           resolve();
         });
     });
     return promise;
   }
+
 
   ngOnDestroy(): void {
     this.subs.forEach(e => e.unsubscribe());
@@ -90,11 +83,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   gotoDiscord() {
     window.open("https://discord.gg/xRppKj4", "_blank");
-  }
-
-
-  privacy() {
-    window.open("/privacy", "_blank");
   }
 
   showHelp(): Promise<void> {
@@ -138,7 +126,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   new() {
-    this.router.navigateByUrl("/new");
+    if (this.gameService.fractions) {
+      this.dialogService.showFractionSelection(this.gameService.fractions)
+        .subscribe(fraction => {
+          if (fraction)
+            this.router.navigateByUrl("/new/"+fraction.name);
+        });
+    } else {
+      this.router.navigateByUrl("/new");
+    }
   }
 
 }

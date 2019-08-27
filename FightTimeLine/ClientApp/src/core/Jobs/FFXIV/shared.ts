@@ -1,4 +1,4 @@
-import { IAbility, IAbilitySetting, AbilityType, byBuffApply } from "../../Models"
+import { IAbility, IAbilitySetting, AbilityType, byBuffApply, byBuffRemove } from "../../Models"
 
 export interface IAbilities {
   [name: string]: IAbility
@@ -75,10 +75,10 @@ export const healerSharedAbilities: IAbilities = {
 };
 
 export const medicine: IAbilities  = {
-  Mind: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22451", icon: ("Medicine/22451_Mind.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
-  Intelligence: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22450", icon: ("Medicine/22450_Intelligence.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
-  Dexterity: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22448", icon: ("Medicine/22448_Dexterity.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
-  Strength: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "22447", icon: ("Medicine/22447_Strength.jpg"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffApply(1000049, "Medicine") },
+  Mind: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "27999", icon: ("Medicine/22451_Mind"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffRemove(1000049, "Medicine", 30) },
+  Intelligence: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "27998", icon: ("Medicine/22450_Intelligence"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffRemove(1000049, "Medicine", 30) },
+  Dexterity: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "27996", icon: ("Medicine/22448_Dexterity"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffRemove(1000049, "Medicine", 30) },
+  Strength: { name: "Medicine", duration: 30, cooldown: 270, xivDbId: "27995", icon: ("Medicine/22447_Strength"), abilityType: AbilityType.SelfDamageBuff, xivDbType: "item", detectStrategy: byBuffRemove(1000049, "Medicine", 30) },
 
 };
 

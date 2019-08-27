@@ -6,7 +6,7 @@ import { IFightService } from "./fight.service-interface"
 
 @Injectable()
 export class FightsMockService implements IFightService {
-  newFight(): Observable<IFight> { return Observable.empty(); }
+  newFight(fraction: string = ""): Observable<IFight> { return Observable.empty(); }
 
   addCommand(fight: string, data): Observable<any> { return Observable.empty(); }
 

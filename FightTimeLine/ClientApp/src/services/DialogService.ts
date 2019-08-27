@@ -1,5 +1,5 @@
 import { Injectable, Inject } from "@angular/core"
-import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight, IAbility, IBoss } from "../core/Models";
+import { IBossAbility, IAbilitySetting, IAbilitySettingData, IFight, IAbility, IBoss, IFraction } from "../core/Models";
 import { LocalStorageService } from "./LocalStorageService";
 import { NzModalRef, NzModalService } from 'ng-zorro-antd';
 import { Observable } from "rxjs";
@@ -317,5 +317,22 @@ export class DialogService {
       }
     });
     return this.toPromise(ref.afterClose);
+  }
+
+  showFractionSelection(fractions: IFraction[]):Observable<IFraction> {
+    const ref = this.dialogs.create({
+      nzWrapClassName: "vertical-center-modal",
+      nzContent: D.FractionSelectionDialog,
+      nzTitle: "Select fraction",
+      nzWidth: "400px",
+      nzClosable: false,
+      nzKeyboard: false,
+      nzOkDisabled: true,
+      nzMaskClosable: false,
+      nzComponentParams: {
+        data: fractions
+      }
+    });
+    return ref.afterClose;
   }
 }

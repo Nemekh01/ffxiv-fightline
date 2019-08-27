@@ -2,13 +2,12 @@ import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostL
 import { ActivatedRoute, Router } from "@angular/router";
 import { IJob, IFilter, IView } from "../core/Models";
 import { DialogService } from "../services/index"
-import { ChangeNotes } from "../changeNotes"
 import { FilterComponent } from "../fightline/filter/filter.component"
 import { ViewComponent } from "../fightline/view/view.component"
 import { PingComponent } from "../fightline/ping/ping.component"
 import { ScreenNotificationsService } from "../services/ScreenNotificationsService"
 import { LocalStorageService } from "../services/LocalStorageService"
-import { IAuthenticationService, authenticationServiceToken } from "../services/index"
+import { IAuthenticationService, authenticationServiceToken, ChangeNotesService } from "../services/index"
 import * as M from "../core/Models"
 import * as Gameserviceprovider from "../services/game.service-provider";
 import * as Gameserviceinterface from "../services/game.service-interface";
@@ -41,6 +40,18 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   @Input("connectedUsers") connectedUsers: M.IHubUser[];
   @Input("connected") connected: boolean;
   @Input("availableTools") availableTools: string[];
+
+  private _fraction:M.IFraction;
+
+  @Input("fraction")
+  set fraction(value: M.IFraction) {
+    this._fraction = value;
+    this.setMenu();
+  }
+
+  get fraction(): M.IFraction {
+    return this._fraction;
+  }
 
   @Output("startNew") startNew: EventEmitter<void> = new EventEmitter<void>();
   @Output("bossTemplates") bossTemplates: EventEmitter<void> = new EventEmitter<void>();
@@ -82,10 +93,15 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     @Inject(authenticationServiceToken) private authenticationService: IAuthenticationService,
     @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService,
     private notification: ScreenNotificationsService,
+    private changeNotesService: ChangeNotesService,
     private router: Router,
     private storage: LocalStorageService
   ) {
-    const jobs = this.gameService.jobRegistry.getJobs();
+    this.setMenu();
+  }
+
+  private setMenu() {
+    const jobs = this.gameService.jobRegistry.getJobs().filter(it => !this.fraction || it.fraction.name === this.fraction.name);
     if (this.gameService.name === 'swtor') {
       const grouped = _.groupBy(jobs, (it: IJob) => it.baseClass);
       this.menu = grouped;
@@ -161,21 +177,16 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   showWhatsNew() {
-    const promise = new Promise<void>((resolve, reject) => {
-      const changes = ChangeNotes.changes;
-      const latestRev = changes[0];
-      const value = this.storage.getString("whatsnew_shown");
-      if (value) {
-        if (Number.parseInt(value) >= latestRev.revision) {
-          resolve();
-          return;
-        }
-      }
+    const promise = new Promise<void>((resolve) => {
 
-      this.dialogService
-        .openWhatsNew(changes, ChangeNotes.changes)
-        .then(() => {
-          this.storage.setString("whatsnew_shown", latestRev.revision.toString());
+      this.changeNotesService.load()
+        .then(value => {
+          this.dialogService.openWhatsNew(value)
+            .finally(() => {
+              resolve();
+            });
+        })
+        .finally(() => {
           resolve();
         });
     });
@@ -212,7 +223,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   showWhatsNewInt() {
-    this.dialogService.openWhatsNew(null, ChangeNotes.changes);
+    this.changeNotesService.load(true)
+      .then(value => {
+        this.dialogService.openWhatsNew(null, value);
+      });
   }
 
   gotoDiscord() {

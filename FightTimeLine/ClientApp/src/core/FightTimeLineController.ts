@@ -26,7 +26,7 @@ export class FightTimeLineController {
   private commandFactory = new CommandFactory(this.startDate);
   private copyContainer: any;
   hasChanges = false;
-
+  public fraction:M.IFraction;
   private filter: M.IFilter = M.defaultFilter;
   private view: M.IView = M.defaultView;
   private tools: M.ITools = { downtime: false, stickyAttacks: false };
@@ -50,8 +50,8 @@ export class FightTimeLineController {
       jobRegistry: this.gameService.jobRegistry,
       update: this.update.bind(this),
       ogcdAttacksAsPoints: (ability: M.IAbility) => (ability.duration === 0 && ability.cooldown === 1) ||
-      ((ability.abilityType & M.AbilityType.Damage) === M.AbilityType.Damage &&
-        (ability.duration === 0 ? this.view.ogcdAsPoints : false)),
+        ((ability.abilityType & M.AbilityType.Damage) === M.AbilityType.Damage &&
+          (ability.duration === 0 ? this.view.ogcdAsPoints : false)),
       verticalBossAttacks: () => this.view.verticalBossAttacks,
       isCompactView: () => this.view.compactView,
       highlightLoaded: () => this.view.highlightLoaded
@@ -369,35 +369,35 @@ export class FightTimeLineController {
     const type = this.idgen.getEntryType(item.id);
 
     switch (type) {
-    case M.EntryType.AbilityUsage:
-      const ability = this.holders.abilities.get(item.group).ability;
-      return (item.end as number) - (item.start as number) === ability.cooldown * 1000 &&
-        new Date(item.start) >=
-        new Date(this.startDate.valueOf() as number - ((ability.requiresBossTarget ? 0 : 1) * 30 * 1000)) &&
-        !ability.overlapStrategy.check({
-          ability: ability,
-          holders: this.holders,
-          id: item.id.toString(),
-          group: item.group,
-          start: new Date(item.start),
-          end: new Date(item.end),
-          selectionRegistry: this.holders.selectionRegistry
-        });
-    case M.EntryType.StanceUsage:
-      const sability = this.holders.abilities.get(item.group).ability;
-      return (item.end as number) - (item.start as number) > 0 &&
-        new Date(item.start) >= new Date(this.startDate.valueOf() as number - 30 * 1000) &&
-        !sability.overlapStrategy.check({
-          ability: sability,
-          holders: this.holders,
-          id: item.id.toString(),
-          group: item.group,
-          start: new Date(item.start),
-          end: new Date(item.end),
-          selectionRegistry: this.holders.selectionRegistry
-        });
-    case M.EntryType.BossAttack:
-      return new Date(item.start) >= this.startDate;
+      case M.EntryType.AbilityUsage:
+        const ability = this.holders.abilities.get(item.group).ability;
+        return (item.end as number) - (item.start as number) === ability.cooldown * 1000 &&
+          new Date(item.start) >=
+          new Date(this.startDate.valueOf() as number - ((ability.requiresBossTarget ? 0 : 1) * 30 * 1000)) &&
+          !ability.overlapStrategy.check({
+            ability: ability,
+            holders: this.holders,
+            id: item.id.toString(),
+            group: item.group,
+            start: new Date(item.start),
+            end: new Date(item.end),
+            selectionRegistry: this.holders.selectionRegistry
+          });
+      case M.EntryType.StanceUsage:
+        const sability = this.holders.abilities.get(item.group).ability;
+        return (item.end as number) - (item.start as number) > 0 &&
+          new Date(item.start) >= new Date(this.startDate.valueOf() as number - 30 * 1000) &&
+          !sability.overlapStrategy.check({
+            ability: sability,
+            holders: this.holders,
+            id: item.id.toString(),
+            group: item.group,
+            start: new Date(item.start),
+            end: new Date(item.end),
+            selectionRegistry: this.holders.selectionRegistry
+          });
+      case M.EntryType.BossAttack:
+        return new Date(item.start) >= this.startDate;
     }
     return false;
   }
@@ -412,7 +412,7 @@ export class FightTimeLineController {
     if (options.updateIntersectedWithBossAttackAtDate) {
       const intersected = this.holders.itemUsages.filter(
         (x) => options.updateIntersectedWithBossAttackAtDate >= x.start &&
-        options.updateIntersectedWithBossAttackAtDate <= x.end);
+          options.updateIntersectedWithBossAttackAtDate <= x.end);
       this.holders.itemUsages.update(intersected);
     }
 
@@ -423,9 +423,9 @@ export class FightTimeLineController {
     }
 
     if (options.updateBossTargets ||
-    (options.abilityChanged &&
-      options.abilityChanged.ability.settings &&
-      options.abilityChanged.ability.settings.some((s => s.name === "changesTarget") as any)))
+      (options.abilityChanged &&
+        options.abilityChanged.ability.settings &&
+        options.abilityChanged.ability.settings.some((s => s.name === "changesTarget") as any)))
       this.recalculateBossTargets();
 
     if (options.updateBossAttacks)
@@ -439,16 +439,18 @@ export class FightTimeLineController {
     this.holders.heatMaps.clear();
 
     if (active) {
-      this.holders.itemUsages.getAll().forEach((it) => {
+      const maps = this.holders.itemUsages.getAll().map((it) => {
         const amap = it.ability;
         if (amap && !amap.hidden && amap.isDamage) {
-          const start = it.start;
+          const start = new Date(it.startAsNumber + (amap.ability.activationOffset || 0) * 1000);
           const end = new Date((start.valueOf() as number) + this.calculateDuration(it.start, amap) * 1000);
           const id = this.idgen.getNextId(M.EntryType.BuffMap) + "_" + it.id;
-          const group = amap.isSelfDamage ? amap.job.id : null;
-          this.holders.heatMaps.add(new H.HeatmapMap(id, group, { start: start, end: end }));
+          const group = amap.isPartyDamage ? null : amap.job.id;
+          return new H.HeatmapMap(id, group, { start: start, end: end });
         }
-      });
+        return null;
+      }).filter(it => it != null);
+      this.holders.heatMaps.addRange(maps);
     }
   }
 
@@ -467,10 +469,10 @@ export class FightTimeLineController {
 
     if (ability.relatedAbilities && ability.relatedAbilities.affectedBy) {
       const foundItems = this.holders.itemUsages.filter((x) => {
-          const abilityMap = x.ability;
-          return (!ability.relatedAbilities.parentOnly || abilityMap.job.id === map.job.id) &&
-            ability.relatedAbilities.affectedBy.some(((value: string) => value === abilityMap.ability.name) as any);
-        }
+        const abilityMap = x.ability;
+        return (!ability.relatedAbilities.parentOnly || abilityMap.job.id === map.job.id) &&
+          ability.relatedAbilities.affectedBy.some(((value: string) => value === abilityMap.ability.name) as any);
+      }
       ).sort((a, b) => (a.startAsNumber) - (b.startAsNumber));
 
       if (foundItems.length > 0) {
@@ -538,7 +540,7 @@ export class FightTimeLineController {
               selected: it.name === jobMap.pet,
               action: () => this.setPet(jobMap, it.name)
             }),
-            handler: () => {}
+            handler: () => { }
           });
         }
 
@@ -560,12 +562,12 @@ export class FightTimeLineController {
                 }, ...hid
               ]
               : hid,
-            handler: () => {}
+            handler: () => { }
           });
         }
 
 
-        items.push({ text: "Filter", item: event.group, handler: () => {}, filter: jobMap.filter });
+        items.push({ text: "Filter", item: event.group, handler: () => { }, filter: jobMap.filter });
         items.push({
           text: "Fill",
           item: event.group,
@@ -625,7 +627,7 @@ export class FightTimeLineController {
                 text: item.ability.name,
                 item: it,
                 icon: item.ability.icon,
-                handler: () => {}
+                handler: () => { }
               };
             return null;
           }).filter((it) => !!it));
@@ -686,7 +688,7 @@ export class FightTimeLineController {
     return items;
   }
 
-  
+
 
   combineAndExecute(commands: Command[]): void {
     const combined = new C.CombinedCommand(commands);
@@ -817,14 +819,17 @@ export class FightTimeLineController {
     const map = this.holders.abilities.get(item.group);
     if (!map) return "";
     const ability = map.ability;
+
+    const offset = ability.activationOffset || 0;
     const duration = this.calculateDuration(new Date(item.start), map);
 
+    const offsetPercentage = (offset / ability.cooldown) * 100;
     const percentage = (duration / ability.cooldown) * 100;
-    return this.createItemUsageFrame(percentage);
+    return this.createItemUsageFrame(offsetPercentage, percentage);
   }
 
-  createItemUsageFrame(percentage: number): string {
-    return `<div class="progress-wrapper-fl"><div class="progress-fl" style = "width:${percentage}%"> </div></div >`;
+  createItemUsageFrame(offsetPercentage: number, percentage: number): string {
+    return `<div class="progress-wrapper-fl"><div class="progress-fl-offset" style = "width:${offsetPercentage}%"> </div><div class="progress-fl" style = "width:${percentage}%"> </div></div >`;
   }
 
 
@@ -1049,25 +1054,25 @@ export class FightTimeLineController {
     this.holders.bossAttacks.applyFilter(this.filter.attacks);
   }
 
-//  new() {
-//    this.holders.itemUsages.clear();
-//    this.holders.jobs.clear();
-//    this.holders.abilities.clear();
-//    this.holders.selectionRegistry.clear();
-//    this.holders.bossAttacks.clear();
-//    this.holders.bossTargets.clear();
-//    this.holders.bossDownTime.clear();
-//    this.holders.stances.clear();
-//    this.holders.heatMaps.clear();
-//
-//    this.data = {};
-//
-//    this.loading = false;
-//
-//    this.commandStorage.clear();
-//    this.commandBag.clear();
-//    this.hasChanges = false;
-//  }
+  //  new() {
+  //    this.holders.itemUsages.clear();
+  //    this.holders.jobs.clear();
+  //    this.holders.abilities.clear();
+  //    this.holders.selectionRegistry.clear();
+  //    this.holders.bossAttacks.clear();
+  //    this.holders.bossTargets.clear();
+  //    this.holders.bossDownTime.clear();
+  //    this.holders.stances.clear();
+  //    this.holders.heatMaps.clear();
+  //
+  //    this.data = {};
+  //
+  //    this.loading = false;
+  //
+  //    this.commandStorage.clear();
+  //    this.commandBag.clear();
+  //    this.hasChanges = false;
+  //  }
 
   importFromFFLogs(key: string, events: FF.Events): any {
 
@@ -1257,16 +1262,14 @@ export class FightTimeLineController {
             if (deps) {
               depUsages =
                 _.flatten(deps.map(
-                  ab => this.holders.itemUsages.getByAbility(this.holders.abilities.getByParentAndAbility(it.job.id, ab)
-                    .id)));
+                  ab => this.holders.itemUsages.getByAbility(this.holders.abilities.getByParentAndAbility(it.job.id, ab).id)));
             }
             const usages =
               [...(depUsages || []), ...this.holders.itemUsages.getByAbility(it.id)].sort(
                 (a, b) => (a.startAsNumber) - (b.startAsNumber));
             this.holders.abilityAvailability.removeForAbility(it.id);
             let prev: H.AbilityUsageMap = null;
-            for (let index = 0; index < usages.length; index++) {
-              const c = usages[index];
+            const maps = usages.map(c => {
               const start = prev
                 ? (prev.end)
                 : (it.ability.requiresBossTarget
@@ -1276,16 +1279,18 @@ export class FightTimeLineController {
               const av = diff > it.ability.cooldown;
               if (av) {
                 const id = this.idgen.getNextId(M.EntryType.AbilityAvailability);
-                this.holders.abilityAvailability.add(new H.AbilityAvailabilityMap(id,
+                return new H.AbilityAvailabilityMap(id,
                   it,
                   {
                     start: start,
                     end: new Date((c.startAsNumber) - it.ability.cooldown * 1000),
                     available: true
-                  }));
+                  });
               }
               prev = c;
-            }
+              return null;
+            }).filter(it => it != null);
+            this.holders.abilityAvailability.addRange(maps);
           }
         });
     }
@@ -1305,7 +1310,7 @@ export class FightTimeLineController {
   }
 
   createSerializer(): SerializeController.SerializeController {
-    const ctr = new SerializeController.SerializeController(this.holders, this.gameService.name, this.data, this.filter, this.view);
+    const ctr = new SerializeController.SerializeController(this.holders, this.gameService.name, this.fraction, this.data, this.filter, this.view);
     return ctr;
   }
 }
@@ -1315,7 +1320,7 @@ export interface IDialogs {
   openBossAttackAddDialog: (
     bossAbility: M.IBossAbility | {},
     callBack: (b: any) => void)
-  => void;
+    => void;
   openAbilityEditDialog: (
     data: {
       ability: M.IAbility,
@@ -1324,8 +1329,8 @@ export interface IDialogs {
       jobs: H.JobMap[],
     },
     callBack: (b: any) => void)
-  => void;
+    => void;
   openStanceSelector: (
     data: M.IContextMenuData[])
-  => void;
+    => void;
 }

@@ -74,6 +74,7 @@ export const BRD: IJob = {
         affectedBy: ["Mage's Ballad", "Army's Paeon"],
         parentOnly: true
       },
+      detectStrategy: byName(["3559"], ["The Wanderer's Minuet","the Wanderer's Minuet"])
     },
     {
       name: "Sidewinder",
@@ -110,10 +111,6 @@ export const BRD: IJob = {
       icon: ("41_Bard/icon_25 (1)"),
       abilityType: AbilityType.Damage
     },
-    
-    
-   
- 
     ...getAbilitiesFrom(rangeSharedAbilities),
     medicine["Dexterity"]
   ]

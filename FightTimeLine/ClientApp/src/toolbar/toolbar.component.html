@@ -4,11 +4,12 @@
   </span>
   <span *ngIf="showTitle" class="toolbar-title">Fight Time Line</span>
   <span *ngIf="showJobButton">
+    <img *ngIf="!!fraction" [src]="fraction.icon" nz-tooltip [nzTitle]="fraction.name" style="width: 31px; height: 31px; margin-right: 3px;"/>
     <nz-dropdown [nzTrigger]="'click'" *ngIf="gameService.name == 'ffxiv'">
       <button nz-dropdown nz-button nzType="primary">Add Job</button>
       <ul nz-menu>
         <li nz-menu-item *ngFor="let c of menu" (click)="onAddJob(c.name)">
-          <img [src]="c.icon" style="width: 30px; height: 30px; margin-right: 6px;" />
+          <img [src]="c.icon" style="width: 30px; height: 30px; margin-right: 6px;"/>
           <span style="font-weight: bold">{{c.name}}</span>
         </li>
       </ul>
@@ -21,14 +22,14 @@
           <span title style="font-size: large">{{cl.key}}</span>
           <ul>
             <li nz-menu-item *ngFor="let c of cl.value" (click)="onAddJob(c.name)">
-              <img [src]="c.icon" style="width: 52px; height: 52px; margin-right: 6px;" />
+              <img [src]="c.icon" style="width: 52px; height: 52px; margin-right: 6px;"/>
               <span style="font-weight: bold">
                 {{c.name}}
               </span>
             </li>
           </ul>
         </li>
-       
+
       </ul>
     </nz-dropdown>
   </span>

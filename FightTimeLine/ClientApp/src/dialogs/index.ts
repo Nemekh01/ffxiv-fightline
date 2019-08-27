@@ -14,6 +14,7 @@ import { SettingsDialog } from "./settingsDialog/settingsDialog.component"
 import { TableViewDialog } from "./tableViewDialog/tableViewDialog.component"
 import { WhatsNewDialog } from "./whatsNewDialog/whatsNewDialog.component"
 import { BossSaveDialog } from "./bossSaveDialog/bossSaveDialog.component"
+import { FractionSelectionDialog } from "./fractionSelectionDialog/fractionSelectionDialog.component"
 
 export {
   AbilityEditDialog,
@@ -31,26 +32,28 @@ export {
   SettingsDialog,
   TableViewDialog,
   WhatsNewDialog,
-  BossSaveDialog
+  BossSaveDialog,
+  FractionSelectionDialog
 }
 
 export const DialogsModuleComponents =
   [
-      BossAttackDialog,
-      HelpDialog,
-      FightLoadDialog,
-      BossSaveDialog,
-      FightSaveDialog,
-      SettingsDialog,
-      AbilityEditDialog,
-      FFLogsImportDialog,
-      LoadingDialog,
-      LoginDialog,
-      RegisterDialog,
-      SessionCreateResultDialog,
-      ExportToTableDialog,
-      TableViewDialog,
-      BossTemplatesDialog,
-      WhatsNewDialog,
-    ];  
+    BossAttackDialog,
+    HelpDialog,
+    FightLoadDialog,
+    BossSaveDialog,
+    FightSaveDialog,
+    SettingsDialog,
+    AbilityEditDialog,
+    FFLogsImportDialog,
+    LoadingDialog,
+    LoginDialog,
+    RegisterDialog,
+    SessionCreateResultDialog,
+    ExportToTableDialog,
+    TableViewDialog,
+    BossTemplatesDialog,
+    WhatsNewDialog,
+    FractionSelectionDialog
+  ];
 

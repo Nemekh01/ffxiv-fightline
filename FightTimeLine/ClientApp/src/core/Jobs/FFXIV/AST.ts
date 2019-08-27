@@ -56,7 +56,7 @@ export const AST: IJob = {
       name: "Celestial Opposition",
       duration: 0,
       cooldown: 60,
-      xivDbId: "3616",
+      xivDbId: "16553",
       icon: ("23_Astrologian/3616_Celestial Opposition"),
       abilityType: AbilityType.Healing,
     },

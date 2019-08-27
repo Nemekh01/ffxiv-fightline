@@ -294,6 +294,7 @@ export interface IAbility {
   settings?: IAbilitySetting[] | null;
   abilityType: AbilityType;
   pet?: string;
+  activationOffset?:number;
   detectStrategy?: IDetectionStrategy;
   overlapStrategy?: IOverlapStrategy;
   charges?: IAbilityCharges;

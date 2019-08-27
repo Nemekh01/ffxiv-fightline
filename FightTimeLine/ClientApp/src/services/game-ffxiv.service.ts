@@ -7,9 +7,13 @@ import * as FFLogsdataservice from "./FFLogs-data.service";
 import * as Client from "@angular/common/http";
 import * as SettingsService from "./SettingsService";
 import * as LocalStorageService from "./LocalStorageService";
+import { IFraction } from "../core/Models";
 
 @Injectable()
 export class FFXIVGameService implements Gameserviceinterface.IGameService {
+  extractFraction(game: string): IFraction {
+    return null;
+  }
 
   private readonly dataServiceValue: IDataService;
   private readonly jobRegistryValue: IJobRegistryService;
@@ -30,6 +34,10 @@ export class FFXIVGameService implements Gameserviceinterface.IGameService {
       this.settings,
       this.storage);
     
+  }
+
+  get fractions(): IFraction[] {
+    return null;
   }
 
   get showImport(): boolean {

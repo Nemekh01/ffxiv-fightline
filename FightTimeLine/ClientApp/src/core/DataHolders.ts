@@ -144,6 +144,10 @@ export class AbilityMap extends BaseMap<string, VisTimelineGroup, IAbilityMapDat
     return (this.ability.abilityType & M.AbilityType.SelfDamageBuff) === M.AbilityType.SelfDamageBuff;
   }
 
+  public get isPartyDamage(): boolean {
+    return (this.ability.abilityType & M.AbilityType.PartyDamageBuff) === M.AbilityType.PartyDamageBuff;
+  }
+
   createStances(id: string, hidden: boolean): VisTimelineGroup {
     const key: any = { sgDummy: true };
     key[`sg${id}`] = false;
@@ -1204,6 +1208,11 @@ export class BuffHeatmapHolder extends BaseHolder<string, VisTimelineItem, Heatm
     this.visItems.add(this.itemOf(i));
   }
 
+  addRange(i: HeatmapMap[]): void {
+    super.addRange(i);
+    this.visItems.add(this.itemsOf(i));
+  }
+
   clear(): void {
     this.visItems.removeItems(this.getIds());
     super.clear();
@@ -1257,6 +1266,11 @@ export class AbilityAvailablityHolder extends BaseHolder<string, VisTimelineItem
   add(i: AbilityAvailabilityMap): void {
     super.add(i);
     this.visItems.add(this.itemOf(i));
+  }
+
+  addRange(i: AbilityAvailabilityMap[]): void {
+    super.addRange(i);
+    this.visItems.add(this.itemsOf(i));
   }
 
   clear(): void {
