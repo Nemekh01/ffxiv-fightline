@@ -51,6 +51,14 @@ export const WHM: IJob = {
       settings: [settings.target],
     },
     {
+      name: "Afflatus Rapture",
+      duration: 0,
+      cooldown: 1,
+      xivDbId: "16534",
+      icon: ("21_WhiteMage/16534_Afflatus Rapture"),
+      abilityType: AbilityType.Healing,
+    },
+    {
       name: "Asylum",
       duration: 24,
       cooldown: 90,
