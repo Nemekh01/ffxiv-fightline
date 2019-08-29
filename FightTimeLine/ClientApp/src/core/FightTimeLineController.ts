@@ -825,11 +825,14 @@ export class FightTimeLineController {
 
     const offsetPercentage = (offset / ability.cooldown) * 100;
     const percentage = (duration / ability.cooldown) * 100;
-    return this.createItemUsageFrame(offsetPercentage, percentage);
+    const arr = Object.keys(M.AbilityType)
+      .filter(it => (ability.abilityType & M.AbilityType[it]) === M.AbilityType[it])
+      .map(it => it);
+    return this.createItemUsageFrame(offsetPercentage, percentage, this.view.colorfulDurations? arr.join(" "):"");
   }
 
-  createItemUsageFrame(offsetPercentage: number, percentage: number): string {
-    return `<div class="progress-wrapper-fl"><div class="progress-fl-offset" style = "width:${offsetPercentage}%"> </div><div class="progress-fl" style = "width:${percentage}%"> </div></div >`;
+  createItemUsageFrame(offsetPercentage: number, percentage: number, typeClass:string): string {
+    return `<div class="progress-wrapper-fl"><div class="progress-fl-offset" style = "width:${offsetPercentage}%"> </div><div class="progress-fl ${typeClass}" style = "width:${percentage}%"> </div></div >`;
   }
 
 

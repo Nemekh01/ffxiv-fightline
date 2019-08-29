@@ -17,6 +17,7 @@ export class SettingsViewComponent {
   compactView = false;
   highlightLoaded = false;
   abilityAvailablity = false;
+  colorfulDurations = false;
 
 
   public set(view: IView): void {
@@ -27,6 +28,7 @@ export class SettingsViewComponent {
     this.compactView = view.compactView;
     this.highlightLoaded = view.highlightLoaded;
     this.abilityAvailablity = view.showAbilityAvailablity;
+    this.colorfulDurations = view.colorfulDurations;
   }
 
 
@@ -39,6 +41,7 @@ export class SettingsViewComponent {
       compactView: this.compactView,
       highlightLoaded: this.highlightLoaded,
       showAbilityAvailablity: this.abilityAvailablity,
+      colorfulDurations: this.colorfulDurations
     };
   }
 }

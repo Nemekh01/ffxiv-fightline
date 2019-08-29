@@ -36,14 +36,17 @@ export interface IStance {
 
 export enum AbilityType {
   SelfDefense = 1,
+  PartyDefense = 256,
+  SelfShield = 1024,
+  PartyShield = 2048,
+  TargetDefense = 4096,
   SelfDamageBuff = 2,
+  PartyDamageBuff = 64,
   Healing = 4,
   Utility = 8,
   Damage = 16,
   HealingBuff = 32,
-  PartyDamageBuff = 64,
   Pet = 128,
-  PartyDefense = 256,
   Enmity = 512
 }
 
@@ -459,6 +462,7 @@ export interface IView {
   compactView: boolean;
   highlightLoaded: boolean;
   showAbilityAvailablity: boolean;
+  colorfulDurations: boolean;
 }
 
 export const defaultView: IView = {
@@ -468,7 +472,8 @@ export const defaultView: IView = {
   verticalBossAttacks: false,
   compactView: false,
   highlightLoaded: false,
-  showAbilityAvailablity: false
+  showAbilityAvailablity: false,
+  colorfulDurations: false
 };
 
 export interface ITools {

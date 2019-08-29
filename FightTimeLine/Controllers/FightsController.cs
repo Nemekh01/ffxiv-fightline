@@ -34,6 +34,8 @@ namespace FightTimeLine.Controllers
           {
                var name = CurrentUserName;
 
+               var user = await _dataContext.Users.SingleOrDefaultAsync(entity => entity.Name == name).ConfigureAwait(false);
+               var isAdmin = user?.IsAdmin ?? false;
                return await _dataContext.Bosses
                     .Where(s => (string.IsNullOrEmpty(value) || EF.Functions.Like(s.Name, value)) && s.Reference == reference && s.Game == game && (!s.IsPrivate && !privateOnly || s.IsPrivate && s.UserName == name))
                     .Select(s => new BossSearchResult()
@@ -41,10 +43,10 @@ namespace FightTimeLine.Controllers
                          Id = s.Identifier.ToString("N"),
                          Name = s.Name,
                          Owner = s.UserName,
-                         CanRemove = !string.IsNullOrWhiteSpace(name) && string.Equals(name, s.UserName, StringComparison.OrdinalIgnoreCase),
+                         CanRemove = !string.IsNullOrWhiteSpace(name) && (string.Equals(name, s.UserName, StringComparison.OrdinalIgnoreCase) || isAdmin),
                          CreateDate = s.CreateDate.GetValueOrDefault(),
                          ModifiedDate = s.ModifiedDate.GetValueOrDefault()
-                    }).ToArrayAsync();
+                    }).ToArrayAsync().ConfigureAwait(false);
           }
 
           [HttpGet("[action]/{id?}")]
@@ -53,7 +55,7 @@ namespace FightTimeLine.Controllers
                if (!Guid.TryParse(id, out var guid) && !Guid.TryParseExact(id, "N", out guid))
                     return BadRequest("Boss id is not provided");
 
-               var data = await _dataContext.Bosses.FirstOrDefaultAsync(entity => entity.Identifier == guid);
+               var data = await _dataContext.Bosses.FirstOrDefaultAsync(entity => entity.Identifier == guid).ConfigureAwait(false);
                if (data == null) return StatusCode(404);
 
                var name = CurrentUserName;
@@ -80,7 +82,7 @@ namespace FightTimeLine.Controllers
                     return Unauthorized();
 
                if (!Guid.TryParse(request.Id, out var guid)) guid = Guid.Empty;
-               var boss = await _dataContext.Bosses.FirstOrDefaultAsync(entity => entity.Identifier == guid);
+               var boss = await _dataContext.Bosses.FirstOrDefaultAsync(entity => entity.Identifier == guid).ConfigureAwait(false);
                if (boss != null)
                {
                     if (boss.UserName != nameClaim)
@@ -105,7 +107,7 @@ namespace FightTimeLine.Controllers
                }
                boss.ModifiedDate = DateTimeOffset.UtcNow;
 
-               await _dataContext.SaveChangesAsync();
+               await _dataContext.SaveChangesAsync().ConfigureAwait(false);
 
                return Json(new BossData()
                {
@@ -135,10 +137,14 @@ namespace FightTimeLine.Controllers
                     return guid;
                }).ToArray();
 
-               var data = _dataContext.Bosses.Where(entity => guids.Contains(entity.Identifier) && entity.UserName == nameClaim);
+               var user = await _dataContext.Users.SingleOrDefaultAsync(entity => entity.Name == nameClaim).ConfigureAwait(false);
+               if (user == null)
+                    return Unauthorized();
 
-               _dataContext.RemoveRange(data);
-               await _dataContext.SaveChangesAsync();
+               var data = await _dataContext.Bosses.Where(entity => guids.Contains(entity.Identifier) && (entity.UserName == nameClaim || user.IsAdmin)).ToArrayAsync().ConfigureAwait(false);
+
+               _dataContext.Bosses.RemoveRange(data);
+               await _dataContext.SaveChangesAsync().ConfigureAwait(false);
 
                return Ok();
           }
@@ -149,7 +155,7 @@ namespace FightTimeLine.Controllers
                if (!Guid.TryParse(id, out var guid) && !Guid.TryParseExact(id, "N", out guid))
                     return BadRequest("Fight is not provided");
 
-               var data = await _dataContext.Fights.FirstOrDefaultAsync(entity => entity.Identifier == guid);
+               var data = await _dataContext.Fights.FirstOrDefaultAsync(entity => entity.Identifier == guid).ConfigureAwait(false);
                if (data == null) return Json(null);
 
                return Json(new FightData
@@ -180,9 +186,9 @@ namespace FightTimeLine.Controllers
                     Identifier = Guid.NewGuid(),
                     Game = game,
                     UserName = nameClaim ?? "anonymous"
-               });
+               }).ConfigureAwait(false);
 
-               await _dataContext.SaveChangesAsync();
+               await _dataContext.SaveChangesAsync().ConfigureAwait(false);
 
                return Json(new FightData()
                {
@@ -206,7 +212,7 @@ namespace FightTimeLine.Controllers
 
 
                if (!Guid.TryParse(request.Id, out var guid)) guid = Guid.Empty;
-               var fight = await _dataContext.Fights.FirstOrDefaultAsync(entity => entity.Identifier == guid);
+               var fight = await _dataContext.Fights.FirstOrDefaultAsync(entity => entity.Identifier == guid).ConfigureAwait(false);
                if (fight != null)
                {
                     if (fight.UserName.Trim() != nameClaim && !string.Equals(fight.UserName, "anonymous", StringComparison.OrdinalIgnoreCase))
@@ -233,7 +239,7 @@ namespace FightTimeLine.Controllers
                     _dataContext.Fights.Add(fight);
                }
 
-               await _dataContext.SaveChangesAsync();
+               await _dataContext.SaveChangesAsync().ConfigureAwait(false);
 
                return Json(new FightData
                {
@@ -257,7 +263,7 @@ namespace FightTimeLine.Controllers
                     return Unauthorized();
 
                var data = await _dataContext.Fights
-                   .Where(s => s.UserName == nameClaim && EF.Functions.Like(s.Game, game + ":%"))
+                   .Where(s => s.UserName == nameClaim && (EF.Functions.Like(s.Game, game + ":%") || s.Game == game))
                    .Select(entity => new FightSearchResult()
                    {
                         Id = entity.Identifier.ToString("N"),
@@ -265,7 +271,9 @@ namespace FightTimeLine.Controllers
                         IsDraft = entity.IsDraft.GetValueOrDefault(false),
                         DateModified = entity.ModifiedDate,
                         DateCreated = entity.CreateDate,
-                   }).ToArrayAsync();
+                   })
+                   .ToArrayAsync()
+                   .ConfigureAwait(false);
                return Json(data);
           }
 
@@ -284,10 +292,14 @@ namespace FightTimeLine.Controllers
                     return guid;
                }).ToArray();
 
-               var data = _dataContext.Fights.Where(entity => guids.Contains(entity.Identifier) && entity.UserName == nameClaim);
+               var user = await _dataContext.Users.SingleOrDefaultAsync(entity => entity.Name == nameClaim).ConfigureAwait(false);
+               if (user == null)
+                    return Unauthorized();
 
-               _dataContext.RemoveRange(data);
-               await _dataContext.SaveChangesAsync();
+               var data = await _dataContext.Fights.Where(entity => guids.Contains(entity.Identifier) && (entity.UserName == nameClaim || user.IsAdmin)).ToArrayAsync().ConfigureAwait(false);
+
+               _dataContext.Fights.RemoveRange(data);
+               await _dataContext.SaveChangesAsync().ConfigureAwait(false);
 
                return Ok();
           }
@@ -312,8 +324,8 @@ namespace FightTimeLine.Controllers
                     Body = data.Data,
                     DateCreated = DateTimeOffset.UtcNow,
                     Fight = id
-               });
-               await _dataContext.SaveChangesAsync();
+               }).ConfigureAwait(false);
+               await _dataContext.SaveChangesAsync().ConfigureAwait(false);
                return Ok();
           }
 
@@ -337,7 +349,7 @@ namespace FightTimeLine.Controllers
                if (timeOffset.HasValue)
                     query = query.Where(entity => entity.DateCreated > timeOffset.Value.ToUniversalTime());
 
-               var arrayAsync = await query.OrderBy(entity => entity.DateCreated).ToArrayAsync();
+               var arrayAsync = await query.OrderBy(entity => entity.DateCreated).ToArrayAsync().ConfigureAwait(false);
 
                var commandDatas = arrayAsync.Select(entity => new CommandData()
                {

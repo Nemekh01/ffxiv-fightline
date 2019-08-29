@@ -111,7 +111,7 @@ export const DRK: IJob = {
       icon: ("13_DarkKnight/7393_The Blackest Night"),
       damageAffected: DamageType.All,
       goodForTankBusters: false,
-      abilityType: AbilityType.SelfDefense,
+      abilityType: AbilityType.SelfShield,
       settings: [settings.target],
     },
     {
@@ -121,7 +121,7 @@ export const DRK: IJob = {
       xivDbId: "7390",
       requiresBossTarget: true,
       icon: ("13_DarkKnight/7390_Delirium"),
-      abilityType: AbilityType.Utility,
+      abilityType: AbilityType.Utility || AbilityType.SelfDamageBuff,
     },
     {
       name: "Dark Missionary",

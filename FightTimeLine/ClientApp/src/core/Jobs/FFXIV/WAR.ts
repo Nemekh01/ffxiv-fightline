@@ -71,7 +71,7 @@ export const WAR: IJob = {
       cooldown: 90,
       xivDbId: "7388",
       icon: ("12_Warrior/7388_Shake It Off"),
-      abilityType: AbilityType.PartyDefense,
+      abilityType: AbilityType.PartyShield,
       relatedAbilities:
       {
         affects: ["Thrill of Battle", "Vengence", "Raw Intuition"],
@@ -103,7 +103,7 @@ export const WAR: IJob = {
       cooldown: 60,
       xivDbId: "3552",
       icon: ("12_Warrior/3552_Equilibrium"),
-      abilityType: AbilityType.Utility,
+      abilityType: AbilityType.Healing,
     },
     {
       name: "Nascent Flash",
@@ -111,7 +111,7 @@ export const WAR: IJob = {
       cooldown: 25,
       xivDbId: "16464",
       icon: ("12_Warrior/icon_24 (1)"),
-      abilityType: AbilityType.SelfDefense,
+      abilityType: AbilityType.TargetDefense,
       settings: [settings.target],
       overlapStrategy: new SharedOverlapStrategy(["Raw Intuition"])
     },

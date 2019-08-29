@@ -17,6 +17,7 @@ export class ViewComponent {
   compactView = false;
   highlightLoaded = false;
   abilityAvailablity = false;
+  colorfulDurations = false;
 
 
   @Output() public changed: EventEmitter<IView> = new EventEmitter();
@@ -29,6 +30,7 @@ export class ViewComponent {
     this.compactView = view.compactView;
     this.highlightLoaded = view.highlightLoaded;
     this.abilityAvailablity = view.showAbilityAvailablity;
+    this.colorfulDurations = view.colorfulDurations;
   }
 
 
@@ -46,6 +48,7 @@ export class ViewComponent {
         compactView: this.compactView,
         highlightLoaded: this.highlightLoaded,
         showAbilityAvailablity: this.abilityAvailablity,
+        colorfulDurations: this.colorfulDurations
       });
     });
 

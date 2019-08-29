@@ -28,6 +28,7 @@ body {
   margin: 0;
   font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
 }
+
 .ant-modal {
   max-width: 1500px;
 }
@@ -94,6 +95,39 @@ html, body, app, .container-fluid, .row, .body-content, .timeline, .ant-spin-con
   margin-bottom: 0px;
   /* margin-top: -16px; */
 }
+
+  .progress-fl.SelfDefense {
+    background-color: #4083f2;
+  }
+
+  .progress-fl.TargetDefense {
+    background-color: #4083f2;
+  }
+
+  .progress-fl.PartyDefense {
+    background-color: #0e4aad;
+  }
+
+  .progress-fl.SelfDamageBuff {
+    background-color: #e74b81;
+  }
+
+  .progress-fl.PartyDamageBuff {
+    background-color: #b90b47;
+  }
+
+  .progress-fl.SelfShield {
+    background-color: #ff9900;
+  }
+
+  .progress-fl.PartyShield {
+    background-color: #c6b011;
+  }
+
+  .progress-fl.Healing {
+    background-color: #4ac312;
+  }
+
 
 .progress-fl-offset {
   /* width: 60%; */
@@ -216,13 +250,13 @@ fightline .vis-label.vis-nesting-group {
   min-width: 168px !important;
 }
 
-  .vis-label.vis-nesting-group .abilityIcon {
-    margin-right: 2px;
-  }
+.vis-label.vis-nesting-group .abilityIcon {
+  margin-right: 2px;
+}
 
-  .vis-label.vis-nesting-group .jobName {
-    vertical-align: middle;
-  }
+.vis-label.vis-nesting-group .jobName {
+  vertical-align: middle;
+}
 
 
 fightline .vis-label.boss .vis-inner {
@@ -329,26 +363,32 @@ fightline .vis-labelset .vis-label .vis-inner.vis-hidden {
 }
 
 .downtime.green {
+  background-color: #008000;
   background-color: rgba(0, 128, 0,0.4);
 }
 
 .downtime.pink {
+  background-color: #ffc0cb;
   background-color: rgba(255, 192, 203,0.4);
 }
 
 .downtime.yellow {
+  background-color: #ffff00;
   background-color: rgba(255, 255, 0,0.4);
 }
 
 .downtime.orange {
+  background-color: #ffa500;
   background-color: rgba(255, 165, 0, 0.4);
 }
 
 .downtime.red {
+  background-color: #ff0000;
   background-color: rgba(255, 0, 0,0.4);
 }
 
 .downtime.aqua {
+  background-color: #00ffff;
   background-color: rgba(0, 255, 255,0.4);
 }
 
@@ -406,6 +446,6 @@ fightline .vis-labelset .vis-label .vis-inner.vis-hidden {
   justify-content: center;
 }
 
-.vertical-center-modal .ant-modal {
-  top: 0;
-}
+  .vertical-center-modal .ant-modal {
+    top: 0;
+  }

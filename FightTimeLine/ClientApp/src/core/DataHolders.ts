@@ -126,26 +126,36 @@ export class AbilityMap extends BaseMap<string, VisTimelineGroup, IAbilityMapDat
     return this.ability.settings && this.ability.settings.find(it => it.type === type);
   }
 
+  private hasValue(toCheck: M.AbilityType):boolean {
+    return (this.ability.abilityType & toCheck) === toCheck;
+  }
+
+  private hasAnyValue(...toCheck: M.AbilityType[]): boolean {
+    return toCheck.some(it=>this.hasValue(it));
+  }
+
   public get isDef(): boolean {
-    return (this.ability.abilityType & M.AbilityType.SelfDefense) === M.AbilityType.SelfDefense ||
-      (this.ability.abilityType & M.AbilityType.PartyDefense) === M.AbilityType.PartyDefense;
+    return this.isPartyDef || this.isSelfDef;
   }
 
   public get isSelfDef(): boolean {
-    return (this.ability.abilityType & M.AbilityType.SelfDefense) === M.AbilityType.SelfDefense;
+    return this.hasValue(M.AbilityType.SelfDefense) || this.hasValue(M.AbilityType.SelfShield) || this.hasValue(M.AbilityType.TargetDefense);
+  }
+
+  public get isPartyDef(): boolean {
+    return this.hasValue(M.AbilityType.PartyDefense) || this.hasValue(M.AbilityType.PartyShield);
   }
 
   public get isDamage(): boolean {
-    return (this.ability.abilityType & M.AbilityType.SelfDamageBuff) === M.AbilityType.SelfDamageBuff ||
-      (this.ability.abilityType & M.AbilityType.PartyDamageBuff) === M.AbilityType.PartyDamageBuff;
+    return this.isSelfDamage || this.isPartyDamage;
   }
 
   public get isSelfDamage(): boolean {
-    return (this.ability.abilityType & M.AbilityType.SelfDamageBuff) === M.AbilityType.SelfDamageBuff;
+    return this.hasValue(M.AbilityType.SelfDamageBuff);
   }
 
   public get isPartyDamage(): boolean {
-    return (this.ability.abilityType & M.AbilityType.PartyDamageBuff) === M.AbilityType.PartyDamageBuff;
+    return this.hasValue(M.AbilityType.PartyDamageBuff);
   }
 
   createStances(id: string, hidden: boolean): VisTimelineGroup {
@@ -387,7 +397,7 @@ export class AbilityUsageMap extends BaseMap<string, VisTimelineItem, IAbilityUs
       className: this.buildClass({ ability: true, compact: ability.isCompact, loaded: data.showLoaded && data.loaded }),
       content: "",
       subgroup: "sg" + ability.id,
-      type: data.ogcdAsPoints ? "point" : "range",
+      type: data.ogcdAsPoints || !!ability.ability.charges ? "point" : "range",
       title: `<img class='tooltipAbilityIcon' src='${ability.ability.icon}'/><span>${Utils.formatTime(start)} - ${Utils.formatTime(end)}</span>`,
     };
   }
@@ -845,9 +855,9 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
 
   private abilityFilter(value: AbilityMap, filter: M.IAbilityFilter, jobMap: JobMap, used: (a) => boolean): boolean {
     const jobFilter = jobMap.filter;
-    const filterUnit = (type: M.AbilityType, aType: M.AbilityType, globalFilter: boolean, jobFilter: boolean) => {
+    const filterUnit = (aType: M.AbilityType, globalFilter: boolean, jobFilter: boolean) => {
       let visible = false;
-      if ((type & aType) === aType) {
+      if ((value.ability.abilityType & aType) === aType) {
         visible = globalFilter;
         if (jobFilter !== undefined)
           visible = jobFilter;
@@ -861,16 +871,18 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
       if ((jobMap.pet || jobMap.job.defaultPet) && value.ability.pet && value.ability.pet !== (jobMap.pet || jobMap.job.defaultPet)) {
         visible = false;
       } else {
-        visible = filterUnit(value.ability.abilityType, M.AbilityType.SelfDefense, filter.selfDefence, jobFilter.selfDefence);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDefense, filter.partyDefence, jobFilter.partyDefence);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.SelfDamageBuff, filter.selfDamageBuff, jobFilter.selfDamageBuff);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.PartyDamageBuff, filter.partyDamageBuff, jobFilter.partyDamageBuff);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Damage, filter.damage, jobFilter.damage);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.HealingBuff, filter.healingBuff, jobFilter.healingBuff);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Healing, filter.healing, jobFilter.healing);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Pet, filter.pet, jobFilter.pet);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Utility, filter.utility, jobFilter.utility);
-        visible = visible || filterUnit(value.ability.abilityType, M.AbilityType.Enmity, filter.enmity, jobFilter.enmity);
+        visible = filterUnit(M.AbilityType.SelfDefense, filter.selfDefence, jobFilter.selfDefence)
+          || filterUnit(M.AbilityType.SelfShield, filter.selfDefence, jobFilter.selfDefence);
+        visible = visible || filterUnit(M.AbilityType.PartyDefense, filter.partyDefence, jobFilter.partyDefence)
+          || filterUnit(M.AbilityType.PartyShield, filter.partyDefence, jobFilter.partyDefence);
+        visible = visible || filterUnit(M.AbilityType.SelfDamageBuff, filter.selfDamageBuff, jobFilter.selfDamageBuff);
+        visible = visible || filterUnit(M.AbilityType.PartyDamageBuff, filter.partyDamageBuff, jobFilter.partyDamageBuff);
+        visible = visible || filterUnit(M.AbilityType.Damage, filter.damage, jobFilter.damage);
+        visible = visible || filterUnit(M.AbilityType.HealingBuff, filter.healingBuff, jobFilter.healingBuff);
+        visible = visible || filterUnit(M.AbilityType.Healing, filter.healing, jobFilter.healing);
+        visible = visible || filterUnit(M.AbilityType.Pet, filter.pet, jobFilter.pet);
+        visible = visible || filterUnit(M.AbilityType.Utility, filter.utility, jobFilter.utility);
+        visible = visible || filterUnit(M.AbilityType.Enmity, filter.enmity, jobFilter.enmity);
 
         if (!filter.unused ||
           (jobFilter.unused !== undefined && !jobFilter.unused)) {

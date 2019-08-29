@@ -29,7 +29,7 @@ export const BRD: IJob = {
       xivDbId: "114",
       requiresBossTarget: true,
       icon: ("41_Bard/0114_Mages Ballad"),
-      abilityType: AbilityType.PartyDamageBuff | AbilityType.Damage,
+      abilityType: AbilityType.Damage,
       relatedAbilities:
       {
         affects: ["Army's Paeon", "The Wanderer's Minuet"],
@@ -44,7 +44,7 @@ export const BRD: IJob = {
       xivDbId: "116",
       requiresBossTarget: true,
       icon: ("41_Bard/8844_Armys Paeon"),
-      abilityType: AbilityType.PartyDamageBuff | AbilityType.Damage,
+      abilityType: AbilityType.Damage,
       relatedAbilities:
       {
         affects: ["Mage's Ballad", "The Wanderer's Minuet"],
@@ -67,7 +67,7 @@ export const BRD: IJob = {
       cooldown: 80,
       xivDbId: "3559",
       icon: ("41_Bard/8843_The Wanderers Minuet"),
-      abilityType: AbilityType.PartyDamageBuff | AbilityType.Damage,
+      abilityType: AbilityType.Damage,
       relatedAbilities:
       {
         affects: ["Mage's Ballad", "Army's Paeon"],

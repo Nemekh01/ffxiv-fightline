@@ -20,7 +20,7 @@ export const BLM: IJob = {
       cooldown: 120,
       xivDbId: "157",
       icon: ("51_BlackMage/0157_Manaward"),
-      abilityType: AbilityType.SelfDefense,
+      abilityType: AbilityType.SelfShield,
     },
     
     {

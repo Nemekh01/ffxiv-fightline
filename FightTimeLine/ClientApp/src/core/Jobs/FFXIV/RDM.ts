@@ -39,7 +39,7 @@ export const RDM: IJob = {
       xivDbId: "7521",
       requiresBossTarget: true,
       icon: ("53_RedMage/7521_Manafication"),
-      abilityType: AbilityType.Damage | AbilityType.SelfDamageBuff,
+      abilityType: AbilityType.SelfDamageBuff,
     },
     ...getAbilitiesFrom(casterSharedAbilities),
     medicine["Intelligence"]

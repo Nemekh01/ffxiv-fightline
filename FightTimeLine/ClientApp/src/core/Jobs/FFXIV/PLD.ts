@@ -55,7 +55,7 @@ export const PLD: IJob = {
       cooldown: 420,
       xivDbId: "30",
       icon: ("11_Paladin/0030_Hallowed Ground"),
-      abilityType: AbilityType.SelfDefense,
+      abilityType: AbilityType.SelfShield,
     },
     {
       name: "Divine Veil",
@@ -63,7 +63,7 @@ export const PLD: IJob = {
       cooldown: 90,
       xivDbId: "3540",
       icon: ("11_Paladin/3540_Divine Veil"),
-      abilityType: AbilityType.PartyDefense,
+      abilityType: AbilityType.PartyShield,
     },
     {
       name: "Passage of Arms",
@@ -98,7 +98,7 @@ export const PLD: IJob = {
       xivDbId: "7382",
       requiresBossTarget: true,
       icon: ("11_Paladin/7382_Intervention"),
-      abilityType: AbilityType.PartyDefense,
+      abilityType: AbilityType.TargetDefense,
       settings: [settings.target],
     },
     {

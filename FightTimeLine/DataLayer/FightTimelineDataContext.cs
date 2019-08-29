@@ -47,6 +47,8 @@ namespace FightTimeLine.DataLayer
           public int Id { get; set; }
           public string Name { get; set; }
           public string Password { get; set; }
+          [DefaultValue(false)]
+          public bool IsAdmin { get; set; }
      }
 
      [Table("Commands")]
