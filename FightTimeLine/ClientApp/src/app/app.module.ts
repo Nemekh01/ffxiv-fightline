@@ -48,6 +48,7 @@ import { XivapiClientModule } from "@xivapi/angular-client";
 import { en_US, NgZorroAntdModule, NZ_I18N } from 'ng-zorro-antd';
 import { registerLocaleData } from '@angular/common';
 import { DisqusModule, DISQUS_SHORTNAME } from "ngx-disqus"
+import { ColorPickerModule } from 'ngx-color-picker';
 import en from '@angular/common/locales/en'
 
 registerLocaleData(en);
@@ -136,7 +137,8 @@ export function getBaseUrl() {
     ClipboardModule,
     SocialLoginModule,
     AngularSplitModule,
-    DisqusModule
+    DisqusModule,
+    ColorPickerModule
   ],
   providers: [
     ContextMenuService,

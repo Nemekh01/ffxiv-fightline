@@ -970,6 +970,11 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
     }));
 
+    this.subs.push(dispatcher.on("SettingsUpdate").subscribe(value => {
+      this.fightLineController.colorSettings = this.settingsService.load().colors;
+      this.refresh();
+    }));
+
     this.subs.push(dispatcher.on("BossTemplates Load").subscribe(value => {
       const source = this.fightLineController.data.importedFrom;
       if (source) {

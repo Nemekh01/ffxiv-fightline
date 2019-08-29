@@ -8,6 +8,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NzModalRef } from "ng-zorro-antd";
 import * as Gameserviceinterface from "../../services/game.service-interface";
 import * as Gameserviceprovider from "../../services/game.service-provider";
+import * as Dispatcherservice from "../../services/dispatcher.service";
 
 
 @Component({
@@ -22,6 +23,20 @@ export class SettingsDialog {
   fflogsForm: FormGroup;
   teamworkForm: FormGroup;
   tableViewForm: FormGroup;
+  colorsForm: FormGroup;
+
+  colorDisplayNames: { [t: string]: string } = {
+    SelfShield: "Self Shield",
+    Healing: "Healing",
+    HealingBuff: "Healing Buff",
+    PartyDamageBuff: "Party Damage Buff",
+    PartyDefense: "Party Defense",
+    PartyShield: "Party Shield",
+    SelfDamageBuff: "Self Damage Buff",
+    SelfDefense: "Self Defense",
+    TargetDefense: "Target Defense",
+    Utility: "Utility"
+  }
 
   container: any = {
     classes: [
@@ -38,10 +53,13 @@ export class SettingsDialog {
 
   @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
 
+  colors: any[];
+
   constructor(
     private dialogRef: NzModalRef,
     private formBuilder: FormBuilder,
     private settingsService: SettingsService,
+    private dispatcher: Dispatcherservice.DispatcherService,
     @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService,
     private notifications: ScreenNotificationsService) {
 
@@ -57,7 +75,12 @@ export class SettingsDialog {
     this.container.classes = this.container.classes.sort((a, b) => sortOrder.indexOf(a.name) - sortOrder.indexOf(b.name));
     this.filter.set(settings.main.defaultFilter);
     this.view.set(settings.main.defaultView);
-
+    this.colors = Object.keys(settings.colors).map(it => {
+      return {
+        name: it,
+        color: settings.colors[it]
+      }
+    }); 
 
     this.mainForm = this.formBuilder.group({}, {});
     this.fflogsForm = this.formBuilder.group({
@@ -67,6 +90,7 @@ export class SettingsDialog {
       displayName: new FormControl(settings.teamwork.displayName || "")
     }, {});
     this.tableViewForm = this.formBuilder.group({}, {});
+    this.colorsForm = this.formBuilder.group({}, {});
   }
 
   get mf() { return this.mainForm.controls; }
@@ -84,6 +108,10 @@ export class SettingsDialog {
     this.updateResult(settings);
     this.settingsService.save(settings);
     this.dialogRef.destroy();
+    this.dispatcher.dispatch({
+      name: "SettingsUpdate",
+      payload: null
+    });
 
   }
 
@@ -95,6 +123,11 @@ export class SettingsDialog {
     settings.main.defaultFilter = this.filter.get();
 
     settings.teamwork.displayName = this.tf.displayName.value;
+    settings.colors = this.colors.reduce((p, c) => {
+        p[c.name] = c.color;
+        return p;
+      },
+      {});
   }
 
   onNoClick(): void {

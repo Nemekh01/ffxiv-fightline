@@ -48,6 +48,18 @@ export class SettingsService {
     tableview: {},
     teamwork: {
       displayName: null
+    },
+    colors: {
+      SelfShield: "#ff9900",
+      Healing: "#4ac312",
+      HealingBuff: "#4ac312",
+      PartyDamageBuff: "#b90b47",
+      PartyDefense: "#0e4aad",
+      PartyShield: "#c6b011",
+      SelfDamageBuff: "#e74b81",
+      SelfDefense: "#4083f2",
+      TargetDefense: "#4083f2",
+      Utility:""
     }
   };
   private storageKey = "settings";
@@ -69,6 +81,7 @@ export interface ISettings {
   main?: IMainSettings;
   teamwork?: ITeamworkSettings;
   tableview?: ITableViewSettings;
+  colors?: IColorsSettings;
 }
 
 export enum FFLogsImportBossAttacksSource {
@@ -83,6 +96,19 @@ export interface IMainSettings {
 
 export interface ITableViewSettings {
 
+}
+
+export interface IColorsSettings {
+  SelfDefense : string;
+  PartyDefense : string;
+  SelfShield : string;
+  PartyShield : string;
+  TargetDefense : string;
+  SelfDamageBuff : string;
+  PartyDamageBuff : string;
+  Healing: string;
+  Utility: string;
+  HealingBuff: string;
 }
 
 export interface ITeamworkSettings {

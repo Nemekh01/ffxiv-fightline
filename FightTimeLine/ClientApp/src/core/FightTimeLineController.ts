@@ -9,7 +9,7 @@ import { CommandBag } from "./CommandBag"
 import { Utils } from "./Utils"
 import { CommandFactory } from "./CommandFactory"
 import * as FF from "./FFLogs"
-import { SettingsService } from "../services/SettingsService"
+import { SettingsService, IColorsSettings } from "../services/SettingsService"
 import * as _ from "lodash";
 import * as Shared from "./Jobs/FFXIV/shared";
 import * as Gameserviceinterface from "../services/game.service-interface";
@@ -30,6 +30,7 @@ export class FightTimeLineController {
   private filter: M.IFilter = M.defaultFilter;
   private view: M.IView = M.defaultView;
   private tools: M.ITools = { downtime: false, stickyAttacks: false };
+  public colorSettings:IColorsSettings;
 
   downtimeChanged = new EventEmitter<void>();
   commandExecuted = new EventEmitter<ICommandData>();
@@ -65,6 +66,8 @@ export class FightTimeLineController {
       this.commandExecuted.emit(data);
     });
     this.commandBag = new CommandBag(this.commandStorage);
+
+    this.colorSettings = this.settingsService.load().colors;
 
     bossTimeLine.groups.add({ id: "boss", content: "BOSS", className: "boss" });
     mainTimeLine.groups.add({ id: 0, content: "", className: "" });
@@ -828,11 +831,12 @@ export class FightTimeLineController {
     const arr = Object.keys(M.AbilityType)
       .filter(it => (ability.abilityType & M.AbilityType[it]) === M.AbilityType[it])
       .map(it => it);
-    return this.createItemUsageFrame(offsetPercentage, percentage, this.view.colorfulDurations? arr.join(" "):"");
+    const color = this.colorSettings[arr[0]];
+    return this.createItemUsageFrame(offsetPercentage, percentage, this.view.colorfulDurations && color? color :"");
   }
 
-  createItemUsageFrame(offsetPercentage: number, percentage: number, typeClass:string): string {
-    return `<div class="progress-wrapper-fl"><div class="progress-fl-offset" style = "width:${offsetPercentage}%"> </div><div class="progress-fl ${typeClass}" style = "width:${percentage}%"> </div></div >`;
+  createItemUsageFrame(offsetPercentage: number, percentage: number, color:string): string {
+    return `<div class="progress-wrapper-fl"><div class="progress-fl-offset" style = "width:${offsetPercentage}%"> </div><div class="progress-fl" style="width:${percentage}%;background-color:${color}"> </div></div >`;
   }
 
 
