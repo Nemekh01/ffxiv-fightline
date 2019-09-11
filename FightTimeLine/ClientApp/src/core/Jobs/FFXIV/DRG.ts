@@ -24,7 +24,6 @@ export const DRG: IJob = {
     },
     {
       name: "Dragon Sight",
-      detectByBuff: "1001454",
       duration: 20,
       cooldown: 120,
       xivDbId: "10032",

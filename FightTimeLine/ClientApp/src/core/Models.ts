@@ -123,7 +123,7 @@ export const byBuffRemove = (id: number, abilityName?: string, offsetCorrect?: n
 }
 
 const isAbility = (ev: FF.Event): ev is FF.AbilityEvent => {
-  return (ev.type === "cast" || ev.type === "damage");
+  return (ev.type === "cast");
 }
 
 const isBuffApply = (ev: FF.Event): ev is FF.BuffEvent => {
@@ -269,8 +269,8 @@ class ByBuffRemoveDetector implements IDetectionStrategy {
 
   process(ev: FF.Event): { offset: number; name: string } {
     if (isBuffRemove(ev)) {
-      if (ev.ability.guid === this.id) {
-        return { offset: ev.timestamp - (this.offsetCorrection || 0), name: this.abilityName || ev.ability.name }
+      if (ev.ability.guid === this.id && ev.sourceID === ev.targetID) {
+        return { offset: ev.timestamp - (this.offsetCorrection || 0) * 1000, name: this.abilityName || ev.ability.name }
       }
     }
     return null;
@@ -329,17 +329,17 @@ export interface IRelatedAbilitiesOptions {
 }
 
 export enum EntryType {
-  Unknown,
-  BossAttack,
-  AbilityUsage,
-  BossTarget,
-  BossDownTime,
-  BuffMap,
-  CompactViewAbilityUsage,
-  Job,
-  Ability,
-  StanceUsage,
-  AbilityAvailability
+  Unknown = 'unknown',
+  BossAttack ='b',
+  AbilityUsage = 'u',
+  BossTarget = 't',
+  BossDownTime = 'd',
+  BuffMap = 'hm',
+  CompactViewAbilityUsage = 'c',
+  Job = 'j',
+  Ability = 'a',
+  StanceUsage = 's',
+  AbilityAvailability = 'v'
 }
 
 export interface IFightData {

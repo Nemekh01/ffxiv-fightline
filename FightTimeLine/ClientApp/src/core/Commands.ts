@@ -1,5 +1,5 @@
 import { Command, ICommandExecutionContext, ICommandData } from "./UndoRedo"
-import { IAbility, IBossAbility, IJob, IFilter, IAbilitySettingData, IAbilityFilter, Role } from "./Models"
+import { IAbility, IBossAbility, IJob, IFilter, IAbilitySettingData, IAbilityFilter, Role, EntryType } from "./Models"
 import * as H from "./DataHolders"
 import { Utils } from "./Utils"
 import { Guid } from "guid-typescript"
@@ -70,6 +70,9 @@ export class AddJobCommand implements Command {
   }
 
   execute(context: ICommandExecutionContext): void {
+    if (!this.id) {
+      this.id = context.idGen.getNextId(EntryType.Job);
+    }
     const job = context.jobRegistry.getJobs().find(it => it.name === this.jobName);
     const abilityIds = new Array<string>();
     let index = 0;
@@ -513,7 +516,9 @@ export class AddAbilityCommand implements Command {
   }
 
   execute(context: ICommandExecutionContext): void {
-
+    if (!this.id) {
+      this.id = context.idGen.getNextId(EntryType.AbilityUsage);
+    }
     let jobMap: H.JobMap;
     if (this.jobActor)
       jobMap = context.holders.jobs.getByActor(this.jobActor);

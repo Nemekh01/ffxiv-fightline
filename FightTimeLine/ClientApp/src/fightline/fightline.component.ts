@@ -24,6 +24,7 @@ import { ICommandData } from "../core/UndoRedo"
 import * as Gameserviceprovider from "../services/game.service-provider";
 import * as Gameserviceinterface from "../services/game.service-interface";
 import * as SerializeController from "../core/SerializeController";
+import * as Environment from "../environments/environment";
 
 @Component({
   selector: "fightline",
@@ -455,23 +456,23 @@ export class FightLineComponent implements OnInit, OnDestroy {
     this.dialogService.executeWithLoading(ref => {
       this.progressService.start();
       this.gameService.dataService.getEvents(code, enc, percentage => this.progressService.set(percentage))
-        .then((ev) => {
+        .then((parser) => {
           this.fightService.newFight("")
             .subscribe(value => {
               this.fightId = value.id;
               this.location.replaceState("/" + value.id);
               this.startSession().then(() => {
-                this.recent.register("FFLogs " + ev.name, "/fflogs/" + code + "/" + enc);
+                this.recent.register("FFLogs " + parser.fight.name, "/fflogs/" + code + "/" + enc);
                 const settings = this.settingsService.load();
 
                 this.toolbar.setSettings(settings);
                 this.fightLineController.applyView(settings.main.defaultView);
                 this.fightLineController.applyFilter(settings.main.defaultFilter);
 
-                this.fightLineController.importFromFFLogs(code + ":" + enc, ev);
+                this.fightLineController.importFromFFLogs(code + ":" + enc, parser);
               });
             }, error => {
-              console.log((error));
+              console.log(error);
               this.notification.error("Unable to start");
             });
         })
@@ -643,9 +644,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
                         this.handleRemoteCommand(JSON.parse(cmd.data), "");
                       }
                       this.setInitialWindow(this.fightLineController.getLatestBossAttackTime(), 2);
-                      this.connectToSession();
-                      this.refresh();
-                      ref.close();
+                      this.connectToSession().then(() => {
+                        this.refresh();
+                        ref.close();
+                      })
                     }, error => {
                       console.log(error);
                       this.notification.error("Unable to load data");
@@ -739,6 +741,10 @@ export class FightLineComponent implements OnInit, OnDestroy {
   }
 
   startSession(): Promise<void> {
+    if (!Environment.environment.production) {
+      return Promise.resolve();
+    }
+
     const promise = new Promise<void>((resolve, reject) => {
       const handlers: S.IStartSessionHandlers = {
         onCommand: ((data: M.IHubCommand) => this.handleRemoteCommand(JSON.parse(data.body), data.userId)).bind(this),
@@ -791,7 +797,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
 
     const settings = this.settingsService.load();
     const name = settings.teamwork.displayName || this.authenticationService.username || "Anonymous";
-    this.fightHubService.connect(this.fightId, name, handlers)
+    return this.fightHubService.connect(this.fightId, name, handlers)
       .then(() => {
         this.notification.showConnectedToSession();
       })
@@ -990,7 +996,7 @@ export class FightLineComponent implements OnInit, OnDestroy {
           });
 
           const bossData = JSON.parse(value.boss.data) as SerializeController.IBossSerializeData;
-          const result = process(attacks, data.start_time, bossData.attacks.map(it => it.ability));
+          const result = process(attacks, data.fight.start_time, bossData.attacks.map(it => it.ability));
           bossData.attacks = result.map(it => <SerializeController.IBossAbilityUsageData>{
             ability: it,
             id: this.idgen.getNextId(M.EntryType.BossAttack)

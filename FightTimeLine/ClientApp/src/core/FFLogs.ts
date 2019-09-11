@@ -214,14 +214,15 @@ export interface ReportFightsResponse {
 }
 
 export interface IJobInfo {
-  id: number[];
-  guid: number[];
+  id: number;
+  petids: number[];
+  guid: number;
+  petguids: number[];
   job: string;
   actorName: string;
   role?: number;
   rid?: string;
 }
-
 
 export interface ReportEventsResponse {
   events: Event[];

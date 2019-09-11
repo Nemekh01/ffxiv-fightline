@@ -15,6 +15,7 @@ import * as Shared from "./Jobs/FFXIV/shared";
 import * as Gameserviceinterface from "../services/game.service-interface";
 import * as ImportController from "./ImportController";
 import * as SerializeController from "./SerializeController";
+import * as Parser from "./Parser";
 
 export class FightTimeLineController {
   data: M.IFightData = {};
@@ -182,8 +183,7 @@ export class FightTimeLineController {
 
   addBossAttack(id: string, time: Date, bossAbility: M.IBossAbility): void {
     bossAbility.offset = Utils.formatTime(time);
-    this.commandStorage.execute(new C.AddBossAttackCommand(id || this.idgen.getNextId(M.EntryType.BossAttack),
-      bossAbility));
+    this.commandStorage.execute(new C.AddBossAttackCommand(id || this.idgen.getNextId(M.EntryType.BossAttack), bossAbility));
   }
 
   getLatestBossAttackTime(): Date | null {
@@ -244,7 +244,7 @@ export class FightTimeLineController {
         this.dialogCallBacks.openBossAttackAddDialog({ offset: Utils.formatTime(time) },
           (result: { updateAllWithSameName: boolean, data: M.IBossAbility }) => {
             if (result != null) {
-              this.addBossAttack(null, Utils.getDateFromOffset(result.data.offset, this.startDate), result.data);
+              this.addBossAttack(this.idgen.getNextId(M.EntryType.BossAttack), Utils.getDateFromOffset(result.data.offset, this.startDate), result.data);
             }
           });
       }
@@ -1081,7 +1081,7 @@ export class FightTimeLineController {
   //    this.hasChanges = false;
   //  }
 
-  importFromFFLogs(key: string, events: FF.Events): any {
+  importFromFFLogs(key: string, parser: Parser.Parser): any {
 
     try {
       this.data.importedFrom = key;
@@ -1090,7 +1090,7 @@ export class FightTimeLineController {
 
       const importController =
         new ImportController.ImportController(this.idgen, this.holders, this.gameService.jobRegistry);
-      const importCommand = importController.buildImportCommand(settings, events, this.startDate);
+      const importCommand = importController.buildImportCommand(settings, parser, this.startDate);
 
       this.commandStorage.execute(importCommand);
 

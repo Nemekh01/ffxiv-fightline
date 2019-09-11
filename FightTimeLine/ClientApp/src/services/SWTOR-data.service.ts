@@ -1,13 +1,10 @@
 import { Injectable } from "@angular/core"
 import { HttpClient } from "@angular/common/http"
-import { Observable, BehaviorSubject } from "rxjs"
+import { Observable } from "rxjs"
 import "rxjs/add/observable/from";
 import "rxjs/add/observable/of";
-import {
-  Events,
-  Zone,
-  ReportFightsResponse,
-} from "../core/FFLogs"
+import { Zone, ReportFightsResponse, } from "../core/FFLogs"
+import * as Parser from "../core/Parser";
 
 
 @Injectable()
@@ -20,7 +17,7 @@ export class SWTORDataService {
     return Promise.resolve(null);
   }
 
-  async getEvents(code: string, instance: number, callBack: (percentage: number) => void): Promise<Events> {
+  async getEvents(code: string, instance: number, callBack: (percentage: number) => void): Promise<Parser.Parser> {
     return Promise.resolve(null);
   }
 

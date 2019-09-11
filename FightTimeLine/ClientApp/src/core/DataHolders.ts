@@ -855,9 +855,10 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
 
   private abilityFilter(value: AbilityMap, filter: M.IAbilityFilter, jobMap: JobMap, used: (a) => boolean): boolean {
     const jobFilter = jobMap.filter;
-    const filterUnit = (aType: M.AbilityType, globalFilter: boolean, jobFilter: boolean) => {
+    const filterUnit = (aType: M.AbilityType | M.AbilityType[], globalFilter: boolean, jobFilter: boolean) => {
       let visible = false;
-      if ((value.ability.abilityType & aType) === aType) {
+      const valueArray: M.AbilityType[] = Array.isArray(aType) ? aType : [aType];
+      if (valueArray.some(it => (value.ability.abilityType & it) === it)) {
         visible = globalFilter;
         if (jobFilter !== undefined)
           visible = jobFilter;
@@ -871,10 +872,8 @@ export class AbilitiesMapHolder extends BaseHolder<string, VisTimelineGroup, Abi
       if ((jobMap.pet || jobMap.job.defaultPet) && value.ability.pet && value.ability.pet !== (jobMap.pet || jobMap.job.defaultPet)) {
         visible = false;
       } else {
-        visible = filterUnit(M.AbilityType.SelfDefense, filter.selfDefence, jobFilter.selfDefence)
-          || filterUnit(M.AbilityType.SelfShield, filter.selfDefence, jobFilter.selfDefence);
-        visible = visible || filterUnit(M.AbilityType.PartyDefense, filter.partyDefence, jobFilter.partyDefence)
-          || filterUnit(M.AbilityType.PartyShield, filter.partyDefence, jobFilter.partyDefence);
+        visible = filterUnit([M.AbilityType.SelfDefense, M.AbilityType.SelfShield], filter.selfDefence, jobFilter.selfDefence);
+        visible = visible || filterUnit([M.AbilityType.PartyDefense, M.AbilityType.PartyShield, M.AbilityType.TargetDefense], filter.partyDefence, jobFilter.partyDefence);
         visible = visible || filterUnit(M.AbilityType.SelfDamageBuff, filter.selfDamageBuff, jobFilter.selfDamageBuff);
         visible = visible || filterUnit(M.AbilityType.PartyDamageBuff, filter.partyDamageBuff, jobFilter.partyDamageBuff);
         visible = visible || filterUnit(M.AbilityType.Damage, filter.damage, jobFilter.damage);

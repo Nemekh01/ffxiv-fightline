@@ -88,7 +88,7 @@ export const NIN: IJob = {
       xivDbId: "16493",
       requiresBossTarget: true,
       icon: ("33_Ninja/icon_25"),
-      abilityType: AbilityType.Damage,
+      abilityType: AbilityType.SelfDamageBuff,
     },
     ...getAbilitiesFrom(meleeSharedAbilities),
     medicine["Dexterity"]

@@ -80,7 +80,7 @@ export const WHM: IJob = {
       cooldown: 120,
       xivDbId: "16536",
       icon: ("21_WhiteMage/icon_29"),
-      abilityType: AbilityType.HealingBuff | AbilityType.TargetDefense,
+      abilityType: AbilityType.HealingBuff | AbilityType.PartyDefense,
     },
     {
       name: "Thin Air",
