@@ -19,4 +19,12 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: archive      
       run: |
-        zip -r archive.zip ./FightTimeLine/ClientApp
+        zip -r ./art/archive.zip ./FightTimeLine/ClientApp
+    -name: send to ftp
+      uses: SamKirkland/FTP-Deploy-Action@master
+      env:
+        FTP_SERVER: ftp-eu.site4now.net
+        FTP_USERNAME: ${{ secrets.FTP_USER }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        LOCAL_DIR: ./art       
+        REMOTE_DIR: shb
