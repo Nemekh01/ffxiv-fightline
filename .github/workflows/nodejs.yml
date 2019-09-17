@@ -22,6 +22,6 @@ jobs:
         cd FightTimeLine
         cd ClientApp
         npm install
-        npm run build -- --prod
+        npm run ng-high-memory -- --prod
       env:
         CI: true
