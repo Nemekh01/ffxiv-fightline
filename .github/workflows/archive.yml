@@ -23,18 +23,12 @@ jobs:
         npm install      
         npm run ng-high-memory -- --prod
       env:
-        CI: true
-    - name: create directory
-      run: |
-        mkdir art
-    - name: archive      
-      run: |
-        zip -r ./art/archive.zip ./FightTimeLine/ClientApp/dist
+        CI: true   
     - name: send to ftp
       uses: SamKirkland/FTP-Deploy-Action@master
       env:
         FTP_SERVER: ftp-eu.site4now.net
         FTP_USERNAME: ${{ secrets.FTP_USER }}
         FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        LOCAL_DIR: ./art
+        LOCAL_DIR: ./FightTimeLine/ClientApp/dist
         REMOTE_DIR: /shb/
