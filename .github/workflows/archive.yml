@@ -30,3 +30,4 @@ jobs:
         FTP_USERNAME: ${{ secrets.FTP_USER }}
         FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         LOCAL_DIR: ./art
+        REMOTE_DIR: /shb/
