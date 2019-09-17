@@ -17,7 +17,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: archive
-      uses: actions/archive@1      
+    - name: archive      
       run: |
         zip -r archive.zip ./FightTimeLine/ClientApp
