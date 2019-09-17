@@ -18,9 +18,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: npm install
-      run: |
-        cd FightTimeLine
-        cd ClientApp
+      working-directory: ./FightTimeLine/ClientApp
+      run: |        
         npm install      
         npm run ng-high-memory -- --prod
       env:
