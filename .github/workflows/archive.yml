@@ -1,4 +1,4 @@
-name: Node CI
+name: Archive
 
 on: [push]
 
@@ -18,6 +18,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: archive
-      uses: actions/archive@1
-      working-directory: ./FightTimeLine/ClientApp
-      run: zip -r archive.zip ./
+      uses: actions/archive@1      
+      run: zip -r archive.zip ./FightTimeLine/ClientApp
