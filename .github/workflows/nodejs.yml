@@ -22,6 +22,6 @@ jobs:
         cd FightTimeLine
         cd ClientApp
         npm install
-        ng build --prod
+        npm build
       env:
         CI: true
