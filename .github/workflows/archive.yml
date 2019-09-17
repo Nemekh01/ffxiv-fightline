@@ -19,4 +19,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: archive
       uses: actions/archive@1      
-      run: zip -r archive.zip ./FightTimeLine/ClientApp
+      run: |
+        zip -r archive.zip ./FightTimeLine/ClientApp
