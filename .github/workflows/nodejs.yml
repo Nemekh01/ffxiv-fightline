@@ -22,6 +22,6 @@ jobs:
         cd FightTimeLine
         cd ClientApp
         npm install
-        npm build
+        npm run build -- --prod
       env:
         CI: true
