@@ -17,11 +17,15 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
+    - name: npm install
       run: |
         cd FightTimeLine
         cd ClientApp
         npm install
+      env:
+        CI: true
+    - name: build
+      run: |
         npm run ng-high-memory -- --prod
       env:
         CI: true
