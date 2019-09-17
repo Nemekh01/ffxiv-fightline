@@ -23,7 +23,11 @@ jobs:
         npm install      
         npm run ng-high-memory -- --prod
       env:
-        CI: true   
+        CI: true
+    - name: remove assets
+      working-directory: ./FightTimeLine/ClientApp/dist
+      run: |
+        rm -r assets
     - name: send to ftp
       uses: SamKirkland/FTP-Deploy-Action@master
       env:
