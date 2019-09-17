@@ -31,4 +31,4 @@ jobs:
         FTP_USERNAME: ${{ secrets.FTP_USER }}
         FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         LOCAL_DIR: ./FightTimeLine/ClientApp/dist
-        REMOTE_DIR: /shb/
+        REMOTE_DIR: /fft/ClientApp/
