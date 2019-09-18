@@ -1,0 +1,38 @@
+name: Archive
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install
+      working-directory: ./FightTimeLine/ClientApp
+      run: |        
+        npm install      
+        npm run ng-high-memory -- --prod
+      env:
+        CI: true
+    - name: remove assets
+      working-directory: ./FightTimeLine/ClientApp/dist
+      run: |
+        rm -r assets
+    - name: send to ftp
+      uses: SamKirkland/FTP-Deploy-Action@master
+      env:
+        FTP_SERVER: ftp-eu.site4now.net
+        FTP_USERNAME: ${{ secrets.FTP_USER }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        LOCAL_DIR: ./FightTimeLine/ClientApp/dist
+        REMOTE_DIR: /fft/ClientApp/
