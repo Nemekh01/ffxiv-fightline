@@ -428,3 +428,12 @@ fightline .vis-labelset .vis-label .vis-inner.vis-hidden {
   .vertical-center-modal .ant-modal {
     top: 0;
   }
+
+.ant-drawer-content {
+  background-color: #ffffffbb;
+}
+
+
+.ant-drawer-content-wrapper {
+  margin-top: 54px;
+}
