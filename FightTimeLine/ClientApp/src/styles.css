@@ -393,15 +393,15 @@ fightline .vis-labelset .vis-label .vis-inner.vis-hidden {
 }
 
 .availability.available {
-  background: lightgreen;
-  margin-top: 1px !important;
-  height: 19px !important;
+    background: rgba(144, 238, 144, 0.67);
+    margin-top: 3px !important;
+    height: 18px !important;
 }
 
 .compact .availability.available {
-  background: lightgreen;
-  margin-top: 1px !important;
-  height: 6px !important;
+    background: rgba(144, 238, 144, 0.67);
+    margin-top: 3px !important;
+    height: 5px !important;
 }
 
 .availability.notAvailable {

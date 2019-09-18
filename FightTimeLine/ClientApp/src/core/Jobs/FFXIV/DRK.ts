@@ -21,7 +21,7 @@ export const DRK: IJob = {
       xivDbId: "16469",
       requiresBossTarget: true,
       icon: ("13_DarkKnight/icon_22"),
-      abilityType: AbilityType.Damage | AbilityType.SelfDamageBuff,
+      abilityType: AbilityType.Damage,
     },
     {
       name: "Edge of Shadow",
@@ -30,7 +30,7 @@ export const DRK: IJob = {
       xivDbId: "16470",
       requiresBossTarget: true,
       icon: ("13_DarkKnight/icon_23"),
-      abilityType: AbilityType.Damage | AbilityType.SelfDamageBuff,
+      abilityType: AbilityType.Damage,
     },
     {
       name: "Salted Earth",
@@ -121,7 +121,7 @@ export const DRK: IJob = {
       xivDbId: "7390",
       requiresBossTarget: true,
       icon: ("13_DarkKnight/7390_Delirium"),
-      abilityType: AbilityType.Utility || AbilityType.SelfDamageBuff,
+      abilityType: AbilityType.SelfDamageBuff,
     },
     {
       name: "Dark Missionary",

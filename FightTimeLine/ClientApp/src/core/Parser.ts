@@ -82,7 +82,7 @@ export class Parser {
     const abilityByBuffIds = _.concat([], js.map(j => j.abilities.map(a => a.detectStrategy.deps.buffs)));
     const stances = _.concat([], js.map(j => j.stances && j.stances.map(a => a.ability.detectStrategy.deps.buffs)));
     const buffs = _.uniq(_.flattenDeep(_.concat(stances, abilityByBuffIds))).filter(a => !!a).join();
-    const partyIds = this.players.map(j => j.guid).join();
+    const partyIds = _.concat(this.players.map(j => j.guid), _.flattenDeep(this.players.map(p=>p.petguids))).join();
 
     const bossAutoAttacks =
       "1478,1479,1480,1481,6631,6882,6910,7319,7351,8535,8645,8938,9202,9375,9441,9442,9448,9654,9895,9908,9936,9989,10236,10237,10238,10239,10433,11070";

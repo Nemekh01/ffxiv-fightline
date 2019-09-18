@@ -83,7 +83,7 @@ export const NIN: IJob = {
     },
     {
       name: "Bunshin",
-      duration: 0,
+      duration: 15,
       cooldown: 110,
       xivDbId: "16493",
       requiresBossTarget: true,

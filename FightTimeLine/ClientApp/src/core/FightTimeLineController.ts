@@ -1284,6 +1284,7 @@ export class FightTimeLineController {
                   : new Date(this.startDate.valueOf() as number - 30 * 1000));
               const diff = ((c.startAsNumber) - (start.valueOf() as number)) / 1000;
               const av = diff > it.ability.cooldown;
+              prev = c;
               if (av) {
                 const id = this.idgen.getNextId(M.EntryType.AbilityAvailability);
                 return new H.AbilityAvailabilityMap(id,
@@ -1294,7 +1295,6 @@ export class FightTimeLineController {
                     available: true
                   });
               }
-              prev = c;
               return null;
             }).filter(it => it != null);
             this.holders.abilityAvailability.addRange(maps);
