@@ -586,11 +586,13 @@ export class FightTimeLineController {
       } else {
         const map = this.holders.abilities.get(event.group);
         if (map) {
-          items.push({
-            text: "Fill",
-            item: event.group,
-            handler: () => { this.combineAndExecute(this.fillAbility(event.group)); }
-          });
+          if (map.ability.cooldown > 10) {
+            items.push({
+              text: "Fill",
+              item: event.group,
+              handler: () => {this.combineAndExecute(this.fillAbility(event.group));}
+            });
+          }
           items.push({ text: "Hide", item: event.group, handler: () => this.hideAbility(event.group) });
           if (!map.isStance) {
             items.push({
