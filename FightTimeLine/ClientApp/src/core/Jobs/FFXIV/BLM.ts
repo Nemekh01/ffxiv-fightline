@@ -56,6 +56,14 @@ export const BLM: IJob = {
       icon: ("51_BlackMage/7421_Triplecast"),
       abilityType: AbilityType.Utility,
     },
+    {
+      name: "Sharpcast",
+      duration: 15,
+      cooldown: 30,
+      xivDbId: "3574",
+      icon: ("51_BlackMage/3574_Triplecast"),
+      abilityType: AbilityType.Utility,
+    },
     ...getAbilitiesFrom(casterSharedAbilities),
     medicine["Intelligence"]
   ]
