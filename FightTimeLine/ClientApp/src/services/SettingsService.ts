@@ -7,7 +7,10 @@ export class SettingsService {
   private defaults: ISettings = {
     fflogsImport: {
       bossAttacksSource: FFLogsImportBossAttacksSource.Cast,
-      sortOrderAfterImport: ["Tank", "Heal", "DD"]
+      sortOrderAfterImport: ["Tank", "Heal", "DD"],
+      characterName: "",
+      characterRegion: "",
+      characterServer: ""
     },
     main: {
       defaultFilter: {
@@ -118,4 +121,7 @@ export interface ITeamworkSettings {
 export interface IFFlogsImportSettings {
   bossAttacksSource?: FFLogsImportBossAttacksSource;
   sortOrderAfterImport?: string[];
+  characterName;
+  characterServer;
+  characterRegion;
 }

@@ -1,6 +1,7 @@
 import { Component, Inject, ViewChild, Input, OnInit, TemplateRef } from "@angular/core";
 import { Router } from "@angular/router";
 import { RecentActivityService } from "../../services/RecentActivitiesService"
+import { SettingsService } from "../../services/SettingsService"
 import { Utils } from "../../core/Utils"
 import { ReportFightsResponse } from "../../core/FFLogs"
 
@@ -27,10 +28,11 @@ export class FFLogsImportDialog implements OnInit {
 
   reportValue: string;
 
-  container: any = { zones: [] };
+  container: any = { zones: [], parses: [] };
   @ViewChild("buttonsTemplate") buttonsTemplate: TemplateRef<any>;
   @Input() code: string;
   searchAreaDisplay = "none";
+  listAreaDisplay = "none";
   dialogContentHeight = "60px";
   recent: any;
 
@@ -39,6 +41,7 @@ export class FFLogsImportDialog implements OnInit {
     public dialogRef: NzModalRef,
     @Inject(Gameserviceprovider.gameServiceToken) public service: Gameserviceinterface.IGameService,
     public recentService: RecentActivityService,
+    public settingsService: SettingsService,
     private router: Router) {
 
   }
@@ -69,6 +72,7 @@ export class FFLogsImportDialog implements OnInit {
             .then((it: ReportFightsResponse) => {
               this.dialogContentHeight = "360px";
               this.searchAreaDisplay = "block";
+              this.listAreaDisplay = "none";
               const groupBy = key => array =>
                 array.reduce((objectsByKeyValue, obj) => {
                   const value = obj[key];
@@ -83,10 +87,35 @@ export class FFLogsImportDialog implements OnInit {
             });
         }
       }
-    } else {
-      this.dialogContentHeight = "60px";
-      this.searchAreaDisplay = "none";
     }
+    else {
+      const settings = this.settingsService.load();
+      if (settings.fflogsImport.characterName &&
+        settings.fflogsImport.characterRegion &&
+        settings.fflogsImport.characterServer)
+      {
+        this.service.dataService
+          .getParses(settings.fflogsImport.characterName, settings.fflogsImport.characterServer, settings.fflogsImport.characterRegion)
+          .subscribe(parses => {
+            if (parses) {
+              this.container.parses = parses.sort((a,b)=>b.startTime - a.startTime);
+              this.dialogContentHeight = "360px";
+              this.searchAreaDisplay = "none";
+              this.listAreaDisplay = "block";
+            }
+          }, error => {
+              this.hideExtraAreas();
+          })
+      }
+      
+      this.hideExtraAreas();
+    }
+  }
+
+  private hideExtraAreas() {
+    this.dialogContentHeight = "60px";
+    this.searchAreaDisplay = "none";
+    this.listAreaDisplay = "none"
   }
 
   onClick(id: string) {
@@ -107,6 +136,12 @@ export class FFLogsImportDialog implements OnInit {
     return Utils.formatTime(date);
   }
 
+  onParseClick(item: any) {
+    this.dialogRef.afterClose.subscribe(() => {
+      this.router.navigateByUrl("fflogs/" + item.reportID + "/" + item.fightID);
+    });
+    this.dialogRef.close();
+  }
 
   onNoClick(): void {
     this.dialogRef.close();

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject, EventEmitter,TemplateRef } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList, HostListener, Inject, EventEmitter, TemplateRef } from "@angular/core";
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, FormControl } from "@angular/forms"
 import { SettingsFilterComponent } from "./filter/settingsFilter.component"
 import { SettingsViewComponent } from "./view/settingsView.component"
@@ -38,6 +38,27 @@ export class SettingsDialog {
     Utility: "Utility"
   }
 
+  private servers: { [region: string]: { [datacenter: string]: string[] } } = {
+    JP: {
+      Elemental: ["Aegis", "Atomos", "Carbuncle", "Garuda", "Gungnir", "Kujata", "Ramuh", "Tonbery", "Typhon", "Tonbery", "Unicorn"],
+      Gaia: ["Alexander", "Bahamut", "Durandal", "Fenrir", "Ifrit", "Ridill", "Tiamat", "Ultima", "Valefor", "Yojimbo", "Zeromus"],
+      Mana: ["Anima", "Asura", "Belias", "Chocobo", "Hades", "Ixion", "Mandragora", "Masamune", "Pandaemonium", "Shinryu", "Titan"]
+    },
+    NA: {
+      Aether: ["Adamantoise", "Cactuar", "Faerie", "Gilgamesh", "Jenova", "Midgardsormr", "Sargatanas", "Siren"],
+      Primal: ["Behemoth", "Excalibur", "Exodus", "Famfrit", "Hyperion", "Lamia", "Leviathan", "Ultros"],
+      Crystal: ["Balmung", "Brynhildr", "Coeurl", "Diabolos", "Goblin", "Malboro", "Mateus", "Zalera"]
+    },
+    EU: {
+      Chaos: ["Cerberus", "Louisoix", "Moogle", "Omega", "Ragnarok", "Sprigan"],
+      Light: ["Lich", "Odin", "Phoenix", "Shiva", "Twintania", "Zodiark"]
+    }
+  }
+
+  datacenters: {
+    [datacenter: string]: { server: string, region: string }[]
+  } = {};
+
   container: any = {
     classes: [
       { name: "Tank", icon: "/assets/images/JobIcons/clear_tank.png" },
@@ -63,6 +84,15 @@ export class SettingsDialog {
     @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService,
     private notifications: ScreenNotificationsService) {
 
+    Object.keys(this.servers).forEach(r => {
+      Object.keys(this.servers[r]).forEach(d => {
+        this.servers[r][d].forEach(s => {
+          if (!this.datacenters[d])
+            this.datacenters[d] = []
+          this.datacenters[d].push({ server: s, region: r });
+        });
+      });
+    });
   }
 
   ngOnInit() {
@@ -80,11 +110,13 @@ export class SettingsDialog {
         name: it,
         color: settings.colors[it]
       }
-    }); 
+    });
 
     this.mainForm = this.formBuilder.group({}, {});
     this.fflogsForm = this.formBuilder.group({
-      bossAttacksSource: new FormControl(settings.fflogsImport.bossAttacksSource)
+      bossAttacksSource: new FormControl(settings.fflogsImport.bossAttacksSource),
+      characterName: new FormControl(settings.fflogsImport.characterName || ""),
+      characterServer: new FormControl(settings.fflogsImport.characterRegion && settings.fflogsImport.characterServer ? (settings.fflogsImport.characterServer + "|" + settings.fflogsImport.characterRegion) : ""),
     }, {});
     this.teamworkForm = this.formBuilder.group({
       displayName: new FormControl(settings.teamwork.displayName || "")
@@ -118,15 +150,25 @@ export class SettingsDialog {
   updateResult(settings: ISettings): void {
     settings.fflogsImport.bossAttacksSource = this.ff.bossAttacksSource.value;
     settings.fflogsImport.sortOrderAfterImport = this.container.classes.map(it => it.name);
+    settings.fflogsImport.characterName = this.ff.characterName.value;
+
+    if (this.ff.characterServer.value) {
+      const parts = this.ff.characterServer.value.split("|");
+      settings.fflogsImport.characterServer = parts[0];
+      settings.fflogsImport.characterRegion = parts[1];
+    } else {
+      settings.fflogsImport.characterServer = "";
+      settings.fflogsImport.characterRegion = "";
+    }
 
     settings.main.defaultView = this.view.get();
     settings.main.defaultFilter = this.filter.get();
 
     settings.teamwork.displayName = this.tf.displayName.value;
     settings.colors = this.colors.reduce((p, c) => {
-        p[c.name] = c.color;
-        return p;
-      },
+      p[c.name] = c.color;
+      return p;
+    },
       {});
   }
 

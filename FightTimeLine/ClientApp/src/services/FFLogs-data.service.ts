@@ -97,8 +97,6 @@ export class FFLogsService implements Dataserviceinterface.IDataService {
     return Promise.resolve(parser);
   }
 
-
-
   getZones(): Observable<Zone[]> {
     const cache = this.storage.getObject<ICacheItem<Zone[]>>("zones_cache");
     if (cache) {
@@ -110,6 +108,12 @@ export class FFLogsService implements Dataserviceinterface.IDataService {
       this.storage.setObject("zones_cache", { key: "", data: x, timestamp: new Date() });
     }));
     return observable;
+  }
+
+  getParses(characterName: string, serverName: string, region: string):Observable<any[]> {
+    const observable = this.httpClient.get<Zone[]>(`${this.fflogsUrl}v1/parses/character/${encodeURIComponent(characterName)}/${encodeURIComponent(serverName)}/${encodeURIComponent(region)}?api_key=${this.apiKey}`).pipe(tap(x => {
+    }));
+    return observable
   }
 
 }

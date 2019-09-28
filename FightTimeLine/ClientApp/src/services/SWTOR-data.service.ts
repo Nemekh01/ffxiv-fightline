@@ -26,4 +26,8 @@ export class SWTORDataService {
       "https://raw.githubusercontent.com/Airex/fightline-resources/master/swtor-bosses.json");
   }
 
+  getParses(cn:string, a: string, b: string): Observable<any[]> {
+    return Observable.of(null);
+  }
+
 }
