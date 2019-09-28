@@ -50,6 +50,9 @@
               </div>
               <div *ngIf="gameService.showImport">
                 <button nz-button color="primary" class="action-button" (click)="importFromFFLogs()">Import from FFLogs</button>
+                <div style="text-align: right;margin-top: 3px;margin-right: 23px;">
+                  <a target="_blank" href="https://www.fflogs.com/" style="border-bottom-style: dotted;border-bottom-width: thin;">Open FFLogs</a>
+                </div>
               </div>
               <div>
                 <button nz-button [nzType]="authenticationService.authenticated?'primary':'danger'" class="action-button" (click)="load()">Load</button>
