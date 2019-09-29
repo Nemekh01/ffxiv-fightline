@@ -13,6 +13,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   public container = { data: [] };
   private subs = [];
+
+  public fflogsExtraPath:string;
+
   public constructor(
     private notification: S.ScreenNotificationsService,
     private dialogService: S.DialogService,
@@ -22,6 +25,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private changeNotesService: S.ChangeNotesService,
     private storage: S.LocalStorageService,
     private dispatcher: S.DispatcherService,
+    private settingsService: S.SettingsService,
     @Inject(Gameserviceprovider.gameServiceToken) public gameService: Gameserviceinterface.IGameService
   ) {
     this.subs.push(
@@ -33,6 +37,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.container.data = this.recentService.load();
+    const settings = this.settingsService.load();
+    if (settings.fflogsImport.characterRegion &&
+      settings.fflogsImport.characterName &&
+      settings.fflogsImport.characterServer) {
+      this.fflogsExtraPath = `character/${settings.fflogsImport.characterRegion}/${settings.fflogsImport.characterServer}/${encodeURIComponent(settings.fflogsImport.characterName)}`
+    }
     setTimeout(() => {
       this.showHelpForFirstTimers().then(value => {
         this.showWhatsNew().then(value => { });
