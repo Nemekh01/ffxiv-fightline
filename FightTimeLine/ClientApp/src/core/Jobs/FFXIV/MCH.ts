@@ -69,7 +69,7 @@ export const MCH: IJob = {
     {
       name: "Tactician",
       duration: 15,
-      cooldown: 180,
+      cooldown: 120,
       xivDbId: "16889",
       icon: ("42_Machinist/icon_16"),
       abilityType: AbilityType.PartyDefense,

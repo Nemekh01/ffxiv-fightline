@@ -88,7 +88,7 @@ export const BRD: IJob = {
     {
       name: "Troubadour",
       duration: 15,
-      cooldown: 180,
+      cooldown: 120,
       requiresBossTarget: true,
       xivDbId: "7405",
       icon: ("41_Bard/7405_Troubadour"),

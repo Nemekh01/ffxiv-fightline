@@ -42,7 +42,7 @@ export const PLD: IJob = {
     },
     {
       name: "Sentinel",
-      duration: 10,
+      duration: 15,
       cooldown: 120,
       xivDbId: "17",
       icon: ("11_Paladin/0017_Sentinel"),

@@ -9,7 +9,7 @@ export const DNC: IJob = {
     {
       name: "Shield Samba",
       duration: 15,
-      cooldown: 180,
+      cooldown: 120,
       xivDbId: "16012",
       icon: ("Dancer/icon_14"),
       abilityType: AbilityType.PartyDefense,

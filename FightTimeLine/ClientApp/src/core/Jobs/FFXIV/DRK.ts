@@ -74,7 +74,7 @@ export const DRK: IJob = {
     },
     {
       name: "Shadow Wall",
-      duration: 10,
+      duration: 15,
       cooldown: 120,
       xivDbId: "3636",
       icon: ("13_DarkKnight/3636_Shadow Wall"),

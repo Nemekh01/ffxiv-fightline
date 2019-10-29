@@ -17,7 +17,7 @@ export const NIN: IJob = {
     {
       name: "Mug",
       duration: 0,
-      cooldown: 110,
+      cooldown: 120,
       xivDbId: "2248",
       requiresBossTarget: true,
       icon: ("33_Ninja/8813_Mug"),
@@ -25,7 +25,7 @@ export const NIN: IJob = {
     },
     {
       name: "Trick Attack",
-      duration: 10,
+      duration: 15,
       cooldown: 60,
       xivDbId: "2258",
       requiresBossTarget: true,
@@ -40,14 +40,10 @@ export const NIN: IJob = {
       requiresBossTarget: true,
       icon: ("33_Ninja/2264_Kassatsu"),
       abilityType: AbilityType.Damage,
-      charges: {
-        count: 2,
-        cooldown: 60
-      }
     },
     {
       name: "Dream Within a Dream",
-      duration: 10,
+      duration: 15,
       cooldown: 60,
       xivDbId: "3566",
       requiresBossTarget: true,
@@ -65,8 +61,8 @@ export const NIN: IJob = {
     },
     {
       name: "Ten Chi Jin",
-      duration: 10,
-      cooldown: 100,
+      duration: 6,
+      cooldown: 120,
       xivDbId: "7403",
       requiresBossTarget: true,
       icon: ("33_Ninja/7403_Ten Chi Jin"),
@@ -83,8 +79,8 @@ export const NIN: IJob = {
     },
     {
       name: "Bunshin",
-      duration: 15,
-      cooldown: 110,
+      duration: 30,
+      cooldown: 90,
       xivDbId: "16493",
       requiresBossTarget: true,
       icon: ("33_Ninja/icon_25"),

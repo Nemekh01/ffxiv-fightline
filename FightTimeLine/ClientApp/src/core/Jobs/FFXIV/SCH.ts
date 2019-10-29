@@ -133,7 +133,7 @@ export const SCH: IJob = {
     {
       name: "Consolation",
       duration: 0,
-      cooldown: 20,
+      cooldown: 30,
       xivDbId: "16546",
       icon: ("Scholar/icon_30"),
       abilityType: AbilityType.Healing,

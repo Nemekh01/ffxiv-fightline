@@ -24,7 +24,7 @@ export const GNB: IJob = {
     },
     {
       name: "Nebula",
-      duration: 10,
+      duration: 15,
       cooldown: 120,
       xivDbId: "16148",
       icon: ("Gunbreaker/icon_11"),

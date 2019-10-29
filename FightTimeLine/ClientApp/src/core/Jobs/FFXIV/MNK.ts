@@ -74,14 +74,14 @@ export const MNK: IJob = {
       icon: ("31_Monk/7396_Brotherhood"),
       abilityType: AbilityType.PartyDamageBuff,
     },
-    {
-      name: "Anatman",
-      duration: 0,
-      cooldown: 60,
-      xivDbId: "16475",
-      icon: ("31_Monk/icon_24"),
-      abilityType: AbilityType.Utility,
-    },
+//    {
+//      name: "Anatman",
+//      duration: 0,
+//      cooldown: 60,
+//      xivDbId: "16475",
+//      icon: ("31_Monk/icon_24"),
+//      abilityType: AbilityType.Utility,
+//    },
     ...getAbilitiesFrom(meleeSharedAbilities),
     medicine["Strength"]
   ]

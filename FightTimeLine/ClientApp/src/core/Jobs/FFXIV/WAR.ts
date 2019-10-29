@@ -48,7 +48,7 @@ export const WAR: IJob = {
     },
     {
       name: "Vengeance",
-      duration: 10,
+      duration: 15,
       cooldown: 120,
       xivDbId: "44",
       icon: ("12_Warrior/0044_Vengeance"),
@@ -57,7 +57,7 @@ export const WAR: IJob = {
     },
     {
       name: "Holmgang",
-      duration: 6,
+      duration: 8,
       cooldown: 240,
       xivDbId: "43",
       requiresBossTarget: true,
@@ -89,7 +89,7 @@ export const WAR: IJob = {
     },
     {
       name: "Raw Intuition",
-      duration: 5,
+      duration: 6,
       cooldown: 25,
       xivDbId: "3551",
       icon: ("12_Warrior/3551_Raw Intuition"),

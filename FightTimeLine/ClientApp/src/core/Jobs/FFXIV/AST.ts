@@ -46,8 +46,8 @@ export const AST: IJob = {
     },
     {
       name: "Collective Unconscious",
-      duration: 18,
-      cooldown: 90,
+      duration: 20,
+      cooldown: 60,
       xivDbId: "3613",
       icon: ("23_Astrologian/3613_Collective Unconscious"),
       abilityType: AbilityType.PartyDefense,
