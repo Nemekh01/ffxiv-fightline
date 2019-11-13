@@ -84,7 +84,7 @@ export const SCH: IJob = {
       duration: 0,
       cooldown: 45,
       xivDbId: "7434",
-      requiresBossTarget: true,
+      requiresBossTarget: false,
       icon: ("62_PetsFairy/7434_Excogitation"),
       abilityType: AbilityType.Healing,
       settings: [settings.target],
